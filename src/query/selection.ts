@@ -1,25 +1,16 @@
-import { Intersect } from '@alloc/types'
+import { Any, Intersect, LoosePick } from '@alloc/types'
 import { Value } from './base'
-import { TableIds } from './table'
+import { NominalSelection } from './nominal'
+import { ExtractTable, TableIds } from './table'
 
-export interface Selection<
-  Schema = any,
-  Selected extends SelectArg<Schema>[] = any
-> extends NominalSelection<Selected>,
+export interface Selection<Schema = any, Selected extends SelectArg[] = any>
+  extends NominalSelection<Schema, Selected>,
     Value<ResolveSelection<Schema, Selected[number]>[]> {}
 
-declare const kSelection: unique symbol
-
-declare class NominalSelection<Selected> {
-  private [kSelection]: Selected
-}
-
 /** Get the database schema from a selection query. */
-export type SelectionSchema<T extends Selection> = T extends Selection<
-  infer Schema
+export type SelectionSchema<T extends Selection> = Intersect<
+  T extends Selection<infer Schema> ? Schema : never
 >
-  ? Schema
-  : never
 
 /** Get the arguments of a selection query. */
 export type SelectionArgs<T extends Selection> = T extends Selection<
@@ -29,12 +20,35 @@ export type SelectionArgs<T extends Selection> = T extends Selection<
   ? Args
   : never
 
+/**
+ * Relative and absolute keys allowed in a `select` clause.
+ */
 export type SelectKey<Schema> = keyof Schema extends infer TableId
   ? TableId extends string
     ? Schema[TableId & keyof Schema] extends infer Table
       ? keyof Table extends infer Key
-        ? Key extends string
+        ? Key extends string & keyof Table
           ? Key | `${TableId}.${Key}`
+          : never
+        : never
+      : never
+    : never
+  : never
+
+/**
+ * Like `SelectKey` but only absolute keys are returned.
+ */
+export type SelectKeyAbsolute<
+  Schema,
+  Filter = any
+> = keyof Schema extends infer TableId
+  ? TableId extends string
+    ? Schema[TableId & keyof Schema] extends infer Table
+      ? keyof Table extends infer Key
+        ? Key extends string & keyof Table
+          ? Table[Key] extends Filter
+            ? `${TableId}.${Key}`
+            : never
           : never
         : never
       : never
@@ -43,7 +57,9 @@ export type SelectKey<Schema> = keyof Schema extends infer TableId
 
 export type SelectArgs<Schema> = [SelectArg<Schema>, ...SelectArg<Schema>[]]
 
-export type SelectArg<Schema> = SelectKey<Schema> extends infer Key
+export type SelectArg<Schema = any> = [Schema] extends [Any]
+  ? string | object
+  : SelectKey<Schema> extends infer Key
   ? Key extends string
     ? Key | { [P in Key]: string }
     : never
@@ -52,10 +68,10 @@ export type SelectArg<Schema> = SelectKey<Schema> extends infer Key
 /**
  * Get the keys used in a selection.
  */
-export type SelectedKeys<
-  T extends Selection,
-  Filter = any
-> = T extends Selection<infer Schema, infer Args>
+export type SelectedKeys<T, Filter = any> = T extends Selection<
+  infer Schema,
+  infer Args
+>
   ? Args[number] extends infer Arg
     ? (Arg extends string ? Arg : keyof Arg) extends infer Key
       ? Key extends SelectKey<Schema>
@@ -70,39 +86,16 @@ export type SelectedKeys<
   : never
 
 /**
- * Get the property types of a selection's result.
+ * Resolve the value types for the given `select` arguments.
  */
 export type SelectedValues<
-  T extends Selection,
-  K extends SelectKey<SelectionSchema<T>> = SelectedKeys<T>
-> = ResolveSelection<SelectionSchema<T>, K> extends infer Resolved
+  Schema,
+  Selected extends SelectArg
+> = ResolveSelection<Schema, Selected> extends infer Resolved
   ? Resolved[keyof Resolved]
   : never
 
-/** Get tables with all of the selected keys */
-export type EligibleTableIds<
-  Schema,
-  Selected extends SelectArg<Schema>
-> = Selected extends string
-  ? Selected extends `${infer TableId}.${string}`
-    ? TableId & TableIds<Schema>
-    : TableIds<Schema> extends infer TableId
-    ? TableId extends keyof Schema
-      ? Schema[TableId] extends { [P in Selected]: any }
-        ? TableId & TableIds<Schema>
-        : never
-      : never
-    : never
-  : keyof Selected extends infer Ref
-  ? Ref extends `${infer TableId}.${string}`
-    ? TableId & TableIds<Schema>
-    : never
-  : never
-
-export type ResolveSelection<
-  Schema,
-  Selected extends SelectArg<Schema>
-> = {} & Intersect<
+export type ResolveSelection<Schema, Selected extends SelectArg> = Intersect<
   Selected extends string
     ? Selected extends `${infer TableId}.${infer Key}`
       ? TableId extends keyof Schema
@@ -112,6 +105,8 @@ export type ResolveSelection<
             : never
           : never
         : never
+      : TableIds<Schema> extends infer TableId
+      ? LoosePick<ExtractTable<Schema, TableId>, Selected>
       : never
     : keyof Selected extends infer Ref
     ? Ref extends keyof Selected
@@ -127,3 +122,35 @@ export type ResolveSelection<
       : never
     : never
 >
+
+export type ResolveTableSelection<
+  Schema,
+  TableId,
+  Selected extends SelectArg
+> = Intersect<
+  Selected extends string
+    ? ResolveSelectKey<Schema, TableId, Selected>
+    : Selected extends object
+    ? ResolveSelectAlias<Schema, TableId, Selected>
+    : never
+>
+
+/** ⚠️ This assumes `Selected` is not a union! */
+type ResolveSelectKey<
+  Schema,
+  TableId,
+  Selected extends string
+> = Selected extends `${infer Id}.${infer Key}`
+  ? Id extends TableId
+    ? LoosePick<ExtractTable<Schema, TableId>, Key>
+    : never
+  : LoosePick<ExtractTable<Schema, TableId>, Selected>
+
+/** ⚠️ This assumes `Selected` is not a union! */
+type ResolveSelectAlias<Schema, TableId, Selected extends object> = {
+  [P in Selected[keyof Selected] & string]: ResolveSelectKey<
+    Schema,
+    TableId,
+    Selected & string
+  >
+}

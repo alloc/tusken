@@ -30,7 +30,9 @@ export declare abstract class Value<T = any, U = Unwrap<T>>
 }
 
 /** Get the unresolved type of a `Value` instance. */
-export type ValueType<T extends Value> = T extends Value<infer U> ? U : never
+export type ValueType<T extends Value> = T extends Value<infer U, any>
+  ? U
+  : never
 
 /** Either a plain JS value or a `Value` instance. */
 export type Input<T> = T | Value<T>
@@ -44,4 +46,6 @@ type Unwrap<T> = T extends readonly any[]
   ? any[] extends T
     ? Unwrap<T[number]>[]
     : { [P in keyof T]: Unwrap<T[P]> }
-  : { [P in keyof T]: Unwrap<T[P]> }
+  : T extends object
+  ? { [P in keyof T]: Unwrap<T[P]> }
+  : T

@@ -1,5 +1,7 @@
-import { LoosePick, Remap } from '@alloc/types'
-import { SelectArg, Selection } from './selection'
+import { Any, LoosePick, Remap } from '@alloc/types'
+import { InnerJoinFunction } from './join'
+import { NominalTable } from './nominal'
+import { SelectArg, Selection, SelectKeyAbsolute } from './selection'
 import { WhereFunction } from './where'
 
 export interface Table<Schema = any, Id extends TableIds<Schema> = any>
@@ -12,45 +14,54 @@ export interface Table<Schema = any, Id extends TableIds<Schema> = any>
 export type TableIds<Schema> = string & keyof Remap<Schema>
 
 /** Get the table ID from a table query. */
-export type TableId<T extends Table> = T extends Table<any, infer Id>
-  ? Id
+export type TableId<T> = T extends TableSelection<infer Schema, infer Id>
+  ? ExtractTableId<Schema, Id>
   : never
 
-/** Get the database schema from a table schema. */
+/**
+ * Appease the TypeScript gods by coercing a `TableId<T>`
+ * to be assignable to `keyof Schema` type.
+ */
+export type ExtractTableId<Schema, T> = Extract<T, keyof Schema & string>
+
+/**
+ * A looser way of doing `Schema[K]` where `K` is not known
+ * to be assignable to `keyof Schema` type.
+ */
+export type ExtractTable<Schema, K> = Schema[ExtractTableId<Schema, K>]
+
+/** Get the database schema from a table query. */
 export type TableSchema<T extends Table> = T extends Table<infer Schema>
   ? Schema
   : never
 
-/** Get the column names from a table schema. */
-export type TableColumnIds<
-  Schema,
-  TableId extends string & keyof Schema
-> = Schema[TableId] extends infer Table
-  ? keyof Table extends infer Key
-    ? Key extends string
-      ? `${TableId}.${Key}`
-      : never
-    : never
+/** Get the table type from a table query. */
+export type TableValues<T extends Table> = T extends Table<
+  infer Schema,
+  infer Id
+>
+  ? ExtractTable<Schema, Id>
   : never
+
+/**
+ * When a table query is awaited without an explicit selection,
+ * this is the default selection (all columns in the table).
+ */
+export type TableDefaultSelect<Schema, TableId> = [Schema] extends [Any]
+  ? any
+  : SelectKeyAbsolute<LoosePick<Schema, TableId>>[]
 
 export interface TableSelection<
   Schema = any,
-  TableId extends TableIds<Schema> = any,
-  Selected extends SelectArg<LoosePick<Schema, TableId>>[] = TableColumnIds<
-    Schema,
-    TableId
-  >[]
-> extends NominalTableSelection<Selected>,
-    Selection<LoosePick<Schema, TableId>, Selected> {
+  TableId = any,
+  Selected extends SelectArg[] = TableDefaultSelect<Schema, TableId>
+> extends Selection<Schema, Selected> {
   where: WhereFunction<this>
-}
-
-declare class NominalTable<Id> {
-  private tableId: Id
-}
-
-declare const kTableSelection: unique symbol
-
-declare class NominalTableSelection<Selected> {
-  private [kTableSelection]: Selected
+  innerJoin: InnerJoinFunction<
+    Schema,
+    // Can't use "this" instead, as it breaks "Table extends TableSelection"
+    // conditional types for some reason.
+    TableSelection<Schema, TableId, Selected>,
+    Selected
+  >
 }

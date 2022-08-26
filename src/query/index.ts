@@ -1,5 +1,6 @@
 import { Value } from './base'
 import { CheckFunction } from './check'
+import { OnFunction } from './join'
 import { Select } from './select'
 import { SelectArgs } from './selection'
 import { Table, TableIds } from './table'
@@ -7,6 +8,7 @@ import { Table, TableIds } from './table'
 export interface Database<Schema> {
   is: CheckFunction
   first<T>(query: Value<T[]>): Value<T>
+  on: OnFunction<Schema>
   select<Selected extends SelectArgs<Schema>>(
     ...keys: Selected
   ): Select<Schema, Selected>
