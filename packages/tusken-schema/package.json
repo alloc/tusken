@@ -1,0 +1,40 @@
+{
+  "name": "@tusken/schema",
+  "version": "0.1.0",
+  "author": "Alec Larson",
+  "license": "All rights reserved",
+  "keywords": [
+    "postgres",
+    "typescript",
+    "codegen"
+  ],
+  "exports": {
+    "./generate": {
+      "types": "./dist/generate.d.ts",
+      "import": "./dist/generate.mjs",
+      "default": "./dist/generate.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^18.7.9",
+    "tsup": "^6.2.2",
+    "tusken": "workspace:^0.1.0",
+    "typescript": "^4.7.4",
+    "unbuild": "^0.8.9",
+    "vitest": "^0.22.1"
+  },
+  "dependencies": {
+    "@types/pg": "^8.6.5",
+    "endent": "^2.1.0",
+    "extract-pg-schema": "^4.0.2",
+    "pg-query-emscripten": "^0.1.0",
+    "strict-event-emitter-types": "^2.0.0"
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild"
+  }
+}
