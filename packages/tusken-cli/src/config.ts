@@ -24,7 +24,6 @@ export function loadConfig(configPath?: string, database?: string) {
   configPath ||= escalade(cwd, (dir, files) => {
     const file = files.find(f => /^tusken\.config\.[jt]s$/.test(f))
     if (file) {
-      cwd = dir
       return path.join(dir, file)
     }
   })
@@ -34,6 +33,7 @@ export function loadConfig(configPath?: string, database?: string) {
     config = load(path.resolve(configPath))
     if (config) {
       config.connection = { ...defaultConnection, ...config.connection }
+      cwd = path.dirname(configPath)
     }
   }
   config ||= {

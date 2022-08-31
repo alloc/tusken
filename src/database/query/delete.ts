@@ -1,21 +1,39 @@
-import { Query } from '.'
-import { Database } from '../database'
-import { PrimaryKeyOf, TableRef } from '../table'
+import { kTableName } from '../symbols'
+import { TableRef } from '../table'
+import { CheckList } from './check'
+import { renderExpression } from './expression'
+import { Query } from './node'
+import { TokenArray } from './token'
+import { where, Where } from './where'
 
-export class Delete<T extends TableRef> extends Query<
-  number,
-  { from: T; all: boolean }
-> {
-  constructor(db: Database, from: T, pk?: PrimaryKeyOf<T>) {
-    super(db, { from, all: true }, props => [
-      props.all ? 'TRUNCATE' : 'DELETE FROM',
-      props.from,
-    ])
+type Props = {
+  from: TableRef
+  where?: CheckList
+}
+
+export class Delete<From extends TableRef, Return = number>
+  extends Query<Props, 'delete'>
+  implements PromiseLike<Return>
+{
+  protected tokens(props: Props, ctx: Query.Context) {
+    const tokens: TokenArray = ['DELETE FROM', { id: props.from[kTableName] }]
+
+    if (props.where) {
+      tokens.push('WHERE', renderExpression(props.where, ctx))
+    }
+    return tokens
   }
 
-  where() {}
+  where(compose: Where<[From]>) {
+    where(this.props, compose)
+    return this
+  }
 
-  returning() {
+  using(): never {
+    throw Error('not implemented')
+  }
+
+  returning(): never {
     throw Error('not implemented')
   }
 }

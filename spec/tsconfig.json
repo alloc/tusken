@@ -2,6 +2,7 @@
   "extends": "../src/tsconfig.json",
   "include": ["./"],
   "compilerOptions": {
+    "moduleResolution": "node16",
     "types": ["vitest/globals"]
   }
 }

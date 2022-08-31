@@ -1,4 +1,7 @@
+export { Pool } from 'pg'
 export * from './database/database'
 export * from './database/function'
+export * from './database/query/node'
+export * from './database/selection'
 export * from './database/table'
 export * from './database/type'

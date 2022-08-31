@@ -1,0 +1,9 @@
+lockfileVersion: 5.4
+
+importers:
+
+  .:
+    specifiers:
+      '@tusken/cli': link:../../node_modules/@tusken/cli
+    devDependencies:
+      '@tusken/cli': link:../../node_modules/@tusken/cli

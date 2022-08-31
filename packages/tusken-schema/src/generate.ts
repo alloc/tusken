@@ -1,7 +1,7 @@
 import { exec } from 'child_process'
 import EventEmitter from 'events'
 import { extractSchemas } from 'extract-pg-schema'
-import { mkdirSync, writeFileSync } from 'fs'
+import fs, { mkdirSync, writeFileSync } from 'fs'
 import path from 'path'
 import { Client } from 'pg'
 import { StrictEventEmitter } from 'strict-event-emitter-types'
@@ -27,8 +27,12 @@ export interface Generator extends StrictEventEmitter<EventEmitter, Events> {
 export function generate(
   outDir: string,
   config: ClientConfig,
-  configPath: string | undefined
+  configPath: string | undefined,
+  tuskenId?: string
 ): Generator {
+  const docs = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, '../docs.json'), 'utf8')
+  )
   const generator = new EventEmitter() as Generator
   generator.update = async () => {
     try {
@@ -39,10 +43,16 @@ export function generate(
       await client.end()
       const extracted = await extractSchemas(config)
       generator.emit('generateStart')
-      const files = generateTypeSchema(extracted.public, outDir, configPath)
+      const files = generateTypeSchema(
+        extracted.public,
+        outDir,
+        config,
+        configPath,
+        tuskenId
+      )
       files.push({
         name: 'functions.ts',
-        content: generateNativeFuncs(nativeFuncs),
+        content: generateNativeFuncs(nativeFuncs, docs),
       })
       files.push({
         name: 'schema.sql',

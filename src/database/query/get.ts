@@ -1,4 +1,7 @@
-/**
- * Get row by primary key:
- *    await db.get(tableRef, pk)
- */
+import { Database } from '../database'
+
+export class Get extends Query {
+  constructor(db: Database) {
+    super(db)
+  }
+}

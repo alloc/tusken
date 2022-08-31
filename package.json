@@ -8,14 +8,14 @@
     "typescript",
     "codegen"
   ],
-  "main": "dist/tusken.cjs",
+  "main": "src/tusken.ts",
   "module": "dist/tusken.mjs",
   "types": "dist/tusken.d.ts",
   "exports": {
     ".": {
       "types": "./dist/tusken.d.ts",
       "import": "./dist/tusken.mjs",
-      "default": "./dist/tusken.cjs"
+      "default": "./src/tusken.ts"
     },
     "./config": {
       "types": "./dist/config.d.ts",
@@ -31,8 +31,10 @@
     "build": "unbuild"
   },
   "devDependencies": {
+    "@tusken/cli": "workspace:*",
     "@types/node": "^18.7.9",
-    "@types/pg": "^8.6.5",
+    "pg": "^8.8.0",
+    "pg-query-stream": "^4.2.4",
     "tsup": "^6.2.2",
     "typescript": "^4.7.4",
     "unbuild": "^0.8.9",
@@ -40,10 +42,7 @@
   },
   "dependencies": {
     "@alloc/types": "^2.2.0",
-    "mammoth": "npm:@ff00ff/mammoth@2.0.0-beta.9",
-    "pg": "^8.8.0",
-    "pg-query-stream": "^4.2.4",
-    "squid": "^0.5.2",
+    "@types/pg": "^8.6.5",
     "ts-toolbelt": "^9.6.0"
   }
 }

@@ -57,7 +57,7 @@ export type SelectArg<Values = any> = [Values] extends [Any]
   ? string | object
   : keyof Values extends infer Key
   ? Key extends string
-    ? Key | { [P in Key]: string }
+    ? Key | { [alias: string]: Key }
     : never
   : never
 

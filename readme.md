@@ -2,88 +2,136 @@
 
 Postgres client from a galaxy far, far away.
 
-- injects the [`pg`][1] client for you
-- uses [`squid`][2] for
-- uses [`extract-pg-schema`][3] so the database is the source of truth for a type-safe, generated client
+- your database is the source-of-truth for TypeScript generated types
+- type safety for all queries (even subqueries)
+  - all built-in Postgres functions are available and type-safe
+- minimal, intuitive SQL building
+- shortcuts for common tasks (eg: `get`, `put`, and more)
+- lightweight, largely tree-shakeable
+- uses [`pg`] peer dependency (so you control the version)
 
-[1]: https://www.npmjs.com/package/pg
-[2]: https://www.npmjs.com/package/@ff00ff/mammoth
-[3]: https://www.npmjs.com/package/extract-pg-schema
+[`pg`]: https://www.npmjs.com/package/pg
 
-```ts
-import { connect } from 'tusken'
-
-// The database types are generated!
-import Schema from './tusken/schema'
-
-const db = connect<Schema>({
-  /* Connection options */
-})
-
-// Reads like SQL
-const users = await db.select('id', 'name').from('user')
-```
-
-## Tradeoffs vs using `@ff00ff/mammoth` directly
-
-- **Benefits**
-
-  - database schema is the source of truth for TypeScript
-  - less verbose
-    - no need for `db.table_id.column_id` when selecting from one table
-    - some syntax can be inferred from usage
-  - the `pg` client is baked in
-  - comes with `pg-query-stream`
-  - has `NOTIFY`/`LISTEN` support
-
-- **Drawbacks**
-  - worse DX for renamed columns
-    - you need to do find+replace, which is error prone
-    - but who renames columns that often anyways?
-
-## What about migrations?
+### Migrations?
 
 Use [graphile-migrate](https://github.com/graphile/migrate).
 
-## Restrictions
+## Usage
 
-- `select` clauses must come first
-- `where` clauses must come after `innerJoin` calls
-- `select` only accepts column keys (nothing special like `count(*)`)
-- `count` calls cannot contain conditions
+```ts
+import db, { t, pg } from './db/<database>'
+```
 
-## What's implemented?
+After running `pnpm tusken generate ./src/db -d <database>` in your project root, you can import the database client from `./src/db/<database>` as the default export. The `t` export contains your user-defined Postgres tables and many native types. The `pg` export contains your user-defined Postgres functions and many built-in functions.
 
-- `db.select(...)`
+### Creating, updating, deleting one row
 
-  - key renaming via `{ "old_name": "new_name" }`
-  - relative keys when only one table is being selected from
-  - absolute keys when 2+ tables are being selected from
-  - must use `.from(table_name)` to get a table query
-    - only compatible tables are suggested
+Say we have a basic `user` table like this…
 
-- `db.table(name)`
+```sql
+create table "user" (
+  "id" serial primary key,
+  "name" text,
+  "password" text
+)
+```
 
-  - returns a table query
-  - this is how you do `select * from <name>`
-  - can be filtered with `.where`
-  - can be joined with `.innerJoin`
+To create a user, use the `put` method…
 
-- `where` filtering
+```ts
+// Create a user
+await db.put(t.user, { name: 'anakin', password: 'padme4eva' })
 
-  - keys have auto-completion
-  - the result has `and`/`or` methods for multiple conditions
+// Update a user (merge, not replace)
+await db.put(t.user, 1, { name: 'vader', password: 'darkside4eva' })
 
-- `innerJoin` support
+// Delete a user
+await db.put(t.user, 1, null)
+```
 
-  - exists as table method
-  - accepts a table name and a relation mapping
-    ```ts
-    db.table('post').innerJoin('user', { id: 'post.author' })
-    ```
-  - the result has `and`/`or` methods for multiple relations
+### Getting a row by primary key
+
+Here we can use the `get` method…
+
+```ts
+await db.get(t.user, 1)
+```
+
+Selections are supported…
+
+```ts
+await db.get(
+  t.user(u => [u.name]),
+  1
+)
+```
+
+Selections can have aliases…
+
+```ts
+await db.get(
+  t.user(u => [{ n: u.name }]),
+  1
+)
+
+// You can omit the array if you don't mind giving
+// everything an alias.
+await db.get(
+  t.user(u => ({ n: u.name })),
+  1
+)
+```
+
+Selections can contain function calls…
+
+```ts
+await db.get(
+  t.user(u => ({
+    name: pg.upper(u.name),
+  })),
+  1
+)
+```
+
+To select all but a few columns…
+
+```ts
+await db.get(t.user.omit('id', 'password'), 1)
+```
 
 ## What's planned?
 
-- support for built-in function calls everywhere
-- Postgres functions written in TypeScript
+This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but they will be at some point (contributors welcome).
+
+- non-atomic query batching
+  - limit the batch size in bytes or query count
+  - each batch is sent automatically when capacity is reached, or you can send manually with `.finish` or `.flush`
+- plugin packages
+  - these plugins can do any of:
+    - alter your schema
+    - seed your database
+    - extend the runtime API
+  - auto-loading of packages with `tusken-plugin-abc` or `@xyz/tusken-plugin-abc` naming scheme
+  - add some new commands
+    - `tusken install` (merge plugin schemas into your database)
+    - `tusken seed` (use plugins to seed your database)
+- transactions
+- query streams
+  - the CLI will detect if `pg-query-stream` is installed
+- `NOTIFY`/`LISTEN` support (just copy `pg-pubsub`?)
+- define Postgres functions with TypeScript
+- more shortcuts for common tasks
+- ensure array-based primary keys work as expected
+
+## What could be improved?
+
+This is a list of existing features that aren't perfect yet. If you find a good candidate for this list, please add it and open a PR.
+
+Contributions are extra welcome in these places:
+
+- missing SQL commands
+- type safety of comparison operators
+  - eg `.where` and `is` (see `src/database/query/check.ts`)
+- the `jsonb` type should be generic
+  - with option to infer its subtype from current values
+- the extracted `pg.` functions would be even better with injected documentation comments

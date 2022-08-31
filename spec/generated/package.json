@@ -1,0 +1,6 @@
+{
+        "private": true,
+        "devDependencies": {
+                "@tusken/cli": "link:../../node_modules/@tusken/cli"
+        }
+}

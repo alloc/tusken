@@ -39,21 +39,25 @@ export default async function () {
           configPath
         )
 
-        generator.on('error', console.error)
+        let task: MistyTask
+        generator
+          .on('error', console.error)
+          .on('generateStart', () => {
+            clear()
+            task = startTask('Generating schema...')
+          })
+          .on('generateEnd', () => {
+            task.finish('Schema was updated.')
+          })
 
         if (options.watch) {
           let generating: Deferred<void>
-          let task: MistyTask
-
           generator
             .on('generateStart', () => {
-              clear()
-              task = startTask('Generating schema...')
               generating = defer()
             })
             .on('generateEnd', () => {
               generating.resolve()
-              task.finish('Schema was updated.')
               console.log(gray('Watching for changes...'))
               if (!watcher) {
                 let shouldRestart = false

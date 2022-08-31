@@ -1,40 +1,33 @@
-import { TableType, Type } from 'tusken'
+import { makeTableRef, TableRef, Type, Value } from 'tusken'
 
-export type user = TableType<{
+export type user = {
   id: int4
-  name: text
-}, "id">
+  name?: text
+}
 
-export const user: user = new TableType("user", ["id", "name"])
+export const user: TableRef<user, any, "id"> = makeTableRef("user", ["id", "name"], "undefined")
 
-export type array<Element extends Type> = Element extends Type<infer Native, infer T> ? Type<`${Native & string}[]`, T[]> : never
-export type bigInt = Type<"bigint", string>
-export type bigSerial = Type<"bigserial", string>
+export type array<Element extends Type> = Element extends Type<infer Native, infer T>
+  ? Type<`${Native & string}[]`, T[]>
+  : never
 export type bit = Type<"bit", number>
 export type bool = Type<"bool", boolean>
-export type box = Type<"box", boolean>
+export type box = Type<"box", [[x1: number, y1: number], [x2: number, y2: number]]>
 export type bpchar = Type<"bpchar", string>
-export type byteArray = Type<"bytea", Buffer>
+export type bytea = Type<"bytea", Buffer>
 export type char = Type<"char", string>
-export type characterVarying = Type<"character varying", string>
-export type character = Type<"character", string>
 export type cidr = Type<"cidr", string>
 export type circle = Type<"circle", [radius: number, x: number, y: number]>
 export type date = Type<"date", Date>
 export type daterange = Type<"daterange", any>
-export type decimal = Type<"decimal", string>
-export type doublePrecision = Type<"double precision", number>
 export type float4 = Type<"float4", number>
 export type float8 = Type<"float8", number>
-export type hstore = Type<"hstore", string>
 export type inet = Type<"inet", string>
-export type int = Type<"int", number>
 export type int2 = Type<"int2", number>
 export type int4 = Type<"int4", number>
 export type int4range = Type<"int4range", any>
 export type int8 = Type<"int8", string>
 export type int8range = Type<"int8range", any>
-export type integer = Type<"integer", number>
 export type interval = Type<"interval", string>
 export type json = Type<"json", object>
 export type jsonb = Type<"jsonb", object>
@@ -49,21 +42,10 @@ export type oid = Type<"oid", number>
 export type path = Type<"path", any>
 export type point = Type<"point", [x: number, y: number]>
 export type polygon = Type<"polygon", any>
-export type real = Type<"real", number>
-export type serial = Type<"serial", number>
-export type serial2 = Type<"serial2", number>
-export type serial4 = Type<"serial4", number>
-export type smallint = Type<"smallint", number>
-export type smallserial = Type<"smallserial", number>
-export type snapshot = Type<"snapshot", any>
 export type text = Type<"text", string>
-export type timeWithTimeZone = Type<"time with time zone", Date>
-export type timeWithoutTimeZone = Type<"time without time zone", Date>
 export type time = Type<"time", string>
-export type timestampWithTimeZone = Type<"timestamp with time zone", Date>
-export type timestampWithoutTimeZone = Type<"timestamp without time zone", Date>
-export type timestamp = Type<"timestamp", Date>
-export type timestamptz = Type<"timestamptz", Date>
+export type timestamp = Type<"timestamp", string>
+export type timestamptz = Type<"timestamptz", string>
 export type timetz = Type<"timetz", string>
 export type tsquery = Type<"tsquery", any>
 export type tsrange = Type<"tsrange", any>
@@ -75,33 +57,24 @@ export type varchar = Type<"varchar", string>
 export type xml = Type<"xml", string>
 
 export const array = <Element extends Type>(element: Element) => new Type<any>(element.name + "[]") as array<Element>
-export const bigInt: bigInt = new Type("bigint")
-export const bigSerial: bigSerial = new Type("bigserial")
 export const bit: bit = new Type("bit")
 export const bool: bool = new Type("bool")
 export const box: box = new Type("box")
 export const bpchar: bpchar = new Type("bpchar")
-export const byteArray: byteArray = new Type("bytea")
+export const bytea: bytea = new Type("bytea")
 export const char: char = new Type("char")
-export const characterVarying: characterVarying = new Type("character varying")
-export const character: character = new Type("character")
 export const cidr: cidr = new Type("cidr")
 export const circle: circle = new Type("circle")
 export const date: date = new Type("date")
 export const daterange: daterange = new Type("daterange")
-export const decimal: decimal = new Type("decimal")
-export const doublePrecision: doublePrecision = new Type("double precision")
 export const float4: float4 = new Type("float4")
 export const float8: float8 = new Type("float8")
-export const hstore: hstore = new Type("hstore")
 export const inet: inet = new Type("inet")
-export const int: int = new Type("int")
 export const int2: int2 = new Type("int2")
 export const int4: int4 = new Type("int4")
 export const int4range: int4range = new Type("int4range")
 export const int8: int8 = new Type("int8")
 export const int8range: int8range = new Type("int8range")
-export const integer: integer = new Type("integer")
 export const interval: interval = new Type("interval")
 export const json: json = new Type("json")
 export const jsonb: jsonb = new Type("jsonb")
@@ -116,19 +89,8 @@ export const oid: oid = new Type("oid")
 export const path: path = new Type("path")
 export const point: point = new Type("point")
 export const polygon: polygon = new Type("polygon")
-export const real: real = new Type("real")
-export const serial: serial = new Type("serial")
-export const serial2: serial2 = new Type("serial2")
-export const serial4: serial4 = new Type("serial4")
-export const smallint: smallint = new Type("smallint")
-export const smallserial: smallserial = new Type("smallserial")
-export const snapshot: snapshot = new Type("snapshot")
 export const text: text = new Type("text")
-export const timeWithTimeZone: timeWithTimeZone = new Type("time with time zone")
-export const timeWithoutTimeZone: timeWithoutTimeZone = new Type("time without time zone")
 export const time: time = new Type("time")
-export const timestampWithTimeZone: timestampWithTimeZone = new Type("timestamp with time zone")
-export const timestampWithoutTimeZone: timestampWithoutTimeZone = new Type("timestamp without time zone")
 export const timestamp: timestamp = new Type("timestamp")
 export const timestamptz: timestamptz = new Type("timestamptz")
 export const timetz: timetz = new Type("timetz")

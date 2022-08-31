@@ -1,4 +1,5 @@
 import { kFunctionArgs, kFunctionName, kFunctionReturnType } from './symbols'
+import { Type } from './type'
 
 export function defineFunction<Name extends string, T extends object>(
   name: Name
@@ -6,7 +7,7 @@ export function defineFunction<Name extends string, T extends object>(
   return ((...args: any[]) => new FunctionCall(name, args)) as any
 }
 
-export class FunctionCall<T = any, Name extends string = any> {
+export class FunctionCall<T extends Type = any, Name extends string = any> {
   /** Exists for type nominality. */
   protected [kFunctionReturnType]!: T
   protected [kFunctionName]: Name
