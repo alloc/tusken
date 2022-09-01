@@ -1,14 +1,13 @@
+import { Query } from '../query'
 import { kTableName } from '../symbols'
 import { TableRef } from '../table'
-import { CheckList } from './check'
-import { renderExpression } from './expression'
-import { Query } from './node'
-import { TokenArray } from './token'
-import { where, Where } from './where'
+import { TokenArray } from '../token'
+import { tokenizeWhere } from '../tokenize'
+import { where, Where, WhereExpression } from './where'
 
 type Props = {
   from: TableRef
-  where?: CheckList
+  where?: WhereExpression
 }
 
 export class Delete<From extends TableRef, Return = number>
@@ -17,9 +16,8 @@ export class Delete<From extends TableRef, Return = number>
 {
   protected tokens(props: Props, ctx: Query.Context) {
     const tokens: TokenArray = ['DELETE FROM', { id: props.from[kTableName] }]
-
     if (props.where) {
-      tokens.push('WHERE', renderExpression(props.where, ctx))
+      tokens.push('WHERE', tokenizeWhere(props.where, ctx))
     }
     return tokens
   }

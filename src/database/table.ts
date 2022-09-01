@@ -5,14 +5,14 @@ import {
   ColumnRefs,
   RawSelection,
   ResolveSelection,
-  Selection,
+  Selection
 } from './selection'
 import {
   kPrimaryKey,
   kSelectionFrom,
   kTableColumns,
   kTableName,
-  kTableOptions,
+  kTableOptions
 } from './symbols'
 import { Input, Type } from './type'
 
@@ -51,7 +51,7 @@ export type RowUpdate<T extends TableType> = Partial<RowInput<T>>
 export type TableRef<
   T = any,
   PrimaryKey extends string = any,
-  Option extends keyof T = any
+  Option extends keyof T | '' = any
 > = unknown &
   TableType<T, PrimaryKey, Option> & {
     <Selected extends RawSelection>(
@@ -62,7 +62,7 @@ export type TableRef<
 export function makeTableRef<
   T = any,
   PrimaryKey extends string = any,
-  Option extends keyof T = any
+  Option extends keyof T | '' = any
 >(
   name: string,
   columns: string[],
@@ -81,12 +81,10 @@ export function makeTableRef<
 }
 
 export class TableType<
-    T = any,
-    PrimaryKey extends string = any,
-    Option extends keyof T = any
-  > //
-  extends Type<'table', T>
-{
+  T = any,
+  PrimaryKey extends string = any,
+  Option extends keyof T | '' = any
+> {
   /** Exists for type inference. */
   protected declare [kTableOptions]: Option
   /** The unique table name */
@@ -97,7 +95,6 @@ export class TableType<
   protected [kPrimaryKey]: PrimaryKey
 
   constructor(name: string, columns: string[], pkColumn: PrimaryKey) {
-    super('table')
     this[kTableName] = name
     this[kTableColumns] = columns
     this[kPrimaryKey] = pkColumn
@@ -112,6 +109,8 @@ export class TableType<
     )
   }
 }
+
+export interface TableType<T> extends Type<'setof', T> {}
 
 export function isTableRef(val: any): val is TableRef {
   return kTableName in val

@@ -1,7 +1,6 @@
-import { callProp } from '../../utils/callProp'
-import type { Input, Type } from '../type'
+import { tokenizeCheck } from '../tokenize'
+import type { BoolType, Input } from '../type'
 import { Expression } from './expression'
-import { TokenArray } from './token'
 
 export function is<T>(left: T): CheckBuilder<T> {
   return new CheckBuilder(check => {
@@ -17,9 +16,9 @@ export function is<T>(left: T): CheckBuilder<T> {
 
 type Props = { check: Check }
 
-export class CheckList extends Expression<Type<'bool', boolean>, Props> {
+export class CheckList extends Expression<BoolType, Props> {
   constructor() {
-    super(null, props => renderCheck(props.check))
+    super(null, (props, ctx) => tokenizeCheck(props.check, ctx))
   }
 
   and(cond: CheckList): this
@@ -58,24 +57,6 @@ export class Check {
     readonly right: any,
     readonly isRange?: boolean
   ) {}
-}
-
-export function renderCheck(check: Check) {
-  const tokens: TokenArray = []
-  const left = callProp(check.left)
-  const right = callProp(check.right)
-  if (left instanceof CheckList) {
-    tokens.push('(', left.toTokens(), ')')
-  } else {
-    tokens.push(left instanceof Check ? renderCheck(left) : { infer: left })
-  }
-  tokens.push(check.op)
-  if (check.isRange) {
-    tokens.push({ infer: right[0] }, 'AND', { infer: right[1] })
-  } else {
-    tokens.push(right instanceof Check ? renderCheck(right) : { infer: right })
-  }
-  return tokens
 }
 
 export class CheckBuilder<T = any> {

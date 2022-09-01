@@ -1,7 +1,8 @@
+import { Query } from '../query'
 import { kPrimaryKey } from '../symbols'
 import { TableRef } from '../table'
-import { Query } from './node'
-import { TokenArray } from './token'
+import { TokenArray } from '../token'
+import { tokenize } from '../tokenize'
 
 type Props<T extends TableRef> = {
   table: T
@@ -10,17 +11,14 @@ type Props<T extends TableRef> = {
 }
 
 export class Put<T extends TableRef = any> extends Query<Props<T>> {
-  protected tokens({
-    table,
-    values,
-    pk = values[table[kPrimaryKey]],
-  }: Props<T>) {
+  protected tokens(props: Props<T>, ctx: Query.Context) {
+    const { table, values, pk = values[table[kPrimaryKey]] } = props
     const insertion: TokenArray = [
       'INSERT INTO',
       { id: table.name },
       { tuple: Object.keys(values) },
       'VALUES',
-      { tuple: Object.values(values).map(value => ({ infer: value })) },
+      { tuple: Object.values(values).map(value => tokenize(value, ctx)) },
     ]
     if (pk) {
       insertion.push(

@@ -1,8 +1,7 @@
 import type { Database } from '../database'
-import { kExpression } from '../symbols'
+import { Query } from '../query'
+import type { TokenArray } from '../token'
 import { NativeType, Type, UnwrapType } from '../type'
-import { Query } from './node'
-import type { TokenArray } from './token'
 
 export class Expression<
   T extends Type = any,
@@ -18,10 +17,6 @@ export class Expression<
 
 export interface Expression<T extends Type = any>
   extends Type<NativeType<T>, UnwrapType<T>> {}
-
-export function isExpression(val: any): val is Expression {
-  return kExpression in val
-}
 
 export function renderExpression<Props extends object | null>(
   expr: Expression<any, Props>,

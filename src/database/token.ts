@@ -1,10 +1,7 @@
 import { Exclusive } from '@alloc/types'
-import type { Database } from '../database'
-import { isFunctionCall } from '../function'
-import { isColumnRef } from '../selection'
-import { kDatabaseReserved, kExpression } from '../symbols'
-import { Expression, isExpression } from './expression'
-import { Query } from './node'
+import type { Database } from './database'
+import { Query } from './query'
+import { kDatabaseReserved } from './symbols'
 
 /** Format like %I */
 export type Identifier = { id: any }
@@ -25,65 +22,52 @@ export type Call = { call: string; args: TokenArray }
 
 export type SubQuery = { query: Query }
 
-export type Infer = { infer: any }
-
 export type Token =
   | string
-  | Expression
   | Exclusive<
-      | Identifier
-      | Literal
-      | Stringify
-      | StringJoin
-      | Tuple
-      | Call
-      | SubQuery
-      | Infer
+      Identifier | Literal | Stringify | StringJoin | Tuple | Call | SubQuery
     >
 
 export type TokenArray = (Token | TokenArray)[]
 
-export function inferToken(val: any, ctx: Query.Context): Token {
-  if (isExpression(val)) {
-    return val
-  }
-  if (isColumnRef(val)) {
-    return toIdentifier(val, ctx.db)
-  }
-  if (isFunctionCall(val)) {
-    // TODO
-  }
-  return { literal: val }
-}
-
-export function renderToken(this: Query.Context, token: Token): string {
+export function renderToken(token: Token, ctx: Query.Context): string {
   return typeof token == 'string'
     ? token
-    : isExpression(token)
-    ? renderTokens(token[kExpression], this).join(' ')
     : 'id' in token
     ? Array.isArray(token.id)
-      ? token.id.map(mapToIdent, this.db).join('.')
-      : toIdentifier(token.id, this.db)
+      ? token.id.map(mapToIdent, ctx.db).join('.')
+      : toIdentifier(token.id, ctx.db!)
     : 'literal' in token
     ? toLiteral(token.literal)
     : 'string' in token
     ? toString(token.string)
-    : 'infer' in token
-    ? renderToken.call(this, inferToken(token.infer, this))
     : token.join
-    ? renderTokens(token.join, this).join(token.with)
+    ? renderTokens(token.join, ctx).join(token.with)
     : token.args
-    ? `${token.call}(${renderTokens(token.args, this).join(', ')})`
+    ? `${token.call}(${renderTokens(token.args, ctx).join(', ')})`
     : `(${
         token.query
-          ? token.query.toSql()
-          : renderTokens(token.tuple, this).join(', ')
+          ? token.query.render()
+          : renderTokens(token.tuple, ctx).join(', ')
       })`
 }
 
-export function renderTokens(tokens: TokenArray, ctx: Query.Context) {
-  return (tokens as Token[]).flat(Infinity).map(renderToken, ctx)
+export function renderTokens(
+  tokens: TokenArray,
+  ctx: Query.Context,
+  sql: string[] = []
+): string[] {
+  for (const token of tokens) {
+    if (Array.isArray(token)) {
+      renderTokens(token, ctx, sql)
+    } else {
+      const rendered = renderToken(token, ctx)
+      if (rendered) {
+        sql.push(rendered)
+      }
+    }
+  }
+  return sql
 }
 
 function mapToIdent(this: Database, val: any) {

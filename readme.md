@@ -6,9 +6,11 @@ Postgres client from a galaxy far, far away.
 - type safety for all queries (even subqueries)
   - all built-in Postgres functions are available and type-safe
 - minimal, intuitive SQL building
+- identifiers are case-sensitive
 - shortcuts for common tasks (eg: `get`, `put`, and more)
 - lightweight, largely tree-shakeable
 - uses [`pg`] peer dependency (so you control the version)
+- has CLI for importing CSV files, wiping all data, generating types, dumping the schema, and more
 
 [`pg`]: https://www.npmjs.com/package/pg
 
@@ -16,13 +18,41 @@ Postgres client from a galaxy far, far away.
 
 Use [graphile-migrate](https://github.com/graphile/migrate).
 
+## Install
+
+```sh
+pnpm i tusken && pnpm i @tusken/cli -D
+```
+
 ## Usage
+
+First, you need a `tusken.config.ts` file in your project root, unless you plan on using the default config. By default, the Postgres database is assumed to exist at `./postgres` relative to the working directory (customize with `dataDir` in your config) and the generated types are emitted into the `./src/generated` folder (customize with `schemaDir` in your config).
+
+```ts
+import { defineConfig } from 'tusken/config'
+
+export default defineConfig({
+  dataDir: './postgres',
+  schemaDir: './src/generated',
+  connection: {
+    host: 'localhost',
+    port: 5432,
+    user: 'postgres',
+    password: ' ',
+  },
+  pool: {
+    /* node-postgres pooling options */
+  },
+})
+```
+
+After running `pnpm tusken generate -d <database>` in your project root, you can import the database client from `./src/db/<database>` as **the default export.**
 
 ```ts
 import db, { t, pg } from './db/<database>'
 ```
 
-After running `pnpm tusken generate ./src/db -d <database>` in your project root, you can import the database client from `./src/db/<database>` as the default export. The `t` export contains your user-defined Postgres tables and many native types. The `pg` export contains your user-defined Postgres functions and many built-in functions.
+The `t` export contains your user-defined Postgres tables and many native types. The `pg` export contains your user-defined Postgres functions and many built-in functions.
 
 ### Creating, updating, deleting one row
 
@@ -99,13 +129,25 @@ To select all but a few columns…
 await db.get(t.user.omit('id', 'password'), 1)
 ```
 
+### Inner joins
+
+```ts
+// Find all books with >= 100 likes and also get the author of each.
+await db.select(t.author).innerJoin(
+  t.book.where(book => book.likes.gte(100)),
+  (author, book) => author.id.eq(book.authorId)
+)
+```
+
+&nbsp;
+
 ## What's planned?
 
 This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but they will be at some point (contributors welcome).
 
 - non-atomic query batching
   - limit the batch size in bytes or query count
-  - each batch is sent automatically when capacity is reached, or you can send manually with `.finish` or `.flush`
+  - each batch is sent automatically when capacity is reached, or you can send manually with `.flush`
 - plugin packages
   - these plugins can do any of:
     - alter your schema
@@ -130,6 +172,13 @@ This is a list of existing features that aren't perfect yet. If you find a good 
 Contributions are extra welcome in these places:
 
 - missing SQL commands
+  - `ORDER BY`
+  - `GROUP BY`
+  - `UPDATE`
+  - `MERGE`
+  - etc
+- subquery support is probably incomplete
+- built-in aggregate functions are typed incorrectly
 - type safety of comparison operators
   - eg `.where` and `is` (see `src/database/query/check.ts`)
 - the `jsonb` type should be generic

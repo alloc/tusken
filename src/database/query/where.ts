@@ -1,6 +1,9 @@
+import { Any } from '@alloc/types'
+import { FunctionCall } from '../function'
 import { ColumnRef, Selection } from '../selection'
 import { kPrimaryKey } from '../symbols'
-import { PrimaryKey, TableRef, toTableRef, ValuesOf } from '../table'
+import { PrimaryKeyOf, TableRef, toTableRef, ValuesOf } from '../table'
+import { BoolType, Type } from '../type'
 import { CheckBuilder, CheckList, is } from './check'
 import { JoinProps } from './join'
 
@@ -8,10 +11,10 @@ export function where<From extends (TableRef | Selection)[]>(
   props: {
     from: TableRef | Selection
     joins?: JoinProps[]
-    where?: CheckList
+    where?: WhereExpression
   },
   compose: Where<From>
-) {
+): void {
   const tables = [props.from]
     .concat(props.joins?.map(join => join.from) || [])
     .map(from => {
@@ -27,18 +30,26 @@ export function where<From extends (TableRef | Selection)[]>(
   props.where = compose(...tables)
 }
 
+export type WhereExpression = CheckList | FunctionCall<BoolType>
+
 export type Where<From extends (TableRef | Selection)[]> = (
   ...tables: WhereRefs<From>
-) => CheckList
+) => WhereExpression
 
 export type WhereRefs<From extends (TableRef | Selection)[]> = {
   [P in keyof From]: [From[P]] extends [Any]
-    ? Record<string | typeof kPrimaryKey, CheckBuilder<any>>
+    ? Record<string | typeof kPrimaryKey, WhereBuilder<any, any>>
     : ValuesOf<From[P]> extends infer Values
     ? {
-        [K in keyof Values]: CheckBuilder<Values[K]>
+        [K in string & keyof Values]: WhereBuilder<Values, K>
       } & {
-        [kPrimaryKey]: CheckBuilder<PrimaryKey<From[P]>>
+        [kPrimaryKey]: PrimaryKeyOf<From[P]> extends infer PK
+          ? WhereBuilder<Values, PK & keyof Values>
+          : never
       }
     : unknown
 }
+
+export type WhereBuilder<Values, Column extends keyof Values> = unknown &
+  ColumnRef<Extract<Column, string>, Extract<Values[Column], Type>> &
+  CheckBuilder<Values[Column]>

@@ -53,7 +53,7 @@ export function generateTypeSchema(
       endent`
         const ${table.name}: TableRef<${table.name}, ${
         pkColumn ? quoted(pkColumn) : 'any'
-      }, ${optionColumns.map(quoted).join(' | ') || 'never'}> = makeTableRef("${
+      }, ${optionColumns.map(quoted).join(' | ') || '""'}> = makeTableRef("${
         table.name
       }", [${allColumns.map(quoted).join(', ')}], ${
         pkColumn ? quoted(pkColumn) : 'undefined'

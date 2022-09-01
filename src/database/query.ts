@@ -1,12 +1,17 @@
-import type { Database } from '../database'
-import type { CheckList } from './check'
-import type { Put } from './put'
-import type { Select, SelectProps } from './select'
-import { renderToken, Token, TokenArray } from './token'
+import type { ClientResult, Database } from './database'
+import type { CheckList } from './query/check'
+import type { Put } from './query/put'
+import type { Select, SelectProps } from './query/select'
+import { renderTokens, TokenArray } from './token'
+import { Type } from './type'
 
 declare const kQueryCommand: unique symbol
 
-export type ValidQuery<T> = Query & PromiseLike<T>
+export type ValidQuery<T = any> = Query & PromiseLike<T>
+
+export type QueryResult<T extends Query> = T extends Type<any, infer Result>
+  ? Result
+  : any
 
 export abstract class Query<
   Props extends object | null = any,
@@ -45,55 +50,49 @@ export abstract class Query<
     return call(this, ...args)
   }
 
-  toSql() {
-    const tokens = this.toTokens()
-    const sql: string[] = []
-    tokens.forEach(token => {
-      const rendered = renderToken.call(this.context, token)
-      if (rendered) {
-        sql.push(rendered)
-      }
-    })
-    return sql.join(' ')
+  /** Render a SQL string. */
+  render(): string {
+    const tokens = this.tokenize()
+    const rendered = renderTokens(tokens, this.context)
+    return rendered.join(' ')
   }
 
-  toTokens(): Token[] {
+  /** Convert the tree of query nodes into SQL tokens. */
+  tokenize(ctx = this.context): TokenArray {
+    // Always get the nodes from "this.context"
     const { nodes } = this.context
-
-    let i = nodes.length
-    while (--i >= 0) {
-      const { query, props } = nodes[i]
-      if (query.inject) {
-        query.inject(props, this.context)
-      }
-    }
-
-    return (
-      nodes.map(({ query, props }) => {
-        return query.tokens(props, this.context)
-      }) as Token[][]
-    ).flat(Infinity as 1)
+    nodes.forEach(({ query, props }) => {
+      query.inject?.(props, ctx)
+    })
+    return nodes.map(({ query, props }) => {
+      return query.tokens(props, ctx)
+    })
   }
 
-  then(
-    onfulfilled?: (value: any) => any,
-    onrejected?: (e: any) => any
-  ): Promise<any> {
+  then<TResult1 = QueryResult<this>, TResult2 = never>(
+    onfulfilled?:
+      | ((value: QueryResult<this>) => TResult1 | PromiseLike<TResult1>)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+      | undefined
+      | null
+  ): PromiseLike<TResult1 | TResult2> {
     const { db } = this.context
     if (!db) {
       throw Error('Query not associated with a database')
     }
-    let promise = db.client.query(this.toSql())
-    if (this.resolve) {
-      promise = this.resolve(promise)
-    }
-    return promise.then(onfulfilled, onrejected)
+    return db.client
+      .query(this.render())
+      .then(this.resolve || (result => result.rows))
+      .then(onfulfilled as any, onrejected)
   }
 
   /**
    * Modify the query promise before the caller receives it.
    */
-  protected resolve?(promise: Promise<any>): Promise<any>
+  protected resolve?(result: ClientResult): Promise<any>
 
   /**
    * Modify the context before tokens are generated. The `context` phase
@@ -125,6 +124,7 @@ export namespace Query {
     db: Database | null
     nodes: Node<Query>[]
     select?: SelectProps
+    inArray?: boolean
   }
 }
 

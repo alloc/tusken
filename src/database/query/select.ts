@@ -1,50 +1,70 @@
-import { FunctionCall, isFunctionCall } from '../function'
-import { AliasMapping, ColumnRef, isColumnRef, Selection } from '../selection'
-import {
-  kColumnFrom,
-  kColumnName,
-  kFunctionArgs,
-  kFunctionName,
-  kSelectionArgs,
-  kSelectionFrom,
-  kTableName,
-} from '../symbols'
-import { isTableRef, TableRef, TableType, toTableName } from '../table'
+import { Any, Intersect } from '@alloc/types'
+import { Query } from '../query'
+import { Selection } from '../selection'
+import { TableRef, toTableName } from '../table'
+import { TokenArray } from '../token'
+import { tokenizeSelected, tokenizeWhere } from '../tokenize'
+import { Type } from '../type'
 import { CheckList } from './check'
-import { renderExpression } from './expression'
-import { Query } from './node'
-import { RowSet } from './rowSet'
-import { Token, TokenArray } from './token'
+import { JoinProps } from './join'
 import { Where, where } from './where'
 
-export interface SelectProps extends RowSet.Props {
+export interface SelectProps {
   from: TableRef | Selection
+  joins?: JoinProps[]
   where?: CheckList
+  limit?: number
 }
 
 declare const kSelectFrom: unique symbol
 
-export class Select<From extends (TableRef | Selection)[] = any> //
-  extends RowSet<From, SelectProps>
-{
+export class Select<
+  From extends (TableRef | Selection)[] = any
+> extends Query<SelectProps> {
   protected declare [kSelectFrom]: From
   protected tokens(props: SelectProps, ctx: Query.Context) {
+    ctx.select = props
+
     const selected = [props.from]
-    const joins = props.joins.map(join => {
+    const joined = props.joins?.map(join => {
       selected.push(join.from)
-      return ['INNER JOIN', { id: toTableName(join.from) }]
+      return [
+        'INNER JOIN',
+        { id: toTableName(join.from) },
+        'ON',
+        tokenizeWhere(join.where, ctx),
+      ]
     })
+
     const tokens: TokenArray = [
       'SELECT',
-      renderSelected(selected),
+      tokenizeSelected(selected, ctx),
       'FROM',
       { id: toTableName(props.from) },
-      joins,
     ]
+    if (joined) {
+      tokens.push(joined)
+    }
     if (props.where) {
-      tokens.push('WHERE', renderExpression(props.where, ctx))
+      tokens.push('WHERE', tokenizeWhere(props.where, ctx))
     }
     return tokens
+  }
+
+  innerJoin<Joined extends TableRef | Selection>(
+    from: Joined,
+    on: Where<[...From, Joined]>
+  ): Select<[...From, Joined]> {
+    const join = { type: 'inner', from } as JoinProps
+    where(join, on)
+    this.props.joins ||= []
+    this.props.joins.push(join)
+    return this as any
+  }
+
+  limit(n: number) {
+    this.props.limit = n
+    return this
   }
 
   where(compose: Where<From>) {
@@ -53,79 +73,21 @@ export class Select<From extends (TableRef | Selection)[] = any> //
   }
 }
 
-function renderSelected(selections: (TableRef | Selection)[]) {
-  return selections.length == 1
-    ? isTableRef(selections[0])
-      ? '*'
-      : {
-          join: renderColumns(selections[0]),
-          with: ', ',
-        }
-    : {
-        join: selections.map(selection => {
-          if (isTableRef(selection)) {
-            return selection[kTableName] + '.*'
-          }
-          return renderColumns(selection, true)
-        }),
-        with: ', ',
-      }
-}
+export interface Select<From extends (TableRef | Selection)[]>
+  extends Type<'setof', SelectedRow<From[number]>> {}
 
-function renderColumns(
-  selection: Selection<any, TableType>,
-  addTablePrefix = false
-): TokenArray {
-  const args = selection[kSelectionArgs]
-  if (Array.isArray(args)) {
-    const tableName = addTablePrefix && selection[kSelectionFrom][kTableName]
-    return args.map(arg => {
-      if (typeof arg == 'string') {
-        return renderColumn(arg, tableName)
-      }
-      if (isColumnRef(arg)) {
-        return renderColumnRef(arg, addTablePrefix)
-      }
-      return renderAliasMapping(arg, addTablePrefix)
-    })
-  }
-  return renderAliasMapping(args, addTablePrefix)
-}
-
-function renderColumn(column: string, table: string | false): Token {
-  return table ? { id: [table, column] } : { id: column }
-}
-
-function renderColumnRef(ref: ColumnRef, addTablePrefix = false): Token {
-  return renderColumn(
-    ref[kColumnName],
-    addTablePrefix && ref[kColumnFrom][kTableName]
-  )
-}
-
-function renderAliasMapping(
-  mapping: AliasMapping,
-  addTablePrefix?: boolean
-): TokenArray {
-  const [alias, value] = Object.entries(mapping)[0]
-  return [
-    isFunctionCall(value)
-      ? renderFunctionCall(value, addTablePrefix)
-      : renderColumnRef(value, addTablePrefix),
-    { id: alias },
-  ]
-}
-
-function renderFunctionCall(
-  call: FunctionCall,
-  addTablePrefix?: boolean
-): Token {
-  return {
-    call: call[kFunctionName],
-    args: call[kFunctionArgs].map(arg =>
-      isFunctionCall(arg)
-        ? renderFunctionCall(arg, addTablePrefix)
-        : renderColumnRef(arg, addTablePrefix)
-    ),
-  }
-}
+export type SelectedRow<T> = [T] extends [Any]
+  ? Record<string, any>
+  : Intersect<
+      T extends TableRef<infer Row>
+        ? Row
+        : T extends Selection<infer Row>
+        ? Row
+        : unknown
+    > extends infer Row
+  ? {
+      [P in keyof Row]: Row[P] extends Type<any, infer ColumnType>
+        ? ColumnType
+        : Row[P]
+    }
+  : never

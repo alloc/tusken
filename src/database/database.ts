@@ -1,10 +1,13 @@
+import { F } from 'ts-toolbelt'
 import { isObject } from '../utils/isObject'
+import { QueryBatch } from './batch'
+import { Query, ValidQuery } from './query'
 import { CheckList } from './query/check'
 import { Delete } from './query/delete'
-import { Query, ValidQuery } from './query/node'
 import { Put } from './query/put'
 import { RowType } from './query/rowSet'
-import { Select, WhereRefs } from './query/select'
+import { Select } from './query/select'
+import { WhereRefs } from './query/where'
 import { Selection } from './selection'
 import { kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
@@ -20,6 +23,31 @@ export class Database {
   constructor(config: { client: Client; reserved: string[] }) {
     this[kDatabaseReserved] = config.reserved
     this.client = config.client
+  }
+
+  /** Create an empty query batch. */
+  batch<T = void>(
+    props?: QueryBatch.Props
+  ): QueryBatch<T extends void ? T : ValidQuery<T>>
+
+  /** Batch a static number of queries. */
+  batch<T extends [ValidQuery, ...ValidQuery[]]>(
+    ...queries: F.Narrow<T>
+  ): Promise<{
+    [P in keyof T]: Awaited<T[P]>
+  }>
+
+  batch(arg1?: ValidQuery | QueryBatch.Props, ...queries: ValidQuery[]): any {
+    let batch: QueryBatch
+    if (arg1 instanceof Query) {
+      batch = new QueryBatch(this, {})
+      queries.unshift(arg1)
+      for (const query of queries) {
+        batch.add(query)
+      }
+      return batch.flush()
+    }
+    return new QueryBatch(this, arg1 || {})
   }
 
   delete<From extends TableRef>(from: From): Delete<From>
@@ -124,8 +152,4 @@ export class Database {
     node.query.context.nodes.push(node)
     return node
   }
-}
-
-export function isDatabase(val: any): val is Database {
-  return val.constructor == Database
 }

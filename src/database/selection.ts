@@ -1,8 +1,5 @@
 import { Any, Intersect, Pick } from '@alloc/types'
 import { FunctionCall } from './function'
-import { CheckBuilder } from './query/check'
-import { Expression } from './query/expression'
-import { JoinOn } from './query/join/innerJoin'
 import {
   kColumnFrom,
   kColumnName,
@@ -10,7 +7,7 @@ import {
   kSelectionFrom,
   kSelectionType,
 } from './symbols'
-import { ColumnOf, TableType, ValuesOf } from './table'
+import { TableType } from './table'
 import { NativeType, Type, UnwrapType } from './type'
 
 export class Selection<T extends object = any, From extends TableType = any> {
@@ -23,21 +20,13 @@ export class Selection<T extends object = any, From extends TableType = any> {
     this[kSelectionArgs] = args
     this[kSelectionFrom] = from
   }
-
-  on<Column extends ColumnOf<From>>(
-    column: Column
-  ): CheckBuilder<ValuesOf<From>[Column], JoinOn<Column, From>> {
-    return new CheckBuilder(tokens => new Expression(['ON', tokens]), {
-      id: column,
-    }) as any
-  }
 }
 
 export type AliasMapping = {
-  [alias: string]: string | ColumnRef | FunctionCall
+  [alias: string]: ColumnRef | FunctionCall
 }
 
-export type RawSelection = AliasMapping | (string | ColumnRef | AliasMapping)[]
+export type RawSelection = AliasMapping | (ColumnRef | AliasMapping)[]
 
 export type ResolveAliasMapping<T> = T extends AliasMapping
   ? {
@@ -65,10 +54,6 @@ export type ResolveSelection<T> = Intersect<
 > extends infer U
   ? Pick<U, keyof U>
   : never
-
-export function isColumnRef(val: any): val is ColumnRef {
-  return kColumnFrom in val
-}
 
 export class ColumnRef<Name extends string = any, T extends Type = any> {
   protected [kColumnFrom]: TableType

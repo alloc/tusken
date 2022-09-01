@@ -1,5 +1,5 @@
 import { kFunctionArgs, kFunctionName, kFunctionReturnType } from './symbols'
-import { Type } from './type'
+import { NativeType, Type, UnwrapType } from './type'
 
 export function defineFunction<Name extends string, T extends object>(
   name: Name
@@ -19,6 +19,5 @@ export class FunctionCall<T extends Type = any, Name extends string = any> {
   }
 }
 
-export function isFunctionCall(val: any): val is FunctionCall {
-  return kFunctionName in val
-}
+export interface FunctionCall<T extends Type>
+  extends Type<NativeType<T>, UnwrapType<T>> {}

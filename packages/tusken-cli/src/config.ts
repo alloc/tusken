@@ -1,4 +1,3 @@
-import assert from 'assert'
 import path from 'path'
 import type { ClientConfig } from 'pg'
 import type { Config } from 'tusken/config'
@@ -16,17 +15,20 @@ export type LoadedConfig = Config & {
   connection: ClientConfig & typeof defaultConnection
   schemaDir: string
   dataDir: string
+  tuskenId: string
 }
 
 export function loadConfig(configPath?: string, database?: string) {
   let cwd = process.cwd()
   let config: Config
+
   configPath ||= escalade(cwd, (dir, files) => {
     const file = files.find(f => /^tusken\.config\.[jt]s$/.test(f))
     if (file) {
       return path.join(dir, file)
     }
   })
+
   if (configPath) {
     const jiti = require('jiti') as typeof import('jiti').default
     const load = jiti(__filename, { interopDefault: true, esmResolve: true })
@@ -36,17 +38,37 @@ export function loadConfig(configPath?: string, database?: string) {
       cwd = path.dirname(configPath)
     }
   }
+
   config ||= {
     connection: { ...defaultConnection },
   }
-  assert(config.connection)
+
+  assertType<LoadedConfig>(config)
+
   if (database) {
     config.connection.database = database
   } else if (!config.connection.database) {
     console.error('The --database option is required')
     process.exit(1)
   }
-  config.schemaDir = path.resolve(config.schemaDir || './src/generated')
-  config.dataDir = path.resolve(config.dataDir || './postgres')
+
+  config.schemaDir = config.schemaDir
+    ? path.resolve(cwd, config.schemaDir)
+    : path.resolve('./src/generated')
+
+  config.dataDir = config.dataDir
+    ? path.resolve(cwd, config.dataDir)
+    : path.resolve('./postgres')
+
+  config.tuskenId = path.join(
+    path.relative(
+      config.schemaDir,
+      path.dirname(require.resolve('tusken/package.json'))
+    ),
+    'src/tusken'
+  )
+
   return [config as LoadedConfig, configPath] as const
 }
+
+function assertType<T>(arg: any): asserts arg is T {}
