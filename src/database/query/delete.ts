@@ -3,11 +3,12 @@ import { kTableName } from '../symbols'
 import { TableRef } from '../table'
 import { TokenArray } from '../token'
 import { tokenizeWhere } from '../tokenize'
-import { where, Where, WhereExpression } from './where'
+import { BoolExpression } from './expression'
+import { where, Where } from './where'
 
 type Props = {
   from: TableRef
-  where?: WhereExpression
+  where?: BoolExpression
 }
 
 export class Delete<From extends TableRef, Return = number>
@@ -17,13 +18,13 @@ export class Delete<From extends TableRef, Return = number>
   protected tokens(props: Props, ctx: Query.Context) {
     const tokens: TokenArray = ['DELETE FROM', { id: props.from[kTableName] }]
     if (props.where) {
-      tokens.push('WHERE', tokenizeWhere(props.where, ctx))
+      tokens.push(tokenizeWhere(props.where, ctx))
     }
     return tokens
   }
 
   where(compose: Where<[From]>) {
-    where(this.props, compose)
+    this.props.where = where(this.props, compose)
     return this
   }
 

@@ -1,55 +1,86 @@
-import { Any } from '@alloc/types'
-import { FunctionCall } from '../function'
+import { Any, Intersect } from '@alloc/types'
+import { CallExpression } from '../function'
+import { is } from '../is'
 import { ColumnRef, Selection } from '../selection'
-import { kPrimaryKey } from '../symbols'
+import { getSetAlias, SetRef } from '../set'
+import { kPrimaryKey, kTableName } from '../symbols'
 import { PrimaryKeyOf, TableRef, toTableRef, ValuesOf } from '../table'
-import { BoolType, Type } from '../type'
-import { CheckBuilder, CheckList, is } from './check'
+import { Type } from '../type'
+import { CheckBuilder } from './check'
+import { BoolExpression } from './expression'
 import { JoinProps } from './join'
+import { Selectable } from './select'
 
-export function where<From extends (TableRef | Selection)[]>(
+export function where<From extends Selectable[]>(
   props: {
-    from: TableRef | Selection
+    from: Selectable
     joins?: JoinProps[]
-    where?: WhereExpression
   },
   compose: Where<From>
-): void {
-  const tables = [props.from]
-    .concat(props.joins?.map(join => join.from) || [])
-    .map(from => {
+): BoolExpression {
+  const sources = [props.from].concat(props.joins?.map(join => join.from) || [])
+
+  const refs = {} as WhereRefs<From>
+  sources.forEach(from => {
+    const setAlias = getSetAlias(from)
+    if (setAlias) {
+      refs[setAlias] = new ColumnRef(from as SetRef, setAlias)
+    } else {
       const table = toTableRef(from)
-      return new Proxy(table, {
-        get: (_, column: string | typeof kPrimaryKey) =>
-          is(
-            new ColumnRef(table, column == kPrimaryKey ? table[column] : column)
-          ),
-      }) as any
-    }) as WhereRefs<From>
-
-  props.where = compose(...tables)
-}
-
-export type WhereExpression = CheckList | FunctionCall<BoolType>
-
-export type Where<From extends (TableRef | Selection)[]> = (
-  ...tables: WhereRefs<From>
-) => WhereExpression
-
-export type WhereRefs<From extends (TableRef | Selection)[]> = {
-  [P in keyof From]: [From[P]] extends [Any]
-    ? Record<string | typeof kPrimaryKey, WhereBuilder<any, any>>
-    : ValuesOf<From[P]> extends infer Values
-    ? {
-        [K in string & keyof Values]: WhereBuilder<Values, K>
-      } & {
-        [kPrimaryKey]: PrimaryKeyOf<From[P]> extends infer PK
-          ? WhereBuilder<Values, PK & keyof Values>
-          : never
+      if (table) {
+        refs[table[kTableName]] = new Proxy(from, {
+          get: (_, column: string | typeof kPrimaryKey) =>
+            column == kPrimaryKey
+              ? table && table[column] !== ''
+                ? is(new ColumnRef(from, table[column]))
+                : undefined
+              : is(new ColumnRef(from, column)),
+        }) as any
       }
-    : unknown
+    }
+  })
+
+  return compose(refs)
 }
 
-export type WhereBuilder<Values, Column extends keyof Values> = unknown &
-  ColumnRef<Extract<Column, string>, Extract<Values[Column], Type>> &
-  CheckBuilder<Values[Column]>
+export type Where<From extends Selectable[]> = (
+  refs: WhereRefs<From>
+) => BoolExpression
+
+type SourceIdent<Source> = Source extends SetRef<any, infer Alias>
+  ? Alias
+  : Source extends CallExpression<any, infer Callee>
+  ? Callee
+  : Source extends TableRef<any, infer Name>
+  ? Name
+  : never
+
+type WhereRef<From extends Selectable> = [From] extends [Any]
+  ? any
+  : From extends SetRef<infer T, infer Alias>
+  ? WhereBuilder<T, Alias>
+  : ValuesOf<From> extends infer Values
+  ? {
+      [K in string & keyof Values]-?: WhereBuilder<ColumnType<Values, K>, K>
+    } & {
+      [kPrimaryKey]: PrimaryKeyOf<From> extends infer PK
+        ? PK extends ''
+          ? never
+          : WhereBuilder<ColumnType<Values, PK>, PK>
+        : never
+    }
+  : unknown
+
+export type WhereRefs<From extends Selectable[]> = Intersect<
+  From[number] extends infer Source
+    ? Source extends Selection<any, infer From>
+      ? WhereRefs<[From]>
+      : Source extends Selectable
+      ? { [P in SourceIdent<Source>]: WhereRef<Source> }
+      : never
+    : never
+>
+
+export type WhereBuilder<T extends Type, Column extends string> = unknown &
+  ColumnRef<T, Column> &
+  CheckBuilder<T>

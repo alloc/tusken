@@ -1,9 +1,8 @@
-import { Selection } from '../selection'
-import { TableRef } from '../table'
-import { CheckList } from './check'
+import { BoolExpression } from './expression'
+import { Selectable } from './select'
 
 export type JoinProps = {
   type: 'inner'
-  from: TableRef | Selection
-  where: CheckList
+  from: Selectable
+  where: BoolExpression
 }

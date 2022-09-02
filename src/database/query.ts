@@ -3,15 +3,17 @@ import type { CheckList } from './query/check'
 import type { Put } from './query/put'
 import type { Select, SelectProps } from './query/select'
 import { renderTokens, TokenArray } from './token'
-import { Type } from './type'
-
-declare const kQueryCommand: unique symbol
+import type { SetType, Type } from './type'
 
 export type ValidQuery<T = any> = Query & PromiseLike<T>
 
-export type QueryResult<T extends Query> = T extends Type<any, infer Result>
+export type QueryResult<T extends Query> = T extends SetType<infer Result>
+  ? Result[]
+  : T extends Type<any, infer Result>
   ? Result
   : any
+
+const kQueryCommand = Symbol()
 
 export abstract class Query<
   Props extends object | null = any,
@@ -115,7 +117,7 @@ export abstract class Query<
 
   protected query(node: any) {
     node.query.context.nodes.push(node)
-    return node
+    return node.query
   }
 }
 

@@ -7,8 +7,11 @@ import { Client } from 'pg'
 import { StrictEventEmitter } from 'strict-event-emitter-types'
 import { promisify } from 'util'
 import { ClientConfig } from './config'
-import { extractNativeFuncs } from './extract'
+import { extractTypeCasts } from './extract/extractCasts'
+import { extractNativeFuncs } from './extract/extractFuncs'
+import { extractNativeTypes } from './extract/extractTypes'
 import { generateNativeFuncs } from './typescript/generateNativeFuncs'
+import { generateNativeTypes } from './typescript/generateNativeTypes'
 import { generateTypeSchema } from './typescript/generateSchema'
 
 type Events = {
@@ -28,7 +31,7 @@ export function generate(
   outDir: string,
   config: ClientConfig,
   configPath: string | undefined,
-  tuskenId?: string
+  tuskenId = 'tusken'
 ): Generator {
   const docs = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, '../docs.json'), 'utf8')
@@ -39,12 +42,15 @@ export function generate(
       generator.emit('extractStart')
       const client = new Client(config)
       await client.connect()
-      const nativeFuncs = await extractNativeFuncs(client)
+      const nativeTypes = await extractNativeTypes(client)
+      const nativeCasts = await extractTypeCasts(client, nativeTypes)
+      const nativeFuncs = await extractNativeFuncs(client, nativeTypes)
       await client.end()
       const extracted = await extractSchemas(config)
       generator.emit('generateStart')
       const files = generateTypeSchema(
         extracted.public,
+        generateNativeTypes(nativeTypes, nativeCasts, tuskenId),
         outDir,
         config,
         configPath,

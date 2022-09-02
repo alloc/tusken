@@ -1,31 +1,34 @@
-import { tokenizeCheck } from '../tokenize'
-import type { BoolType, Input } from '../type'
-import { Expression } from './expression'
+import { Query } from '../query'
+import { tokenizeCheck, tokenizeExpression } from '../tokenize'
+import { BoolType, Input, isBoolExpression, NullType, Type } from '../type'
+import {
+  BoolExpression,
+  Expression,
+  ExpressionProps,
+  ExpressionType,
+} from './expression'
 
-export function is<T>(left: T): CheckBuilder<T> {
-  return new CheckBuilder(check => {
-    const query = new CheckList()
-    query['context'].nodes.push({
-      type: 'is',
-      props: { check },
-      query,
-    })
-    return query
-  }, left)
+interface Props extends ExpressionProps {
+  type: 'bool'
+  check: Check | BoolExpression
 }
 
-type Props = { check: Check }
-
-export class CheckList extends Expression<BoolType, Props> {
-  constructor() {
-    super(null, (props, ctx) => tokenizeCheck(props.check, ctx))
+export class CheckList<T extends BoolType | NullType = any> extends Expression<
+  T,
+  Props
+> {
+  constructor(check: Check | BoolExpression) {
+    super({ type: 'bool', check }, tokenizeCheckList)
   }
 
-  and(cond: CheckList): this
-  and<T>(left: T): CheckBuilder<T>
+  and(cond: BoolExpression): this
+  and(cond: Expression<BoolType | NullType>): CheckList<BoolType | NullType>
+  and<T extends Expression>(left: T): CheckBuilder<ExpressionType<T>>
+  and<T extends Type>(left: T): CheckBuilder<T>
+  and<T>(left: T): CheckBuilder<Type<any, T>>
   and(right: any): any {
     const { props } = this
-    if (right instanceof CheckList) {
+    if (isBoolExpression(right)) {
       props.check = { left: props.check, op: 'AND', right }
       return this
     }
@@ -35,11 +38,14 @@ export class CheckList extends Expression<BoolType, Props> {
     }, right)
   }
 
-  or(cond: CheckList): this
-  or<T>(left: T): CheckBuilder<T>
+  or(cond: BoolExpression): this
+  or(cond: Expression<BoolType | NullType>): CheckList<BoolType | NullType>
+  or<T extends Expression>(left: T): CheckBuilder<ExpressionType<T>>
+  or<T extends Type>(left: T): CheckBuilder<T>
+  or<T>(left: T): CheckBuilder<Type<any, T>>
   or(right: any): any {
     const { props } = this
-    if (right instanceof CheckList) {
+    if (isBoolExpression(right)) {
       props.check = { left: props.check, op: 'OR', right }
       return this
     }
@@ -48,6 +54,12 @@ export class CheckList extends Expression<BoolType, Props> {
       return this
     }, right)
   }
+}
+
+function tokenizeCheckList({ check }: Props, ctx: Query.Context) {
+  return isBoolExpression(check)
+    ? tokenizeExpression(check, ctx)
+    : tokenizeCheck(check, ctx)
 }
 
 export class Check {
@@ -59,7 +71,7 @@ export class Check {
   ) {}
 }
 
-export class CheckBuilder<T = any> {
+export class CheckBuilder<T extends Type = any> {
   constructor(
     protected wrap: (check: Check) => CheckList,
     protected left: any,
@@ -71,7 +83,10 @@ export class CheckBuilder<T = any> {
   }
 
   /** Inclusive range matching */
-  between(min: Input<T>, max: Input<T>): CheckList {
+  between(
+    min: Input<T>,
+    max: Input<T>
+  ): CheckList<BoolType | Extract<T, NullType>> {
     return this.wrap(
       new Check(
         this.left,
@@ -86,11 +101,15 @@ export class CheckBuilder<T = any> {
 export interface CheckBuilder<T> extends CheckMethods<T>, CheckAliases<T> {}
 
 type CheckMethods<T> = {
-  [P in keyof typeof checkMapping]: (right: Input<T>) => CheckList
+  [P in keyof typeof checkMapping]: (
+    right: Input<T>
+  ) => CheckList<BoolType | Extract<T, NullType>>
 }
 
 type CheckAliases<T> = {
-  [P in keyof typeof checkAliases]: (right: Input<T>) => CheckList
+  [P in keyof typeof checkAliases]: (
+    right: Input<T>
+  ) => CheckList<BoolType | Extract<T, NullType>>
 }
 
 const checkMapping = {

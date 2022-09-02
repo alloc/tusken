@@ -1,4 +1,4 @@
-import { defineFunction, Input, FunctionCall as Output } from 'tusken'
+import { CallExpression as Output, defineFunction, Input } from 'tusken'
 import * as t from './types'
 
 export const abbrev = defineFunction<"abbrev", {

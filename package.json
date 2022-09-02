@@ -21,7 +21,8 @@
       "types": "./dist/config.d.ts",
       "import": "./dist/config.mjs",
       "default": "./dist/config.cjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"

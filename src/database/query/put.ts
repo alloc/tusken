@@ -1,24 +1,32 @@
 import { Query } from '../query'
 import { kPrimaryKey } from '../symbols'
-import { TableRef } from '../table'
+import { TableRef, toTableName } from '../table'
 import { TokenArray } from '../token'
 import { tokenize } from '../tokenize'
 
 type Props<T extends TableRef> = {
   table: T
-  values: any
+  row: Record<string, any>
   pk?: any
 }
 
-export class Put<T extends TableRef = any> extends Query<Props<T>> {
+export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
   protected tokens(props: Props<T>, ctx: Query.Context) {
-    const { table, values, pk = values[table[kPrimaryKey]] } = props
+    let { table, row, pk } = props
+    const columns = Object.keys(row)
+    const values = Object.values(row)
+    if (pk) {
+      columns.unshift(table[kPrimaryKey])
+      values.unshift(pk)
+    } else {
+      pk = row[table[kPrimaryKey]]
+    }
     const insertion: TokenArray = [
       'INSERT INTO',
-      { id: table.name },
-      { tuple: Object.keys(values) },
+      { id: toTableName(table) },
+      { tuple: columns },
       'VALUES',
-      { tuple: Object.values(values).map(value => tokenize(value, ctx)) },
+      { tuple: values.map(value => tokenize(value, ctx)) },
     ]
     if (pk) {
       insertion.push(
@@ -26,7 +34,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>> {
         { tuple: [table[kPrimaryKey]] },
         'DO UPDATE SET',
         {
-          join: Object.keys(values).map(k => [
+          join: Object.keys(row).map(k => [
             { id: k },
             '=',
             { id: ['excluded', k] },

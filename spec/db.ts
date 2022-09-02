@@ -1,16 +1,9 @@
-import { Mock } from 'vitest'
-import { ClientResult, Database } from '../src/tusken'
+import * as pgMem from 'pg-mem'
+import db from './generated/test'
 
-export { pg, t } from './generated/test'
+export { default as db, pg, t } from './generated/test/index'
 
-export let db: Database
-export let query: Mock<[string], Promise<ClientResult>>
-
-beforeEach(() => {
-  db.client.query = query = vi.fn(
-    async (sql: string): Promise<ClientResult & { sql: string }> => ({
-      sql,
-      rows: [],
-    })
-  )
-})
+export const memDb = pgMem.newDb()
+db.client = {
+  query: text => Promise.resolve(memDb.public.query(text)),
+}

@@ -3,7 +3,8 @@ import { Schema, TableColumn } from 'extract-pg-schema'
 import path from 'path'
 import { ClientConfig } from '../config'
 import { dataToEsm } from '../utils/dataToEsm'
-import { generateNativeTypes } from './generateNativeTypes'
+import { mergeImports, serializeImports } from '../utils/imports'
+import { GeneratedLines } from './generateNativeTypes'
 import { reservedWords } from './reservedWords'
 
 const quoted = (s: string) => `"${s}"`
@@ -11,18 +12,21 @@ const toExport = (stmt: string) => `export ${stmt}`
 
 export function generateTypeSchema(
   schema: Schema,
+  nativeTypes: GeneratedLines,
   outDir: string,
   config: ClientConfig,
   configPath: string | undefined,
-  tuskenId = 'tusken'
+  tuskenId: string
 ) {
   // TODO: filter the list of reserved words
-  const nativeTypes = generateNativeTypes()
   const schemaColumns = new Set<string>()
   const schemaTables = new Set<string>()
 
-  const userTypes: string[] = []
-  const userExports: string[] = []
+  const userTypes: GeneratedLines & { refs: string[] } = {
+    imports: { [tuskenId]: [] },
+    lines: [],
+    refs: [],
+  }
 
   for (const table of schema.tables) {
     schemaTables.add(table.name)
@@ -42,22 +46,25 @@ export function generateTypeSchema(
       }
     }
 
-    userTypes.push(
+    pkColumn = pkColumn ? quoted(pkColumn) : '""'
+
+    userTypes.imports[tuskenId].push('makeTableRef', 'TableRef')
+    userTypes.refs.push(
+      endent`
+        const ${table.name}: TableRef<${table.name}, "${
+        table.name
+      }", ${pkColumn}, ${
+        optionColumns.map(quoted).join(' | ') || '""'
+      }> = makeTableRef("${table.name}", [${allColumns
+        .map(quoted)
+        .join(', ')}], ${pkColumn})
+      `
+    )
+    userTypes.lines.push(
       endent`
         type ${table.name} = {
           ${renderColumns(table.columns)}
         }
-      `
-    )
-    userExports.push(
-      endent`
-        const ${table.name}: TableRef<${table.name}, ${
-        pkColumn ? quoted(pkColumn) : 'any'
-      }, ${optionColumns.map(quoted).join(' | ') || '""'}> = makeTableRef("${
-        table.name
-      }", [${allColumns.map(quoted).join(', ')}], ${
-        pkColumn ? quoted(pkColumn) : 'undefined'
-      })
       `
     )
   }
@@ -101,12 +108,12 @@ export function generateTypeSchema(
   `
 
   const typesFile = endent`
-    import { makeTableRef, TableRef, Type } from '${tuskenId}'
+    ${serializeImports(mergeImports(userTypes.imports, nativeTypes.imports))}
 
-    ${userExports.map(toExport).join('\n')}
+    ${userTypes.refs.map(toExport).join('\n')}
 
-    ${userTypes.map(toExport).join('\n')}
-    ${nativeTypes.map(toExport).join('\n')}
+    ${userTypes.lines.map(toExport).join('\n')}
+    ${nativeTypes.lines.join('\n')}
   `
 
   return [

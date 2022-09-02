@@ -18,7 +18,7 @@ export type StringJoin = { join: TokenArray; with: string }
 /** Join token list with commas and wrap with parentheses */
 export type Tuple = { tuple: TokenArray }
 
-export type Call = { call: string; args: TokenArray }
+export type Call = { callee: string; args?: TokenArray }
 
 export type SubQuery = { query: Query }
 
@@ -29,6 +29,10 @@ export type Token =
     >
 
 export type TokenArray = (Token | TokenArray)[]
+export type TokenFunction<Props extends object | null = any> = (
+  props: Props,
+  ctx: Query.Context
+) => TokenArray
 
 export function renderToken(token: Token, ctx: Query.Context): string {
   return typeof token == 'string'
@@ -42,13 +46,22 @@ export function renderToken(token: Token, ctx: Query.Context): string {
     : 'string' in token
     ? toString(token.string)
     : token.join
-    ? renderTokens(token.join, ctx).join(token.with)
-    : token.args
-    ? `${token.call}(${renderTokens(token.args, ctx).join(', ')})`
+    ? token.join
+        .map(t =>
+          Array.isArray(t)
+            ? renderTokens(t, ctx).join(' ')
+            : renderToken(t, ctx)
+        )
+        .join(token.with)
+    : token.call
+    ? token.call +
+      (token.args == null
+        ? ''
+        : `(${renderTokens(token.args, ctx).join(', ')})`)
     : `(${
         token.query
           ? token.query.render()
-          : renderTokens(token.tuple, ctx).join(', ')
+          : renderTokens(token.tuple!, ctx).join(', ')
       })`
 }
 

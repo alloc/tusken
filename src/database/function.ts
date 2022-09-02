@@ -1,23 +1,52 @@
-import { kFunctionArgs, kFunctionName, kFunctionReturnType } from './symbols'
-import { NativeType, Type, UnwrapType } from './type'
+import type { Query } from './query'
+import {
+  Expression,
+  ExpressionProps,
+  ExpressionTypeName,
+} from './query/expression'
+import { kExprProps } from './symbols'
+import { TokenArray } from './token'
+import { tokenize } from './tokenize'
+import type { Type } from './type'
 
-export function defineFunction<Name extends string, T extends object>(
-  name: Name
-): T {
-  return ((...args: any[]) => new FunctionCall(name, args)) as any
+export const defineFunction =
+  (callee: string, type?: ExpressionTypeName): any =>
+  (...args: any[]) =>
+    new CallExpression(callee, args, type)
+
+interface Props<Callee extends string = any> extends ExpressionProps {
+  alias?: string
+  callee: Callee
+  args: any[]
 }
 
-export class FunctionCall<T extends Type = any, Name extends string = any> {
-  /** Exists for type nominality. */
-  protected [kFunctionReturnType]!: T
-  protected [kFunctionName]: Name
-  protected [kFunctionArgs]: any[]
-
-  constructor(name: Name, args: any[]) {
-    this[kFunctionName] = name
-    this[kFunctionArgs] = args
+export class CallExpression<
+  T extends Type = any,
+  Callee extends string = any
+> extends Expression<T, Props<Callee>> {
+  constructor(callee: Callee, args: any[], type?: ExpressionTypeName) {
+    super({ callee, args, type }, tokenizeCallExpression)
   }
 }
 
-export interface FunctionCall<T extends Type>
-  extends Type<NativeType<T>, UnwrapType<T>> {}
+function tokenizeCallExpression(props: Props, ctx: Query.Context) {
+  const tokens: TokenArray = [
+    {
+      callee: props.callee,
+      args:
+        props.type !== 'var'
+          ? props.args.map(arg => tokenize(arg, ctx))
+          : undefined,
+    },
+  ]
+  if (props.alias) {
+    tokens.push('AS', { id: props.alias })
+  }
+  return tokens
+}
+
+export function getCallee(val: CallExpression): string
+export function getCallee(val: any): string | undefined
+export function getCallee(val: any) {
+  return val instanceof CallExpression ? val[kExprProps].callee : undefined
+}

@@ -1,21 +1,31 @@
 import endent from 'endent'
-import { NativeFunc } from '../extract'
+import type { ExpressionTypeName } from 'tusken'
+import type { NativeFunc } from '../extract/extractFuncs'
 
 export function generateNativeFuncs(
   nativeFuncs: NativeFunc[],
   docs: Record<string, string>
 ) {
   const imports = endent`
-    import { defineFunction, Input, FunctionCall as Output } from 'tusken'
+    import { defineFunction, defineSetFunction, Aggregate, Output } from 'tusken'
     import * as t from './types'
   `
 
   const keyPaths: [string, string][] = []
   const groupedFuncs: { [name: string]: Record<string, NativeFunc[]> } = {}
 
+  const isPassThrough = (fn: NativeFunc) =>
+    !fn.returnSet &&
+    !fn.typeParams &&
+    fn.argTypes.length == 1 &&
+    fn.argTypes[0] == fn.returnType &&
+    fn.returnType !== 't.bool' &&
+    fn.returnType !== 't.void'
+
   for (const fn of nativeFuncs) {
     const sig = String([
-      fn.returnType,
+      isPassThrough(fn) ? '' : fn.returnType,
+      fn.returnSet ? 'set' : '',
       fn.typeParams || '',
       '(' + String(fn.args || '') + ')',
       fn.isVariadic ? '' : fn.argTypes.length,
@@ -38,6 +48,9 @@ export function generateNativeFuncs(
       // console.log(name, overloads.length, sig)
       overloads.unshift({
         ...overloads[0],
+        // Use empty `returnType` to detect passthrough signatures.
+        returnType: sig[0] == ',' ? '' : overloads[0].returnType,
+        // Combine the argument types of similar overloads.
         argTypes: overloads[0].argTypes.map((_, i) => {
           const uniqueTypes = new Set<string>()
           for (const overload of overloads) {
@@ -49,25 +62,53 @@ export function generateNativeFuncs(
     }
   }
 
+  const varFuncs = [
+    'current_catalog',
+    'current_role',
+    'current_schema',
+    'current_user',
+    'session_user',
+    'user',
+  ]
+
   return (
     imports +
     `\n\n` +
     Object.keys(groupedFuncs)
       .sort((a, b) => (a < b ? -1 : 1))
       .map(name => {
-        const signature: string[] = []
-        for (const [fn] of Object.values(groupedFuncs[name])) {
-          const hasNullableOverload =
-            fn.strict && (fn.argTypes.length || fn.returnType !== 't.void')
+        let returnSet = false
+        let returnBool = false
 
-          if (!hasNullableOverload || fn.returnType !== 't.void') {
+        const signature: string[] = []
+        const overloads = Object.values(groupedFuncs[name])
+        for (const [fn] of overloads) {
+          if (fn.returnSet) returnSet = true
+          if (fn.returnType == 't.bool') returnBool = true
+
+          const hasVoidReturn = fn.returnType == 't.void'
+          const isNullable =
+            fn.strict && fn.argTypes.length > 0 && !hasVoidReturn
+          const hasNullableOverload = isNullable && !!fn.returnType
+
+          if (!hasNullableOverload || !fn.returnSet) {
+            if (!fn.returnType) {
+              if (isNullable) {
+                fn.argTypes[0] += ' | t.null'
+              }
+              fn.typeParams = `<T extends ${fn.argTypes[0]}>`
+              fn.argTypes[0] = 'T'
+              fn.returnType = 'T'
+            }
+
             signature.push(
               (fn.typeParams || '') +
                 `(${renderInputs(fn)}): ` +
                 renderOutput(fn)
             )
           }
-          if (hasNullableOverload) {
+
+          if (hasNullableOverload && fn.returnType) {
             signature.push(
               (fn.typeParams || '') +
                 `(${renderInputs(fn, true)}): ` +
@@ -75,16 +116,43 @@ export function generateNativeFuncs(
             )
           }
         }
+
         let summary = docs[name]
         if (summary?.includes('\n')) {
           summary = ('\n' + summary).replace(/\n/g, '\n * ') + '\n'
         }
+        summary = summary ? `/** ${summary} */\n` : ''
+
+        const exportAlias = name.startsWith('pg_')
+          ? `\nexport { ${name} as ${name.slice(3)} }`
+          : ``
+
+        const constPrefix = exportAlias ? 'const' : 'export const'
+
+        if (varFuncs.includes(name)) {
+          const [fn] = overloads[0]
+          return (
+            summary +
+            endent`
+              ${constPrefix} ${name}: ${renderOutput(
+              fn
+            )} = defineFunction("${name}", "var")()${exportAlias}
+            `
+          )
+        }
+
+        const exprType: ExpressionTypeName | undefined = returnBool
+          ? 'bool'
+          : undefined
+
         return (
-          (summary ? `/** ${summary} */\n` : '') +
+          summary +
           endent`
-            export const ${name} = defineFunction<"${name}", {
-              ${signature.join('\n')}
-            }>("${name}")
+            ${constPrefix} ${name}: {
+              ${summary + signature.join('\n')}
+            } = define${returnSet ? 'Set' : ''}Function("${name}"${
+            exprType ? `, "${exprType}"` : ``
+          })${exportAlias}
           `
         )
       })
@@ -92,15 +160,32 @@ export function generateNativeFuncs(
   )
 }
 
-const renderOutput = (fn: NativeFunc, isNullable?: boolean) =>
-  `Output<${fn.returnType}${isNullable ? ' | t.null' : ''}, "${fn.name}">`
+function renderOutput(fn: NativeFunc, isNullable?: boolean) {
+  let { returnType } = fn
+  if (fn.returnSet) {
+    returnType = `t.setof<${returnType}>`
+  } else if (isNullable) {
+    returnType += ' | t.null'
+  }
+  const outputType = fn.kind == 'a' ? 'Aggregate' : 'Output'
+  return outputType + `<${returnType}, "${fn.name}">`
+}
 
 function renderInputs(fn: NativeFunc, isNullable?: boolean) {
   if (fn.argTypes.length == 0) {
     return ''
   }
   const orNull = isNullable ? ' | t.null' : ''
-  const argTypes = fn.argTypes.map(name => `Input<${name}${orNull}>`)
+  const argTypes = fn.argTypes.map(type => {
+    const needParamType = !fn.typeParams || /any\w*array\b/.test(fn.typeParams)
+
+    type += orNull
+    return needParamType
+      ? fn.kind == 'a'
+        ? `t.aggParam<${type}>`
+        : `t.param<${type}>`
+      : type
+  })
   return fn.isVariadic && argTypes.length == 1
     ? `...args: ${argTypes[0]}[]`
     : fn.args
@@ -123,18 +208,4 @@ function renderInputs(fn: NativeFunc, isNullable?: boolean) {
             }: ${argType}`
         )
         .join(', ')
-}
-
-/** Very naïve deep merge, purpose built */
-function deepMerge(target: any, arg: any) {
-  for (const key in arg) {
-    if (target[key] && typeof target[key] === 'object') {
-      deepMerge(target[key], arg[key])
-    } else if (Array.isArray(target[key])) {
-      target[key].push(...arg[key])
-    } else {
-      target[key] = arg[key]
-    }
-  }
-  return target
 }

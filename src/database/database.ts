@@ -5,10 +5,8 @@ import { Query, ValidQuery } from './query'
 import { CheckList } from './query/check'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
-import { RowType } from './query/rowSet'
-import { Select } from './query/select'
+import { Select, Selectable, SelectedRow } from './query/select'
 import { WhereRefs } from './query/where'
-import { Selection } from './selection'
 import { kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
 import { Input } from './type'
@@ -18,7 +16,7 @@ export type Client = { query: (query: string) => Promise<ClientResult> }
 
 export class Database {
   protected [kDatabaseReserved]: string[]
-  readonly client: Client
+  client: Client
 
   constructor(config: { client: Client; reserved: string[] }) {
     this[kDatabaseReserved] = config.reserved
@@ -70,12 +68,12 @@ export class Database {
   /**
    * Same as `select` but only one row (or null) is returned.
    */
-  find<T extends TableRef | Selection>(
+  find<T extends Selectable>(
     from: T,
     compose: (from: WhereRefs<[T]>[0]) => CheckList
-  ): ValidQuery<RowType<T> | null> {
+  ): ValidQuery<SelectedRow<T> | null> {
     const query = this.select(from).where(compose).limit(1)
-    query['resolve'] = p => p.then(res => res[0] || null)
+    query['resolve'] = res => res.rows[0] || null
     return query as any
   }
 
@@ -84,10 +82,10 @@ export class Database {
    *
    * To get a row by any other column, use the `db.find` method instead.
    */
-  get<T extends TableRef | Selection>(
+  get<T extends Selectable>(
     from: T,
     pk: Input<PrimaryKey<T>>
-  ): ValidQuery<RowType<T> | null> {
+  ): ValidQuery<SelectedRow<T> | null> {
     return this.find<any>(from, from => from[kPrimaryKey].eq(pk))
   }
 
@@ -104,7 +102,7 @@ export class Database {
   /**
    * Insert a row into the table.
    */
-  put<T extends TableRef>(table: T, values: RowInsertion<T>): Put<T>
+  put<T extends TableRef>(table: T, row: RowInsertion<T>): Put<T>
 
   /**
    * Insert, update, or delete a row by its primary key.
@@ -112,24 +110,24 @@ export class Database {
   put<T extends TableRef>(
     table: T,
     pk: PrimaryKey<T>,
-    values: RowUpdate<T> | null
+    row: RowUpdate<T> | null
   ): Put<T>
 
-  put(table: TableRef, pk: any, values?: any) {
+  put(table: TableRef, pk: any, row?: any) {
     if (isObject(pk)) {
-      values = pk
+      row = pk
       pk = undefined
-    } else if (values === null) {
+    } else if (row === null) {
       return this.delete(table, pk)
     }
     return this.query({
       type: 'put',
       query: new Put(this),
-      props: { table, values, pk },
+      props: { table, row, pk },
     })
   }
 
-  select<T extends TableRef | Selection>(from: T) {
+  select<T extends Selectable>(from: T) {
     return this.query({
       type: 'select',
       query: new Select<[T]>(this),
@@ -150,6 +148,6 @@ export class Database {
 
   protected query(node: any) {
     node.query.context.nodes.push(node)
-    return node
+    return node.query
   }
 }

@@ -2,7 +2,7 @@ import { Database, Pool } from 'tusken'
 import config from '../tusken.config'
 
 export default new Database({
-  reserved: ["user"],
+  reserved: ["like", "user"],
   client: process.env.NODE_ENV == 'test'
     ? null! // Set "db.client.query" in your test setup file.
     : new Pool({

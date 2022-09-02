@@ -1,37 +1,34 @@
 import { callProp } from '../utils/callProp'
-import type { FunctionCall } from './function'
 import { Query } from './query'
-import { Check, CheckBuilder, CheckList } from './query/check'
-import { Expression } from './query/expression'
-import { WhereExpression } from './query/where'
-import type { AliasMapping, ColumnRef, Selection } from './selection'
-import {
-  kColumnFrom,
-  kColumnName,
-  kFunctionArgs,
-  kFunctionName,
-  kSelectionArgs,
-  kTableName,
-} from './symbols'
-import { TableRef, TableType } from './table'
+import { Check, CheckBuilder } from './query/check'
+import { BoolExpression, Expression } from './query/expression'
+import { Selectable } from './query/select'
+import type { AliasMapping, Selection } from './selection'
+import { kExprProps, kExprTokens, kSelectionArgs, kTableName } from './symbols'
 import type { Token, TokenArray } from './token'
-import { isColumnRef, isFunctionCall, isTableRef } from './type'
+import {
+  isBoolExpression,
+  isColumnRef,
+  isExpression,
+  isSetExpression,
+  isTableRef,
+} from './type'
 
 /**
  * Safely coerce a user-defined value to a SQL token.
  */
 export function tokenize(val: any, ctx: Query.Context): Token | TokenArray {
   if (val == null || typeof val !== 'object') {
+    if (typeof val == 'number') {
+      return String(val)
+    }
     return { literal: val }
   }
   if (Array.isArray(val)) {
     return tokenizeArray(val, ctx)
   }
-  if (isFunctionCall(val)) {
-    return tokenizeFunctionCall(val, ctx)
-  }
-  if (isColumnRef(val)) {
-    return tokenizeColumnRef(val, ctx)
+  if (isExpression(val)) {
+    return tokenizeExpression(val, ctx)
   }
   if (val instanceof Query) {
     // Expressions inherit a query context, but subqueries don't.
@@ -57,18 +54,28 @@ export function tokenizeArray(val: any[], ctx: Query.Context) {
   return tokens
 }
 
+export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
+  return expr[kExprTokens](expr[kExprProps], ctx)
+}
+
 export function tokenizeColumns(
-  selection: Selection<any, TableType>,
+  selection: Selection,
   ctx: Query.Context
 ): TokenArray {
   const args = selection[kSelectionArgs]
   if (Array.isArray(args)) {
     return args.map(arg => {
+      if (typeof arg == 'string') {
+        return { id: arg }
+      }
       if (isColumnRef(arg)) {
-        return tokenizeColumnRef(arg, ctx)
+        return tokenizeExpression(arg, ctx)
       }
       return tokenizeAliasMapping(arg, ctx)
     })
+  }
+  if (isSetExpression(args)) {
+    return tokenizeExpression(args, ctx)
   }
   return tokenizeAliasMapping(args, ctx)
 }
@@ -78,34 +85,11 @@ export function tokenizeAliasMapping(
   ctx: Query.Context
 ): TokenArray {
   const [alias, value] = Object.entries(mapping)[0]
-  return [
-    isFunctionCall(value)
-      ? tokenizeFunctionCall(value, ctx)
-      : tokenizeColumnRef(value, ctx),
-    { id: alias },
-  ]
+  return [tokenizeExpression(value, ctx), { id: alias }]
 }
 
-export function tokenizeColumn(column: string, table: string | false): Token {
+export function tokenizeColumn(column: string, table?: string | false): Token {
   return table ? { id: [table, column] } : { id: column }
-}
-
-export function tokenizeColumnRef(ref: ColumnRef, ctx: Query.Context): Token {
-  return tokenizeColumn(
-    ref[kColumnName],
-    // Omit the table name if no joins exist.
-    ctx.select?.joins !== undefined && ref[kColumnFrom][kTableName]
-  )
-}
-
-export function tokenizeFunctionCall(
-  call: FunctionCall,
-  ctx: Query.Context
-): Token {
-  return {
-    call: call[kFunctionName],
-    args: call[kFunctionArgs].map(arg => tokenize(arg, ctx)),
-  }
 }
 
 export function tokenizeCheck(check: Check, ctx: Query.Context) {
@@ -114,8 +98,8 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
   const right = callProp(check.right)
 
   // This allows for overriding of operator precedence.
-  if (left instanceof CheckList) {
-    tokens.push('(', left.tokenize(), ')')
+  if (isBoolExpression(left)) {
+    tokens.push('(', tokenizeExpression(left, ctx), ')')
   }
   // Some checks have a check as their left side. (eg AND, OR)
   else if (left instanceof Check) {
@@ -138,7 +122,7 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
 }
 
 export function tokenizeSelected(
-  selections: (TableRef | Selection)[],
+  selections: Selectable[],
   ctx: Query.Context
 ): Token {
   return selections.length == 1
@@ -159,9 +143,6 @@ export function tokenizeSelected(
       }
 }
 
-export function tokenizeWhere(where: WhereExpression, ctx: Query.Context) {
-  return [
-    'WHERE',
-    isFunctionCall(where) ? tokenizeFunctionCall(where, ctx) : where.tokenize(),
-  ]
+export function tokenizeWhere(where: BoolExpression, ctx: Query.Context) {
+  return ['WHERE', tokenizeExpression(where, ctx)]
 }

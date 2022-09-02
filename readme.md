@@ -145,9 +145,16 @@ await db.select(t.author).innerJoin(
 
 This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but they will be at some point (contributors welcome).
 
-- non-atomic query batching
-  - limit the batch size in bytes or query count
-  - each batch is sent automatically when capacity is reached, or you can send manually with `.flush`
+- transactions
+- query streams
+  - the CLI will detect if `pg-query-stream` is installed
+- math operators
+- enum types
+- domain types
+- composite types
+- array-based primary key
+- multiple primary keys
+- [views](https://www.postgresql.org/docs/current/tutorial-views.html)
 - plugin packages
   - these plugins can do any of:
     - alter your schema
@@ -157,13 +164,9 @@ This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but 
   - add some new commands
     - `tusken install` (merge plugin schemas into your database)
     - `tusken seed` (use plugins to seed your database)
-- transactions
-- query streams
-  - the CLI will detect if `pg-query-stream` is installed
 - `NOTIFY`/`LISTEN` support (just copy `pg-pubsub`?)
 - define Postgres functions with TypeScript
 - more shortcuts for common tasks
-- ensure array-based primary keys work as expected
 
 ## What could be improved?
 
@@ -171,16 +174,25 @@ This is a list of existing features that aren't perfect yet. If you find a good 
 
 Contributions are extra welcome in these places:
 
+- subquery support is probably incomplete
+- type safety of comparison operators
+  - all operators are allowed, regardless of data type
+  - eg `.where` and `is` (see `src/database/query/check.ts`)
+- the `jsonb` type should be generic
+  - with option to infer its subtype at build-time from current row data
 - missing SQL commands
+  - `WITH`
   - `ORDER BY`
   - `GROUP BY`
   - `UPDATE`
   - `MERGE`
+  - `USING`
+  - `HAVING`
+  - `DISTINCT ON`
+  - `UNION` / `INTERSECT`
+  - `CASE`
   - etc
-- subquery support is probably incomplete
-- built-in aggregate functions are typed incorrectly
-- type safety of comparison operators
-  - eg `.where` and `is` (see `src/database/query/check.ts`)
-- the `jsonb` type should be generic
-  - with option to infer its subtype from current values
-- the extracted `pg.` functions would be even better with injected documentation comments
+
+## Design limitations
+
+- Queries cannot be reused.
