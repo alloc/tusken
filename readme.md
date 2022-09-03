@@ -145,9 +145,12 @@ await db.select(t.author).innerJoin(
 
 This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but they will be at some point (contributors welcome).
 
+- `Database#putBatch` method
+  - like `.batch` but for batching rows (of the same table) into one `INSERT` query until flushed or the size limit is reached
 - transactions
 - query streams
   - the CLI will detect if `pg-query-stream` is installed
+- `ANY` and `SOME` operators
 - math operators
 - enum types
 - domain types
@@ -174,10 +177,12 @@ This is a list of existing features that aren't perfect yet. If you find a good 
 
 Contributions are extra welcome in these places:
 
-- subquery support is probably incomplete
+- comprehensive "playground" example
+- subquery support is incomplete
+  - bug: selectors cannot treat single-column set queries like an array of scalars
 - type safety of comparison operators
   - all operators are allowed, regardless of data type
-  - eg `.where` and `is` (see `src/database/query/check.ts`)
+  - see `.where` methods and `is` function
 - the `jsonb` type should be generic
   - with option to infer its subtype at build-time from current row data
 - missing SQL commands

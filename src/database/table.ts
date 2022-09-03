@@ -1,30 +1,19 @@
 import { LoosePick, Omit, Remap } from '@alloc/types'
 import { F } from 'ts-toolbelt'
+import { ColumnInput, ColumnRefs, ColumnType } from './column'
 import { Selectable } from './query/select'
+import { RawSelection, ResolveSelection, Selection } from './selection'
+import { makeSelector } from './selector'
 import {
-  ColumnRefs,
-  makeSelector,
-  RawSelection,
-  ResolveSelection,
-  Selection,
-} from './selection'
-import {
+  kNullableColumns,
   kPrimaryKey,
   kSelectionFrom,
   kTableColumns,
   kTableName,
-  kTableOptions,
 } from './symbols'
-import {
-  ColumnType,
-  Input,
-  isSelection,
-  isTableRef,
-  SetType,
-  Type,
-} from './type'
+import { Input, isSelection, isTableRef, SetType } from './type'
 
-export type PrimaryKey<T> = ValuesOf<T> extends infer Values
+export type PrimaryKey<T> = RowType<T> extends infer Values
   ? Input<Values[PrimaryKeyOf<T> & keyof Values]>
   : never
 
@@ -34,35 +23,35 @@ export type PrimaryKeyOf<T> = T extends TableRef<any, any, infer PrimaryKey>
   ? PrimaryKey
   : never
 
-export type ColumnOf<T> = string & keyof ValuesOf<T>
-
-export type ValuesOf<T> = T extends Type<any, infer Values>
-  ? Values
-  : T extends Selection<any, TableRef<infer Values>>
+/** Get the `SELECT *` row type. */
+export type RowType<T> = T extends Selection<any, infer From>
+  ? From extends SetType<infer Values>
+    ? Values
+    : never
+  : T extends SetType<infer Values>
   ? Values
   : never
 
-type RowInput<T extends Table> = ValuesOf<T> extends infer Row
-  ? { [Column in keyof Row]: Input<ColumnType<Row, Column>> }
+type RowInput<T extends TableRef> = RowType<T> extends infer Row
+  ? { [Column in keyof Row]: ColumnInput<ColumnType<Row, Column>> }
   : never
 
-export type RowInsertion<T extends Table> = (
-  T extends Table<any, any, infer Option>
-    ? Remap<Omit<RowInput<T>, Option> & Partial<LoosePick<RowInput<T>, Option>>>
+export type RowInsertion<T extends TableRef> = (
+  T extends TableRef<any, any, any, infer Option>
+    ? Omit<RowInput<T>, Option> & Partial<LoosePick<RowInput<T>, Option>>
     : never
 ) extends infer Props
-  ? Props
+  ? Remap<Props>
   : never
 
-export type RowUpdate<T extends Table> = Partial<RowInput<T>>
+export type RowUpdate<T extends TableRef> = Partial<RowInput<T>>
 
 export interface TableRef<
-  T = any,
+  T extends object = any,
   TableName extends string = any,
   PrimaryKey extends string = any,
-  Option extends keyof T | '' = any
-> extends SetType<T>,
-    Table<T, TableName, PrimaryKey, Option>,
+  NullableColumn extends string = any
+> extends TableType<T, TableName, PrimaryKey, NullableColumn>,
     TableSelect<T, PrimaryKey> {}
 
 type TableSelect<T, PrimaryKey extends string> = {
@@ -72,33 +61,33 @@ type TableSelect<T, PrimaryKey extends string> = {
 }
 
 export function makeTableRef<
-  T = any,
+  T extends object = any,
   TableName extends string = any,
   PrimaryKey extends string = any,
-  Option extends keyof T | '' = any
+  NullableColumn extends string = any
 >(
   name: TableName,
   columns: string[],
   pkColumn: PrimaryKey
-): TableRef<T, TableName, PrimaryKey, Option> {
-  const type = new Table(name, columns, pkColumn)
+): TableRef<T, TableName, PrimaryKey, NullableColumn> {
+  const type = new TableType(name, columns, pkColumn)
   return makeSelector(type)
 }
 
-class Table<
-  T = any,
+class TableType<
+  T extends object = any,
   TableName extends string = any,
   PrimaryKey extends string = any,
-  Option extends keyof T | '' = any
+  NullableColumn extends string = any
 > {
-  /** Exists for type inference. */
-  protected declare [kTableOptions]: Option
   /** The unique table name */
   protected [kTableName]: TableName
   /** The column names that exist in this table. */
   protected [kTableColumns]: string[]
   /** The primary key of this table. */
   protected [kPrimaryKey]: PrimaryKey
+  /** Exists for type inference. */
+  protected declare [kNullableColumns]: NullableColumn[]
 
   constructor(name: TableName, columns: string[], pkColumn: PrimaryKey) {
     this[kTableName] = name
@@ -115,6 +104,8 @@ class Table<
     )
   }
 }
+
+interface TableType<T extends object> extends SetType<T> {}
 
 export function toTableRef(arg: TableRef | Selection<any, TableRef>): TableRef
 export function toTableRef(arg: Selectable): TableRef | undefined

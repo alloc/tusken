@@ -2,14 +2,13 @@ import { F } from 'ts-toolbelt'
 import { isObject } from '../utils/isObject'
 import { QueryBatch } from './batch'
 import { Query, ValidQuery } from './query'
-import { CheckList } from './query/check'
+import { QueryStream } from './query-stream'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select, Selectable, SelectedRow } from './query/select'
-import { WhereRefs } from './query/where'
+import { Where } from './query/where'
 import { kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
-import { Input } from './type'
 
 export type ClientResult = { rows: any[]; rowCount?: number }
 export type Client = { query: (query: string) => Promise<ClientResult> }
@@ -18,7 +17,11 @@ export class Database {
   protected [kDatabaseReserved]: string[]
   client: Client
 
-  constructor(config: { client: Client; reserved: string[] }) {
+  constructor(config: {
+    client: Client
+    reserved: string[]
+    QueryStream?: QueryStream
+  }) {
     this[kDatabaseReserved] = config.reserved
     this.client = config.client
   }
@@ -48,11 +51,11 @@ export class Database {
     return new QueryBatch(this, arg1 || {})
   }
 
-  delete<From extends TableRef>(from: From): Delete<From>
+  delete<From extends TableRef>(from: From): Delete<From, never>
   delete<From extends TableRef>(
     from: From,
-    pk: Input<PrimaryKey<From>>
-  ): ValidQuery<number>
+    pk: PrimaryKey<From>
+  ): ValidQuery<never>
   delete(from: TableRef, pk?: any) {
     const query = this.query({
       type: 'delete',
@@ -60,7 +63,9 @@ export class Database {
       query: new Delete(this),
     })
     if (arguments.length > 1) {
-      query.where(from => from[kPrimaryKey].eq(pk))
+      query.where(from => {
+        return from[kPrimaryKey].eq(pk)
+      })
     }
     return query
   }
@@ -70,8 +75,8 @@ export class Database {
    */
   find<T extends Selectable>(
     from: T,
-    compose: (from: WhereRefs<[T]>[0]) => CheckList
-  ): ValidQuery<SelectedRow<T> | null> {
+    compose: Where<[T]>
+  ): ValidQuery<SelectedRow<T> | null, 'find'> {
     const query = this.select(from).where(compose).limit(1)
     query['resolve'] = res => res.rows[0] || null
     return query as any
@@ -84,8 +89,8 @@ export class Database {
    */
   get<T extends Selectable>(
     from: T,
-    pk: Input<PrimaryKey<T>>
-  ): ValidQuery<SelectedRow<T> | null> {
+    pk: PrimaryKey<T>
+  ): ValidQuery<SelectedRow<T> | null, 'get'> {
     return this.find<any>(from, from => from[kPrimaryKey].eq(pk))
   }
 

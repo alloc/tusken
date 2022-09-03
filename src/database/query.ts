@@ -3,13 +3,13 @@ import type { CheckList } from './query/check'
 import type { Put } from './query/put'
 import type { Select, SelectProps } from './query/select'
 import { renderTokens, TokenArray } from './token'
-import type { SetType, Type } from './type'
+import type { Type } from './type'
 
-export type ValidQuery<T = any> = Query & PromiseLike<T>
+export type ValidQuery<T = any, Command extends string = any> = unknown &
+  Query<any, Command> &
+  PromiseLike<T>
 
-export type QueryResult<T extends Query> = T extends SetType<infer Result>
-  ? Result[]
-  : T extends Type<any, infer Result>
+export type QueryResult<T extends Query> = T extends Type<any, infer Result>
   ? Result
   : any
 

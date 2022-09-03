@@ -1,13 +1,14 @@
 import { Any, Intersect } from '@alloc/types'
+import { ColumnRef, ColumnType } from '../column'
+import { BoolExpression, Expression } from '../expression'
 import { CallExpression } from '../function'
 import { is } from '../is'
-import { ColumnRef, Selection } from '../selection'
+import { Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
 import { kPrimaryKey, kTableName } from '../symbols'
-import { PrimaryKeyOf, TableRef, toTableRef, ValuesOf } from '../table'
-import { Type } from '../type'
+import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
+import { t, Type } from '../type'
 import { CheckBuilder } from './check'
-import { BoolExpression } from './expression'
 import { JoinProps } from './join'
 import { Selectable } from './select'
 
@@ -24,7 +25,7 @@ export function where<From extends Selectable[]>(
   sources.forEach(from => {
     const setAlias = getSetAlias(from)
     if (setAlias) {
-      refs[setAlias] = new ColumnRef(from as SetRef, setAlias)
+      refs[setAlias] = makeColumnRef(from as SetRef, setAlias)
     } else {
       const table = toTableRef(from)
       if (table) {
@@ -32,9 +33,9 @@ export function where<From extends Selectable[]>(
           get: (_, column: string | typeof kPrimaryKey) =>
             column == kPrimaryKey
               ? table && table[column] !== ''
-                ? is(new ColumnRef(from, table[column]))
+                ? is(makeColumnRef(from, table[column]))
                 : undefined
-              : is(new ColumnRef(from, column)),
+              : is(makeColumnRef(from, column)),
         }) as any
       }
     }
@@ -45,7 +46,22 @@ export function where<From extends Selectable[]>(
 
 export type Where<From extends Selectable[]> = (
   refs: WhereRefs<From>
-) => BoolExpression
+) => Expression<t.bool | t.null>
+
+export type WhereRefs<From extends Selectable[]> = [From] extends [Any]
+  ? Record<string, any>
+  : From extends [Selectable]
+  ? WhereRef<From[0]>
+  : Intersect<WhereRefsObject<From>>
+
+type WhereRefsObject<From extends Selectable[]> =
+  From[number] extends infer Source
+    ? Source extends Selection<any, infer From>
+      ? WhereRefsObject<[From]>
+      : Source extends Selectable
+      ? { [P in SourceIdent<Source>]: WhereRef<Source> }
+      : never
+    : never
 
 type SourceIdent<Source> = Source extends SetRef<any, infer Alias>
   ? Alias
@@ -56,30 +72,22 @@ type SourceIdent<Source> = Source extends SetRef<any, infer Alias>
   : never
 
 type WhereRef<From extends Selectable> = [From] extends [Any]
-  ? any
+  ? WhereRef<TableRef>
   : From extends SetRef<infer T, infer Alias>
   ? WhereBuilder<T, Alias>
-  : ValuesOf<From> extends infer Values
-  ? {
-      [K in string & keyof Values]-?: WhereBuilder<ColumnType<Values, K>, K>
-    } & {
-      [kPrimaryKey]: PrimaryKeyOf<From> extends infer PK
-        ? PK extends ''
-          ? never
-          : WhereBuilder<ColumnType<Values, PK>, PK>
-        : never
-    }
-  : unknown
-
-export type WhereRefs<From extends Selectable[]> = Intersect<
-  From[number] extends infer Source
-    ? Source extends Selection<any, infer From>
-      ? WhereRefs<[From]>
-      : Source extends Selectable
-      ? { [P in SourceIdent<Source>]: WhereRef<Source> }
-      : never
+  : RowType<From> extends infer Values
+  ? Values extends object
+    ? {
+        [K in string & keyof Values]-?: WhereBuilder<ColumnType<Values, K>, K>
+      } & {
+        [kPrimaryKey]: PrimaryKeyOf<From> extends infer PK
+          ? PK extends ''
+            ? never
+            : WhereBuilder<ColumnType<Values, PK>, PK>
+          : never
+      }
     : never
->
+  : never
 
 export type WhereBuilder<T extends Type, Column extends string> = unknown &
   ColumnRef<T, Column> &

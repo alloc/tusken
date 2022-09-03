@@ -2,11 +2,11 @@ import { F } from 'ts-toolbelt'
 import { CallExpression } from './function'
 import {
   ColumnRef,
-  makeSelector,
   RawSelection,
   ResolveSelection,
   Selection,
 } from './selection'
+import { makeSelector } from './selector'
 import { kSetAlias } from './symbols'
 import { SetType, Type } from './type'
 
@@ -19,12 +19,12 @@ export function makeSetRef<T extends Type, Callee extends string = any>(
   callee: Callee,
   args: any[]
 ): SetRef<T, Callee> {
-  const type = new SetExpression<T>(callee, args)
+  const type = new SetRefExpression<T>(callee, args)
   return makeSelector(type, () => type[kSetAlias])
 }
 
 export interface SetRef<T extends Type = any, Callee extends string = any>
-  extends SetExpression<T>,
+  extends SetRefExpression<T>,
     SetSelector<T, Callee> {}
 
 type SetSelector<T extends Type, Callee extends string> = {
@@ -33,10 +33,10 @@ type SetSelector<T extends Type, Callee extends string> = {
   ): Selection<ResolveSelection<Selected>, SetRef<T, Callee>>
 }
 
-class SetExpression<
+class SetRefExpression<
   T extends Type = any,
   Callee extends string = any
-> extends CallExpression<SetType<T>, Callee> {
+> extends CallExpression<SetType<{ [P in Callee]: T }>, Callee> {
   protected [kSetAlias]: string
   constructor(callee: Callee, args: any[]) {
     super(callee, args, 'setof')
@@ -50,7 +50,7 @@ class SetExpression<
   }
 }
 
-export function getSetAlias(val: SetExpression): string
+export function getSetAlias(val: SetRefExpression): string
 export function getSetAlias(val: any): string | undefined
 export function getSetAlias(val: any) {
   return val ? val[kSetAlias] : undefined

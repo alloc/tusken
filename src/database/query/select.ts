@@ -1,12 +1,11 @@
 import { Any, Intersect } from '@alloc/types'
+import { BoolExpression } from '../expression'
 import { Query } from '../query'
-import { Selection } from '../selection'
-import { SetRef } from '../set'
-import { TableRef, toTableName } from '../table'
+import { Selection, SelectionSource } from '../selection'
+import { toTableName } from '../table'
 import { TokenArray } from '../token'
 import { tokenizeSelected, tokenizeWhere } from '../tokenize'
 import { SetType, Type } from '../type'
-import { BoolExpression } from './expression'
 import { JoinProps } from './join'
 import { Where, where } from './where'
 
@@ -19,7 +18,8 @@ export interface SelectProps {
 
 const kSelectFrom = Symbol()
 
-export type Selectable = SetRef | TableRef | Selection
+/** Object types compatible with `db.select` */
+export type Selectable = SelectionSource | Selection
 
 export class Select<From extends Selectable[] = any> //
   extends Query<SelectProps, 'select'>
@@ -76,21 +76,16 @@ export class Select<From extends Selectable[] = any> //
   }
 }
 
-export interface Select<From extends Selectable[]>
-  extends SetType<SelectedRow<From[number]>> {}
+export interface Select<From> extends SetType<SelectedRow<From[number]>> {}
 
-export type SelectedRow<T> = [T] extends [Any]
-  ? Record<string, any>
-  : Intersect<
-      T extends TableRef<infer Row>
-        ? Row
-        : T extends Selection<infer Row>
-        ? Row
-        : unknown
-    > extends infer Row
-  ? {
-      [P in keyof Row]: Row[P] extends Type<any, infer ColumnType>
-        ? ColumnType
-        : Row[P]
-    }
-  : never
+/** Note that `T` must be a union, not an array type. */
+export type SelectedRow<T> = unknown &
+  ([T] extends [Any]
+    ? Record<string, any>
+    : Intersect<T extends SetType<infer Row> ? Row : never> extends infer Row
+    ? Materialize<Row>
+    : never)
+
+type Materialize<T> = {
+  [P in keyof T]: T[P] extends Type<any, infer Value> ? Value : T[P]
+}

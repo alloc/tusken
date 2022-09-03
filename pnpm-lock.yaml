@@ -10,6 +10,8 @@ importers:
       '@types/pg': ^8.6.5
       pg: ^8.8.0
       pg-query-stream: ^4.2.4
+      pg-range: ^1.1.1
+      postgres-interval: ^4.0.0
       ts-toolbelt: ^9.6.0
       tsup: ^6.2.2
       typescript: ^4.7.4
@@ -18,6 +20,8 @@ importers:
     dependencies:
       '@alloc/types': 2.2.0
       '@types/pg': 8.6.5
+      pg-range: 1.1.1
+      postgres-interval: 4.0.0
       ts-toolbelt: 9.6.0
     devDependencies:
       '@tusken/cli': link:packages/tusken-cli
@@ -495,6 +499,10 @@ packages:
     dependencies:
       '@types/node': 18.7.13
     dev: true
+
+  /@types/strange/1.7.1:
+    resolution: {integrity: sha512-LCZqcMEu0Rsr20KVq/i6iHIYS2Duq+rDyoO+4Eh/SDoOMGKWTwT8PH2TKpfH04jkAbWvX0cJpPJVh4ZcUzwWFg==}
+    dev: false
 
   /acorn/8.8.0:
     resolution: {integrity: sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w==}
@@ -1677,6 +1685,10 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
+  /lodash.partial/4.2.1:
+    resolution: {integrity: sha512-qsiGr0kiA31O7chhmKSUiEGtxXnYtwmaJF00TPAUW79C5PCfaVeLTUN3sLT+rEPcqZooPtiFcGhnphQzFhkqmg==}
+    dev: false
+
   /lodash.sortby/4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
     dev: true
@@ -1954,6 +1966,14 @@ packages:
       - pg
     dev: true
 
+  /pg-range/1.1.1:
+    resolution: {integrity: sha512-fUDAvbA1jnahGdUcpXlCUrJOqDIFfsg2vXVMQ3ZsmPxYFr1konQ4ahSMfofV/7rCPE1TmeGlF/QtDJvPCDRjEA==}
+    dependencies:
+      '@types/strange': 1.7.1
+      lodash.partial: 4.2.1
+      strange: 1.7.2
+    dev: false
+
   /pg-types/2.2.0:
     resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
     engines: {node: '>=4'}
@@ -2068,6 +2088,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       xtend: 4.0.2
+
+  /postgres-interval/4.0.0:
+    resolution: {integrity: sha512-OWeL7kyEKJiY7mCmVY+c7/6uhAlt/colA/Nl/Mgls/M3jssrQzFra04iNWnD/qAmG7TsCSgWAASCyiaoBOP/sg==}
+    engines: {node: '>=12'}
+    dev: false
 
   /prelude-ls/1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
@@ -2257,6 +2282,10 @@ packages:
     resolution: {integrity: sha512-N/D219Hcr2bPjLxPiV+TQE++Tsmrady7TqAJugLy7Xk1EumfDWS/f5dtBbkRCGE7wKKXuYockQoj8Rm2/pVKyg==}
     dependencies:
       escodegen: 1.14.3
+    dev: false
+
+  /strange/1.7.2:
+    resolution: {integrity: sha512-7IUeTFy/dy3oAzTjeFp5bqp6n2aLYiUzTRxZLS4kdMZsfVyFyIGZnFHp+IL2nXROXvXN6RnVXmb4nwztlLYtJg==}
     dev: false
 
   /strict-event-emitter-types/2.0.0:

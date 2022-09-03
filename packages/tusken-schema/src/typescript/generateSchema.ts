@@ -1,5 +1,6 @@
 import endent from 'endent'
 import { Schema, TableColumn } from 'extract-pg-schema'
+import { Module } from 'module'
 import path from 'path'
 import { ClientConfig } from '../config'
 import { dataToEsm } from '../utils/dataToEsm'
@@ -51,20 +52,18 @@ export function generateTypeSchema(
     userTypes.imports[tuskenId].push('makeTableRef', 'TableRef')
     userTypes.refs.push(
       endent`
-        const ${table.name}: TableRef<${table.name}, "${
+        const ${table.name}: ${table.name} = makeTableRef("${
         table.name
-      }", ${pkColumn}, ${
-        optionColumns.map(quoted).join(' | ') || '""'
-      }> = makeTableRef("${table.name}", [${allColumns
-        .map(quoted)
-        .join(', ')}], ${pkColumn})
+      }", [${allColumns.map(quoted).join(', ')}], ${pkColumn})
       `
     )
     userTypes.lines.push(
       endent`
-        type ${table.name} = {
+        interface ${table.name} extends TableRef<{
           ${renderColumns(table.columns)}
-        }
+        }, "${table.name}", ${pkColumn}, ${
+        optionColumns.map(quoted).join(' | ') || '""'
+      }> {}
       `
     )
   }
@@ -96,11 +95,16 @@ export function generateTypeSchema(
     `)
   }
 
+  if (isQueryStreamInstalled(outDir)) {
+    header.push('import QueryStream from "pg-query-stream"')
+    databaseProps.push('QueryStream')
+  }
+
   const indexFile = endent`
     ${header.join('\n')}
 
     export default new Database({
-      ${databaseProps.join(',\n')}
+      ${databaseProps.join(',\n')},
     })
 
     export * as t from './types'
@@ -112,7 +116,7 @@ export function generateTypeSchema(
 
     ${userTypes.refs.map(toExport).join('\n')}
 
-    ${userTypes.lines.map(toExport).join('\n')}
+    ${userTypes.lines.map(toExport).join('\n\n')}
     ${nativeTypes.lines.join('\n')}
   `
 
@@ -131,4 +135,13 @@ function renderColumns(columns: TableColumn[]) {
       }`
     })
     .join('\n')
+}
+
+function isQueryStreamInstalled(outDir: string) {
+  const indexRequire = Module.createRequire(path.join(outDir, 'index.ts'))
+  try {
+    if (indexRequire.resolve('pg-query-stream')) {
+      return true
+    }
+  } catch {}
 }

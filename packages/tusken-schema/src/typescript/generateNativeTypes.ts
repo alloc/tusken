@@ -17,24 +17,30 @@ export function generateNativeTypes(
   nativeCasts: NativeCast[],
   tuskenId: string
 ): GeneratedLines {
+  const regTypes = new Set<string>()
   const implicitCastMap: Record<string, string[]> = {}
   const explicitCastMap: Record<string, string[]> = {}
   const columnCastMap: Record<string, string[]> = {}
+
   for (const cast of nativeCasts) {
     const source = nativeTypes.byId[cast.source]
     const target = nativeTypes.byId[cast.target]
-    if (source == target) {
+    if (source == target || target.name.startsWith('reg')) {
+      continue
+    }
+    if (source.name.startsWith('reg')) {
+      regTypes.add(source.name)
       continue
     }
     if (cast.context == 'i') {
-      implicitCastMap[source.name] ||= []
-      implicitCastMap[source.name].push(target.name)
+      implicitCastMap[target.name] ||= []
+      implicitCastMap[target.name].push(source.name)
     } else if (cast.context == 'a') {
-      columnCastMap[source.name] ||= []
-      columnCastMap[source.name].push(target.name)
+      columnCastMap[target.name] ||= []
+      columnCastMap[target.name].push(source.name)
     } else {
-      explicitCastMap[source.name] ||= []
-      explicitCastMap[source.name].push(target.name)
+      // explicitCastMap[target.name] ||= []
+      // explicitCastMap[target.name].push(source.name)
     }
   }
 
@@ -47,6 +53,7 @@ export function generateNativeTypes(
   // ).join('\n: ')
 
   const castTypes = endent`
+    /** This maps a native type to all types that can be implicitly cast to it. */
     type ImplicitCast<T extends string> = ${renderCastLogic(implicitCastMap)}
       : never
   
@@ -71,35 +78,32 @@ export function generateNativeTypes(
     'type array3d<Element extends Type> = array<array2d<Element>>',
   ]
 
+  // These pseudo types are conflicting with TypeScript reserved keywords.
+  const pseudoConflicts = {
+    ANY: 'anynonarray | anyarray',
+    NULL: 'Type<"null", undefined, undefined>',
+    VOID: 'Type<"void", void, void>',
+  }
+
   const pseudoTypes = Object.entries({
-    anynonarray: nativeTypeMap.map(t => t[0]).join(' | '),
-    anyelement: 'anynonarray | anyarray',
+    ...pseudoConflicts,
     anyarray:
       'array<anynonarray> | array2d<anynonarray> | array3d<anynonarray>',
     anycompatiblearray: 'anyarray',
-    anyint: 'int2 | int4 | int8',
-    pg_any: 'anynonarray | anyarray',
-    pg_null: 'Type<"null", undefined, never>',
-    pg_void: 'Type<"void", void, never>',
-  }).map(
-    ([name, union]) =>
-      (name.startsWith('pg_')
-        ? `type { ${name} as ${name.replace('pg_', '')} }\n`
-        : '') + `type ${name} = ${union}`
-  )
+    anynonarray: nativeTypeMap.map(t => t[0]).join(' | '),
+    anyelement: 'anynonarray | anyarray',
+  }).map(([name, type]) => `type ${name} = ${type}`)
 
   const specialTypes = [
     'type elementof<T extends Type> = T extends array<infer E> ? E : anyelement',
-    'type setof<T extends Type> = SetType<T>',
     'type param<T extends Type> = T extends Type<infer Native> ? Input<T | ImplicitCast<Native>> : never',
-    'type aggParam<T extends Type> = T extends Type<infer Native> ? T | ImplicitCast<Native> | pg_null : never',
+    'type aggParam<T extends Type> = T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never',
     'type record = Type<"record", { [key: string]: any }, never>',
-    'type regtype = oid',
   ]
 
   return {
     imports: {
-      [tuskenId]: ['ColumnRef', 'Input', 'SetType', 'Type'],
+      [tuskenId]: ['Input', 'Interval', 'Json', 'Range', 'Type'],
     },
     lines: [
       '\n// Primitive types',
@@ -108,6 +112,17 @@ export function generateNativeTypes(
       ...arrayTypes.map(toExport),
       '\n// Pseudo types',
       ...pseudoTypes.map(toExport),
+      toExport(
+        'type { ' +
+          Object.keys(pseudoConflicts)
+            .map(name => `${name} as ${name.toLowerCase()}`)
+            .join(', ') +
+          ' }'
+      ),
+      '\n// Registry types',
+      toExport(
+        'type { ' + Array.from(regTypes, t => `oid as ${t}`).join(', ') + ' }'
+      ),
       '',
       ...specialTypes.map(toExport),
       '',

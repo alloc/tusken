@@ -7,7 +7,7 @@ export function generateNativeFuncs(
   docs: Record<string, string>
 ) {
   const imports = endent`
-    import { defineFunction, defineSetFunction, Aggregate, Output } from 'tusken'
+    import { defineFunction, defineSetFunction, Aggregate, CallExpression, SetRef } from 'tusken'
     import * as t from './types'
   `
 
@@ -162,13 +162,14 @@ export function generateNativeFuncs(
 
 function renderOutput(fn: NativeFunc, isNullable?: boolean) {
   let { returnType } = fn
-  if (fn.returnSet) {
-    returnType = `t.setof<${returnType}>`
-  } else if (isNullable) {
+  if (!fn.returnSet && isNullable) {
     returnType += ' | t.null'
   }
-  const outputType = fn.kind == 'a' ? 'Aggregate' : 'Output'
-  return outputType + `<${returnType}, "${fn.name}">`
+
+  const runtimeType =
+    fn.kind == 'a' ? 'Aggregate' : fn.returnSet ? 'SetRef' : 'CallExpression'
+
+  return runtimeType + `<${returnType}, "${fn.name}">`
 }
 
 function renderInputs(fn: NativeFunc, isNullable?: boolean) {

@@ -1,28 +1,27 @@
-import { Query } from '../query'
-import { tokenizeCheck, tokenizeExpression } from '../tokenize'
-import { BoolType, Input, isBoolExpression, NullType, Type } from '../type'
 import {
   BoolExpression,
   Expression,
   ExpressionProps,
   ExpressionType,
-} from './expression'
+} from '../expression'
+import { Query } from '../query'
+import { tokenizeCheck, tokenizeExpression } from '../tokenize'
+import { Input, isBoolExpression, t, Type } from '../type'
 
 interface Props extends ExpressionProps {
   type: 'bool'
   check: Check | BoolExpression
 }
 
-export class CheckList<T extends BoolType | NullType = any> extends Expression<
-  T,
-  Props
-> {
+export class CheckList<T extends t.bool | t.null = any> //
+  extends Expression<T, Props>
+{
   constructor(check: Check | BoolExpression) {
     super({ type: 'bool', check }, tokenizeCheckList)
   }
 
   and(cond: BoolExpression): this
-  and(cond: Expression<BoolType | NullType>): CheckList<BoolType | NullType>
+  and(cond: Expression<t.bool | t.null>): CheckList<t.bool | t.null>
   and<T extends Expression>(left: T): CheckBuilder<ExpressionType<T>>
   and<T extends Type>(left: T): CheckBuilder<T>
   and<T>(left: T): CheckBuilder<Type<any, T>>
@@ -39,7 +38,7 @@ export class CheckList<T extends BoolType | NullType = any> extends Expression<
   }
 
   or(cond: BoolExpression): this
-  or(cond: Expression<BoolType | NullType>): CheckList<BoolType | NullType>
+  or(cond: Expression<t.bool | t.null>): CheckList<t.bool | t.null>
   or<T extends Expression>(left: T): CheckBuilder<ExpressionType<T>>
   or<T extends Type>(left: T): CheckBuilder<T>
   or<T>(left: T): CheckBuilder<Type<any, T>>
@@ -86,7 +85,7 @@ export class CheckBuilder<T extends Type = any> {
   between(
     min: Input<T>,
     max: Input<T>
-  ): CheckList<BoolType | Extract<T, NullType>> {
+  ): CheckList<t.bool | Extract<T, t.null>> {
     return this.wrap(
       new Check(
         this.left,
@@ -103,13 +102,13 @@ export interface CheckBuilder<T> extends CheckMethods<T>, CheckAliases<T> {}
 type CheckMethods<T> = {
   [P in keyof typeof checkMapping]: (
     right: Input<T>
-  ) => CheckList<BoolType | Extract<T, NullType>>
+  ) => CheckList<t.bool | Extract<T, t.null>>
 }
 
 type CheckAliases<T> = {
   [P in keyof typeof checkAliases]: (
     right: Input<T>
-  ) => CheckList<BoolType | Extract<T, NullType>>
+  ) => CheckList<t.bool | Extract<T, t.null>>
 }
 
 const checkMapping = {

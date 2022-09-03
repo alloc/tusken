@@ -1,7 +1,14 @@
 import { Any } from '@alloc/types'
-import { kExprProps, kExprTokens } from '../symbols'
-import type { TokenFunction } from '../token'
-import type { BoolType, NativeType, SetType, Type, UnwrapType } from '../type'
+import { kExprProps, kExprTokens } from './symbols'
+import type { TokenProducer } from './token'
+import type {
+  SetType,
+  t,
+  toDownCasts,
+  toRuntimeType,
+  toTypeName,
+  Type,
+} from './type'
 
 /**
  * This list is non-exhaustive. \
@@ -18,24 +25,24 @@ export class Expression<
   Props extends ExpressionProps = any
 > {
   protected [kExprProps]: Props
-  protected [kExprTokens]: TokenFunction
+  protected [kExprTokens]: TokenProducer
   protected get props(): Props {
     return this[kExprProps]
   }
   constructor(
     props: [Props] extends [Any] ? Record<string, any> : Props,
-    tokens: TokenFunction
+    tokens: TokenProducer
   ) {
     this[kExprProps] = props as any
     this[kExprTokens] = tokens
   }
 }
 
-export interface Expression<T extends Type = any>
-  extends Type<NativeType<T>, UnwrapType<T>> {}
+export interface Expression<T>
+  extends Type<toTypeName<T>, toRuntimeType<T>, toDownCasts<T>> {}
 
-export type BoolExpression = Expression<BoolType>
-export type SetExpression<T = any> = Expression<SetType<T>>
+export type BoolExpression = Expression<t.bool>
+export type SetExpression<T extends object = any> = Expression<SetType<T>>
 
 /** Extract `T` from `Expression<T>` */
 export type ExpressionType<E extends Expression> = unknown &

@@ -29,7 +29,7 @@ export type Token =
     >
 
 export type TokenArray = (Token | TokenArray)[]
-export type TokenFunction<Props extends object | null = any> = (
+export type TokenProducer<Props extends object | null = any> = (
   props: Props,
   ctx: Query.Context
 ) => TokenArray
@@ -53,11 +53,9 @@ export function renderToken(token: Token, ctx: Query.Context): string {
             : renderToken(t, ctx)
         )
         .join(token.with)
-    : token.call
-    ? token.call +
-      (token.args == null
-        ? ''
-        : `(${renderTokens(token.args, ctx).join(', ')})`)
+    : token.callee
+    ? token.callee +
+      (token.args ? `(${renderTokens(token.args, ctx).join(', ')})` : ``)
     : `(${
         token.query
           ? token.query.render()

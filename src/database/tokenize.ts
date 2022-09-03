@@ -1,7 +1,7 @@
 import { callProp } from '../utils/callProp'
+import { BoolExpression, Expression } from './expression'
 import { Query } from './query'
 import { Check, CheckBuilder } from './query/check'
-import { BoolExpression, Expression } from './query/expression'
 import { Selectable } from './query/select'
 import type { AliasMapping, Selection } from './selection'
 import { kExprProps, kExprTokens, kSelectionArgs, kTableName } from './symbols'
@@ -10,6 +10,7 @@ import {
   isBoolExpression,
   isColumnRef,
   isExpression,
+  isSelection,
   isSetExpression,
   isTableRef,
 } from './type'
@@ -58,7 +59,7 @@ export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
   return expr[kExprTokens](expr[kExprProps], ctx)
 }
 
-export function tokenizeColumns(
+export function tokenizeSelectedColumns(
   selection: Selection,
   ctx: Query.Context
 ): TokenArray {
@@ -124,20 +125,25 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
 export function tokenizeSelected(
   selections: Selectable[],
   ctx: Query.Context
-): Token {
+): Token | TokenArray {
   return selections.length == 1
     ? isTableRef(selections[0])
       ? '*'
-      : {
-          join: tokenizeColumns(selections[0], ctx),
+      : isSelection(selections[0])
+      ? {
+          join: tokenizeSelectedColumns(selections[0], ctx),
           with: ', ',
         }
+      : tokenizeExpression(selections[0], ctx)
     : {
         join: selections.map(selection => {
           if (isTableRef(selection)) {
             return selection[kTableName] + '.*'
           }
-          return tokenizeColumns(selection, ctx)
+          if (isSelection(selection)) {
+            return tokenizeSelectedColumns(selection, ctx)
+          }
+          return tokenizeExpression(selection, ctx)
         }),
         with: ', ',
       }

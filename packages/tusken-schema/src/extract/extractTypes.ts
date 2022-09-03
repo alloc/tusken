@@ -26,10 +26,10 @@ export async function extractNativeTypes(client: Client) {
 
   const nativeTypeNames = nativeTypeMap
     .map(t => t[0])
-    .concat('any', 'void', 'regtype', anyTypes)
+    .concat('any', 'void', anyTypes)
 
   const response = await client.query<NativeType>(
-    `select oid "id", typname "name", typarray "arrayId" from pg_type where typname not like '\\_%' escape '\\' and typname = ANY ($1)`,
+    `select oid "id", typname "name", typarray "arrayId" from pg_type where typname like 'reg%' or (typname not like '\\_%' escape '\\' and typname = ANY ($1))`,
     [nativeTypeNames]
   )
 

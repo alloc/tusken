@@ -44,6 +44,8 @@
   "dependencies": {
     "@alloc/types": "^2.2.0",
     "@types/pg": "^8.6.5",
+    "pg-range": "^1.1.1",
+    "postgres-interval": "^4.0.0",
     "ts-toolbelt": "^9.6.0"
   }
 }

@@ -1,78 +1,60 @@
-import { CallExpression } from './function'
-import type {
-  BoolExpression,
-  Expression,
-  SetExpression,
-} from './query/expression'
-import type { ColumnRef, Selection } from './selection'
-import type { SetRef } from './set'
+import type { ColumnRef } from './column'
+import type { BoolExpression, Expression, SetExpression } from './expression'
+import type { Selection } from './selection'
 import { kColumnFrom, kExprProps, kSelectionFrom, kTableName } from './symbols'
 import type { TableRef } from './table'
+import * as t from './type-builtin'
 
-const kNativeType = Symbol()
-const kDataType = Symbol()
-const kColumnCast = Symbol()
-const kAggregate = Symbol()
+export type { t }
+
+const kTypeName = Symbol()
+const kRuntimeType = Symbol()
+const kDownCasts = Symbol()
 
 /** Postgres data type */
-export declare class Type<Native extends string = any, T = any, ColumnT = any> {
-  protected declare [kNativeType]: Native
-  protected declare [kDataType]: T
-  /** This type is compatible with these column types. */
-  protected declare [kColumnCast]: ColumnT
+export abstract class Type<
+  TypeName extends string = any,
+  RuntimeType = any,
+  DownCasts = any
+> {
+  protected declare [kTypeName]: TypeName
+  protected declare [kRuntimeType]: RuntimeType
+  protected declare [kDownCasts]: DownCasts
 }
-
-/** Allow both the Postgres type and its JavaScript type */
-export type Input<T> = T extends Type<any, infer Value> ? Value | T : T
-
-export type Output<
-  T extends Type,
-  Callee extends string = any
-> = T extends SetType<infer Row>
-  ? SetRef<Row, Callee>
-  : CallExpression<T, Callee>
 
 /** Convert a Postgres type to a JavaScript type */
 export type Value<T> = T extends Type<any, infer V> ? V : T
 
-export type NullType = Type<'null', undefined>
-export type BoolType = Type<'bool', boolean>
+/** Allow both the Postgres type and its JavaScript type */
+export type Input<T> = T extends Type<any, infer Value> ? Value | T : T
 
-export abstract class SetType<T extends Type = any> //
-  extends Type<`setof<${NativeType<T>}>`, UnwrapType<T>, UnwrapColumnType<T>> {}
+export abstract class SetType<T extends object = any> //
+  extends Type<`setof<record>`, T[], T[]> {}
 
-/**
- * Aggregate columns cannot be selected alongside normal columns.
- *
- * You must use `GROUP BY` on the normal columns.
- */
-export abstract class Aggregate<
-  T extends Type = any,
-  Callee extends string = any
-> extends CallExpression<T, Callee> {
-  protected declare [kAggregate]: true
+export type Json = string | number | boolean | null | JsonObject | JsonArray
+
+export interface JsonObject {
+  [property: string]: Json | undefined
 }
 
-/**
- * Get the native Postgres type of a column.
- *
- * Optional columns have `NullType` included.
- */
-export type ColumnType<Row = any, Column = any> = unknown &
-  (Row[Column & keyof Row] extends infer Value
-    ? Extract<Value, Type> | (undefined extends Value ? NullType : never)
-    : never)
+export interface JsonArray extends Array<Json> {}
 
-export type NativeType<T extends Type> = T extends Type<infer Native>
-  ? Native
+export type toTypeName<T extends Type> = T extends Type<infer U>
+  ? string extends U
+    ? any
+    : U
   : never
 
-export type UnwrapType<T extends Type> = T extends Type<any, infer T>
-  ? T
+export type toRuntimeType<T extends Type> = T extends Type<any, infer U>
+  ? unknown extends U
+    ? any
+    : U
   : never
 
-export type UnwrapColumnType<T extends Type> = T extends Type<any, any, infer T>
-  ? T
+export type toDownCasts<T extends Type> = T extends Type<any, any, infer U>
+  ? unknown extends U
+    ? any
+    : U
   : never
 
 export function isTableRef(val: any): val is TableRef {

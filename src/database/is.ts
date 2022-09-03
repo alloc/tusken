@@ -1,11 +1,11 @@
+import { BoolExpression, Expression } from './expression'
 import { CheckBuilder, CheckList } from './query/check'
-import { BoolExpression, Expression } from './query/expression'
-import { BoolType, isBoolExpression, NullType, Type } from './type'
+import { isBoolExpression, t, Type } from './type'
 
-export function is(left: BoolExpression): CheckList<BoolType>
+export function is(left: BoolExpression): CheckList<t.bool>
 export function is(
-  left: Expression<BoolType | NullType>
-): CheckList<BoolType | NullType>
+  left: Expression<t.bool | t.null>
+): CheckList<t.bool | t.null>
 export function is<T extends Type>(left: T): CheckBuilder<T>
 export function is<T>(left: T): CheckBuilder<Type<any, T>>
 export function is(left: any): any {

@@ -1,4 +1,4 @@
-import { BoolExpression } from './expression'
+import { BoolExpression } from '../expression'
 import { Selectable } from './select'
 
 export type JoinProps = {

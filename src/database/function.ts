@@ -1,9 +1,5 @@
+import { Expression, ExpressionProps, ExpressionTypeName } from './expression'
 import type { Query } from './query'
-import {
-  Expression,
-  ExpressionProps,
-  ExpressionTypeName,
-} from './query/expression'
 import { kExprProps } from './symbols'
 import { TokenArray } from './token'
 import { tokenize } from './tokenize'
@@ -16,8 +12,8 @@ export const defineFunction =
 
 interface Props<Callee extends string = any> extends ExpressionProps {
   alias?: string
-  callee: Callee
   args: any[]
+  callee: Callee
 }
 
 export class CallExpression<
