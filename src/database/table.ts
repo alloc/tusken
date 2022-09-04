@@ -1,6 +1,6 @@
-import { Narrow } from '../utils/Narrow'
 import { LoosePick, Omit, Remap } from '@alloc/types'
-import { ColumnInput, ColumnRefs, ColumnType } from './column'
+import { Narrow } from '../utils/Narrow'
+import { ColumnInput, ColumnOf, ColumnRefs, ColumnType } from './column'
 import { Selectable } from './query/select'
 import {
   RawSelection,
