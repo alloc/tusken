@@ -40,18 +40,6 @@ export abstract class Query<
     }
   }
 
-  /**
-   * Pass this query object as a function's first argument.
-   *
-   * Useful if you like reading calls in order.
-   */
-  chain<In extends any[], Out>(
-    call: (value: this, ...args: In) => Out,
-    ...args: In
-  ): Out {
-    return call(this, ...args)
-  }
-
   /** Render a SQL string. */
   render(): string {
     const tokens = this.tokenize()

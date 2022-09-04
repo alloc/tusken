@@ -1,5 +1,5 @@
-import { Narrow } from '../utils/Narrow'
 import { isObject } from '../utils/isObject'
+import { Narrow } from '../utils/Narrow'
 import { QueryBatch } from './batch'
 import { Query, ValidQuery } from './query'
 import { Delete } from './query/delete'
@@ -53,11 +53,11 @@ export class Database {
     return new QueryBatch(this, arg1 || {})
   }
 
-  delete<From extends TableRef>(from: From): Delete<From, undefined>
+  delete<From extends TableRef>(from: From): Delete<From>
   delete<From extends TableRef>(
     from: From,
     pk: PrimaryKey<From>
-  ): ValidQuery<undefined>
+  ): ValidQuery<number>
   delete(from: TableRef, pk?: any) {
     const query = this.query({
       type: 'delete',
@@ -78,7 +78,7 @@ export class Database {
   find<T extends Selectable>(
     from: T,
     compose: Where<[T]>
-  ): ValidQuery<SelectedRow<T> | null, 'find'> {
+  ): ValidQuery<SelectedRow<T> | null> {
     const query = this.select(from).where(compose).limit(1)
     query['resolve'] = res => res.rows[0] || null
     return query as any
@@ -92,7 +92,7 @@ export class Database {
   get<T extends Selectable>(
     from: T,
     pk: PrimaryKey<T>
-  ): ValidQuery<SelectedRow<T> | null, 'get'> {
+  ): ValidQuery<SelectedRow<T> | null> {
     return this.find<any>(from, from => from[kPrimaryKey].eq(pk))
   }
 

@@ -1,12 +1,11 @@
 import { ClientResult } from '../database'
 import { BoolExpression } from '../expression'
 import { Query } from '../query'
-import { Selection } from '../selection'
 import { kTableName } from '../symbols'
 import { TableRef, toTableName } from '../table'
 import { TokenArray } from '../token'
 import { tokenizeWhere } from '../tokenize'
-import { SetType } from '../type'
+import { Type } from '../type'
 import { where, Where, WhereRefs } from './where'
 
 type Props = {
@@ -14,10 +13,7 @@ type Props = {
   where?: BoolExpression
 }
 
-export class Delete<
-  From extends TableRef,
-  Return extends Selection = any
-> extends Query<Props, 'delete'> {
+export class Delete<From extends TableRef> extends Query<Props, 'delete'> {
   protected tokens(props: Props, ctx: Query.Context) {
     const tokens: TokenArray = ['DELETE FROM', { id: props.from[kTableName] }]
     if (props.where) {
@@ -47,4 +43,4 @@ export class Delete<
   }
 }
 
-export interface Delete<From, Return> extends SetType<Return> {}
+export interface Delete<From> extends Type<any, number> {}
