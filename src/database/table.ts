@@ -2,12 +2,7 @@ import { LoosePick, Omit, Remap } from '@alloc/types'
 import { Narrow } from '../utils/Narrow'
 import { ColumnInput, ColumnOf, ColumnRefs, ColumnType } from './column'
 import { Selectable } from './query/select'
-import {
-  RawSelection,
-  ResolveSelection,
-  Selection,
-  SelectionSource,
-} from './selection'
+import { RawSelection, ResolveSelection, Selection } from './selection'
 import { makeSelector } from './selector'
 import {
   kNullableColumns,
@@ -57,9 +52,16 @@ export interface TableRef<
   PrimaryKey extends string = any,
   NullableColumn extends string = any
 > extends TableType<T, TableName, PrimaryKey, NullableColumn>,
-    TableSelect<T, PrimaryKey> {}
+    TableSelector<T, PrimaryKey> {
+  /**
+   * Exclude specific columns from the result set.
+   */
+  omit<Omitted extends ColumnOf<T>[]>(
+    ...omitted: Omitted
+  ): Selection<Omit<T, Omitted[number]>, this>
+}
 
-type TableSelect<T, PrimaryKey extends string> = {
+type TableSelector<T, PrimaryKey extends string> = {
   <Selected extends RawSelection>(
     selector: (row: ColumnRefs<T, PrimaryKey>) => Narrow<Selected>
   ): Selection<ResolveSelection<Selected>, TableRef<T, PrimaryKey>>
@@ -100,10 +102,8 @@ class TableType<
     this[kPrimaryKey] = pkColumn
   }
 
-  omit<Omitted extends ColumnOf<T>[]>(
-    ...omitted: Omitted
-  ): Selection<Omit<T, Omitted[number]>, Extract<this, SelectionSource>> {
-    return new Selection<any, Extract<this, SelectionSource>>(
+  omit(...omitted: string[]): Selection {
+    return new Selection(
       this[kTableColumns].filter(name => !omitted.includes(name as any)),
       this as any
     )
