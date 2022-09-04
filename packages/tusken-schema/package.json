@@ -8,19 +8,24 @@
     "typescript",
     "codegen"
   ],
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
   "exports": {
-    "./generate": {
-      "types": "./dist/generate.d.ts",
-      "import": "./dist/generate.mjs",
-      "default": "./dist/generate.cjs"
-    }
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.mjs",
+    "default": "./dist/index.cjs"
   },
   "files": [
+    "docs.json",
     "dist"
   ],
   "devDependencies": {
+    "@types/cheerio": "^0.22.31",
     "@types/node": "^18.7.9",
     "@types/pg": "^8.6.5",
+    "cheerio": "1.0.0-rc.12",
+    "node-fetch": "^2.0.0",
     "sucrase": "^3.25.0",
     "tsup": "^6.2.2",
     "tusken": "workspace:^0.1.0",
@@ -29,11 +34,9 @@
     "vitest": "^0.22.1"
   },
   "dependencies": {
-    "@types/cheerio": "^0.22.31",
-    "cheerio": "1.0.0-rc.12",
     "endent": "^2.1.0",
     "extract-pg-schema": "^4.0.2",
-    "node-fetch": "^2.0.0",
+    "pg": "^8.8.0",
     "strict-event-emitter-types": "^2.0.0"
   },
   "scripts": {

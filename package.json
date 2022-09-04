@@ -8,14 +8,14 @@
     "typescript",
     "codegen"
   ],
-  "main": "src/tusken.ts",
-  "module": "dist/tusken.mjs",
   "types": "dist/tusken.d.ts",
+  "module": "dist/tusken.mjs",
+  "main": "dist/tusken.cjs",
   "exports": {
     ".": {
       "types": "./dist/tusken.d.ts",
       "import": "./dist/tusken.mjs",
-      "default": "./src/tusken.ts"
+      "default": "./dist/tusken.cjs"
     },
     "./config": {
       "types": "./dist/config.d.ts",
@@ -31,11 +31,14 @@
     "dev": "unbuild --stub",
     "build": "unbuild"
   },
+  "prettier": "@alloc/prettier-config",
   "devDependencies": {
+    "@alloc/prettier-config": "^1.0.0",
     "@tusken/cli": "workspace:*",
     "@types/node": "^18.7.9",
     "pg": "^8.8.0",
     "pg-query-stream": "^4.2.4",
+    "prettier": "^2.7.1",
     "tsup": "^6.2.2",
     "typescript": "^4.7.4",
     "unbuild": "^0.8.9",
@@ -44,8 +47,10 @@
   "dependencies": {
     "@alloc/types": "^2.2.0",
     "@types/pg": "^8.6.5",
-    "pg-range": "^1.1.1",
     "postgres-interval": "^4.0.0",
-    "ts-toolbelt": "^9.6.0"
+    "postgres-range": "^1.1.3"
+  },
+  "peerDependencies": {
+    "pg": "^8.8.0"
   }
 }

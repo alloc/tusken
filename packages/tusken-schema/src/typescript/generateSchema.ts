@@ -68,7 +68,10 @@ export function generateTypeSchema(
     )
   }
 
-  const header = [`import { Database, Pool } from '${tuskenId}'`]
+  const header = [
+    `import { Database } from '${tuskenId}'`,
+    `import { Pool } from 'pg'`,
+  ]
   const databaseProps = [
     `reserved: [${reservedWords
       .filter(word => schemaColumns.has(word) || schemaTables.has(word))
@@ -81,7 +84,7 @@ export function generateTypeSchema(
     header.push(`import config from '${configPath}'`)
     databaseProps.push(endent`
       client: process.env.NODE_ENV == 'test'
-        ? null! // Set "db.client.query" in your test setup file.
+        ? null! // Set "db.client" in your test setup file.
         : new Pool({
             ...config.connection,
             ...config.pool,
@@ -90,7 +93,7 @@ export function generateTypeSchema(
   } else {
     databaseProps.push(endent`
       client: process.env.NODE_ENV == 'test' 
-        ? null! // Set "db.client.query" in your test setup file.
+        ? null! // Set "db.client" in your test setup file.
         : new Pool(${dataToEsm(config, '')})
     `)
   }

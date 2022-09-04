@@ -5,14 +5,18 @@ Postgres client from a galaxy far, far away.
 - your database is the source-of-truth for TypeScript generated types
 - type safety for all queries (even subqueries)
   - all built-in Postgres functions are available and type-safe
+  - implicit type casts are accounted for
 - minimal, intuitive SQL building
-- identifiers are case-sensitive
-- shortcuts for common tasks (eg: `get`, `put`, and more)
+  - shortcuts for common tasks (eg: `get`, `put`, and more)
+  - identifiers are case-sensitive
 - lightweight, largely tree-shakeable
-- uses [`pg`] peer dependency (so you control the version)
-- has CLI for importing CSV files, wiping all data, generating types, dumping the schema, and more
+- works with [`@tusken/cli`] to easily import CSV files, wipe data, generate a type-safe client, dump the schema for migrations, and more
+- you control the [`pg`] version as a peer dependency
+- query streaming with the `.stream` method (just install [`pg-query-stream`] and run `tusken generate`)
 
 [`pg`]: https://www.npmjs.com/package/pg
+[`pg-query-stream`]: https://www.npmjs.com/package/pg-query-stream
+[`@tusken/cli`]: https://github.com/alloc/tusken/tree/master/packages/tusken-cli
 
 ### Migrations?
 

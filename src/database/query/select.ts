@@ -2,10 +2,11 @@ import { Any, Intersect } from '@alloc/types'
 import { BoolExpression } from '../expression'
 import { Query } from '../query'
 import { Selection, SelectionSource } from '../selection'
+import { kDatabaseQueryStream } from '../symbols'
 import { toTableName } from '../table'
 import { TokenArray } from '../token'
 import { tokenizeSelected, tokenizeWhere } from '../tokenize'
-import { SetType, Type } from '../type'
+import { QueryStreamConfig, SetType, Type } from '../type'
 import { JoinProps } from './join'
 import { Where, where } from './where'
 
@@ -73,6 +74,19 @@ export class Select<From extends Selectable[] = any> //
   where(compose: Where<From>) {
     this.props.where = where(this.props, compose)
     return this
+  }
+
+  stream(config?: QueryStreamConfig | null): NodeJS.ReadableStream {
+    const db = this.context.db!
+    const QueryStream = db[kDatabaseQueryStream]
+    if (!QueryStream)
+      throw Error(
+        'pg-query-stream not installed or the generated client is outdated'
+      )
+
+    const query = this.render()
+    const cursor = new QueryStream(query, undefined, config || undefined)
+    return db.client.query(cursor as any) as any
   }
 }
 

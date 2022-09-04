@@ -21,7 +21,7 @@ export default async function () {
     .option('-w, --watch', 'Enable watch mode')
     .action(async (options: any) => {
       const { generate } =
-        require('@tusken/schema/generate') as typeof import('@tusken/schema/generate')
+        require('@tusken/schema') as typeof import('@tusken/schema')
 
       let watcher: chokidar.FSWatcher | undefined
 

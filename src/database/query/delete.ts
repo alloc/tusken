@@ -1,3 +1,4 @@
+import { ClientResult } from '../database'
 import { BoolExpression } from '../expression'
 import { Query } from '../query'
 import { Selection } from '../selection'
@@ -39,6 +40,10 @@ export class Delete<
 
   returning(): never {
     throw Error('not implemented')
+  }
+
+  protected resolve(result: ClientResult) {
+    return result.rowCount
   }
 }
 

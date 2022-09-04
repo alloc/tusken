@@ -3,13 +3,10 @@ import EventEmitter from 'events'
 import { extractSchemas } from 'extract-pg-schema'
 import fs, { mkdirSync, writeFileSync } from 'fs'
 import path from 'path'
-import { Client } from 'pg'
 import { StrictEventEmitter } from 'strict-event-emitter-types'
 import { promisify } from 'util'
 import { ClientConfig } from './config'
-import { extractTypeCasts } from './extract/extractCasts'
-import { extractNativeFuncs } from './extract/extractFuncs'
-import { extractNativeTypes } from './extract/extractTypes'
+import { extractTypes } from './extract'
 import { generateNativeFuncs } from './typescript/generateNativeFuncs'
 import { generateNativeTypes } from './typescript/generateNativeTypes'
 import { generateTypeSchema } from './typescript/generateSchema'
@@ -40,14 +37,16 @@ export function generate(
   generator.update = async () => {
     try {
       generator.emit('extractStart')
-      const client = new Client(config)
-      await client.connect()
-      const nativeTypes = await extractNativeTypes(client)
-      const nativeCasts = await extractTypeCasts(client, nativeTypes)
-      const nativeFuncs = await extractNativeFuncs(client, nativeTypes)
-      await client.end()
+
+      const { nativeTypes, nativeCasts, nativeFuncs } = await extractTypes(
+        config
+      )
+
+      // TODO: replace pg-extract-schema with our own query
       const extracted = await extractSchemas(config)
+
       generator.emit('generateStart')
+
       const files = generateTypeSchema(
         extracted.public,
         generateNativeTypes(nativeTypes, nativeCasts, tuskenId),
@@ -64,11 +63,14 @@ export function generate(
         name: 'schema.sql',
         content: await dumpSqlSchema(config),
       })
+
       generator.emit('generateEnd')
+
       mkdirSync(outDir, { recursive: true })
       for (const file of files) {
         writeFileSync(path.join(outDir, file.name), file.content)
       }
+
       generator.emit('write')
     } catch (e: any) {
       generator.emit('error', e)

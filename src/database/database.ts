@@ -1,28 +1,30 @@
-import { F } from 'ts-toolbelt'
+import { Narrow } from '../utils/Narrow'
 import { isObject } from '../utils/isObject'
 import { QueryBatch } from './batch'
 import { Query, ValidQuery } from './query'
-import { QueryStream } from './query-stream'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select, Selectable, SelectedRow } from './query/select'
 import { Where } from './query/where'
-import { kDatabaseReserved, kPrimaryKey } from './symbols'
+import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
+import { QueryStreamConstructor } from './type'
 
 export type ClientResult = { rows: any[]; rowCount?: number }
 export type Client = { query: (query: string) => Promise<ClientResult> }
 
 export class Database {
   protected [kDatabaseReserved]: string[]
+  protected [kDatabaseQueryStream]?: QueryStreamConstructor
   client: Client
 
   constructor(config: {
     client: Client
     reserved: string[]
-    QueryStream?: QueryStream
+    QueryStream?: QueryStreamConstructor
   }) {
     this[kDatabaseReserved] = config.reserved
+    this[kDatabaseQueryStream] = config.QueryStream
     this.client = config.client
   }
 
@@ -33,7 +35,7 @@ export class Database {
 
   /** Batch a static number of queries. */
   batch<T extends [ValidQuery, ...ValidQuery[]]>(
-    ...queries: F.Narrow<T>
+    ...queries: Narrow<T>
   ): Promise<{
     [P in keyof T]: Awaited<T[P]>
   }>
@@ -51,11 +53,11 @@ export class Database {
     return new QueryBatch(this, arg1 || {})
   }
 
-  delete<From extends TableRef>(from: From): Delete<From, never>
+  delete<From extends TableRef>(from: From): Delete<From, undefined>
   delete<From extends TableRef>(
     from: From,
     pk: PrimaryKey<From>
-  ): ValidQuery<never>
+  ): ValidQuery<undefined>
   delete(from: TableRef, pk?: any) {
     const query = this.query({
       type: 'delete',

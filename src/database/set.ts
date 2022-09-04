@@ -1,11 +1,7 @@
-import { F } from 'ts-toolbelt'
+import { Narrow } from '../utils/Narrow'
+import { ColumnRef } from './column'
 import { CallExpression } from './function'
-import {
-  ColumnRef,
-  RawSelection,
-  ResolveSelection,
-  Selection,
-} from './selection'
+import { RawSelection, ResolveSelection, Selection } from './selection'
 import { makeSelector } from './selector'
 import { kSetAlias } from './symbols'
 import { SetType, Type } from './type'
@@ -29,7 +25,7 @@ export interface SetRef<T extends Type = any, Callee extends string = any>
 
 type SetSelector<T extends Type, Callee extends string> = {
   <Selected extends RawSelection>(
-    selector: (value: ColumnRef<T, Callee>) => F.Narrow<Selected>
+    selector: (value: ColumnRef<T, Callee>) => Narrow<Selected>
   ): Selection<ResolveSelection<Selected>, SetRef<T, Callee>>
 }
 

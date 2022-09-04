@@ -94,7 +94,7 @@ export abstract class Query<
   /**
    * Modify the query promise before the caller receives it.
    */
-  protected resolve?(result: ClientResult): Promise<any>
+  protected resolve?(result: ClientResult): any
 
   /**
    * Modify the context before tokens are generated. The `context` phase

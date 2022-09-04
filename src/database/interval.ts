@@ -1,3 +1,1 @@
-import PostgresInterval from 'postgres-interval'
-
-export interface Interval extends PostgresInterval.IPostgresInterval {}
+export type Interval = import('postgres-interval').IPostgresInterval

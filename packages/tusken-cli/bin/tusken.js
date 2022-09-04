@@ -1,2 +1,2 @@
 //#!/usr/env/bin node
-require('../dist/index.cjs').default()
+require('../dist/index.cjs')()

@@ -1,8 +1,13 @@
+import { Narrow } from '../utils/Narrow'
 import { LoosePick, Omit, Remap } from '@alloc/types'
-import { F } from 'ts-toolbelt'
 import { ColumnInput, ColumnRefs, ColumnType } from './column'
 import { Selectable } from './query/select'
-import { RawSelection, ResolveSelection, Selection } from './selection'
+import {
+  RawSelection,
+  ResolveSelection,
+  Selection,
+  SelectionSource,
+} from './selection'
 import { makeSelector } from './selector'
 import {
   kNullableColumns,
@@ -56,7 +61,7 @@ export interface TableRef<
 
 type TableSelect<T, PrimaryKey extends string> = {
   <Selected extends RawSelection>(
-    selector: (row: ColumnRefs<T, PrimaryKey>) => F.Narrow<Selected>
+    selector: (row: ColumnRefs<T, PrimaryKey>) => Narrow<Selected>
   ): Selection<ResolveSelection<Selected>, TableRef<T, PrimaryKey>>
 }
 
@@ -97,8 +102,8 @@ class TableType<
 
   omit<Omitted extends ColumnOf<T>[]>(
     ...omitted: Omitted
-  ): Selection<Omit<T, Omitted[number]>, Extract<this, Selectable>> {
-    return new Selection<any, Extract<this, Selectable>>(
+  ): Selection<Omit<T, Omitted[number]>, Extract<this, SelectionSource>> {
+    return new Selection<any, Extract<this, SelectionSource>>(
       this[kTableColumns].filter(name => !omitted.includes(name as any)),
       this as any
     )
