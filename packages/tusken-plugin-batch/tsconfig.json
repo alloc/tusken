@@ -1,0 +1,9 @@
+{
+  "include": ["./"],
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node16",
+    "strict": true
+  }
+}

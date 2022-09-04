@@ -33,7 +33,9 @@ export type RowType<T> = T extends Selection<any, infer From>
   : never
 
 type RowInput<T extends TableRef> = RowType<T> extends infer Row
-  ? { [Column in keyof Row]: ColumnInput<ColumnType<Row, Column>> }
+  ? Row extends object
+    ? { [Column in keyof Row]: ColumnInput<ColumnType<Row, Column>> }
+    : never
   : never
 
 export type RowInsertion<T extends TableRef> = (
@@ -61,7 +63,7 @@ export interface TableRef<
   ): Selection<Omit<T, Omitted[number]>, this>
 }
 
-type TableSelector<T, PrimaryKey extends string> = {
+type TableSelector<T extends object, PrimaryKey extends string> = {
   <Selected extends RawSelection>(
     selector: (row: ColumnRefs<T, PrimaryKey>) => Narrow<Selected>
   ): Selection<ResolveSelection<Selected>, TableRef<T, PrimaryKey>>

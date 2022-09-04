@@ -4,6 +4,8 @@ const pkg = require('./package.json')
 
 export default defineBuildConfig({
   entries: ['src/index'],
+  externals: ['pg'],
+  declaration: true,
   rollup: {
     emitCJS: true,
     esbuild: { target: 'node16' },

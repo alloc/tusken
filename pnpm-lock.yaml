@@ -37,28 +37,42 @@ importers:
     specifiers:
       '@tusken/schema': ^0.1.0
       '@types/node': ^18.7.9
+      '@types/pg': ^8.6.5
       cac: ^6.0.0
       chokidar: ^3.5.3
       jiti: ^1.14.0
       kleur: ^4.1.5
       misty: ^1.6.10
       pg: ^8.8.0
+      tsup: ^6.2.2
       tusken: workspace:^0.1.0
       typescript: ^4.7.4
-      unbuild: ^0.8.9
     dependencies:
       '@tusken/schema': link:../tusken-schema
-      cac: 6.7.12
       chokidar: 3.5.3
       jiti: 1.14.0
+    devDependencies:
+      '@types/node': 18.7.13
+      '@types/pg': 8.6.5
+      cac: 6.7.12
       kleur: 4.1.5
       misty: 1.6.10
       pg: 8.8.0
+      tsup: 6.2.3_typescript@4.8.2
+      tusken: link:../..
+      typescript: 4.8.2
+
+  packages/tusken-plugin-batch:
+    specifiers:
+      tusken: workspace:^0.1.0
+      typescript: ^4.7.4
+      unbuild: ^0.8.9
+      vitest: ^0.22.1
     devDependencies:
-      '@types/node': 18.7.13
       tusken: link:../..
       typescript: 4.8.2
       unbuild: 0.8.9
+      vitest: 0.22.1
 
   packages/tusken-schema:
     specifiers:
@@ -599,6 +613,7 @@ packages:
   /cac/6.7.12:
     resolution: {integrity: sha512-rM7E2ygtMkJqD9c7WnFU6fruFcN3xe4FM5yUmgxhZzIKJk4uHl9U/fhwdajGFQbQuv43FAUo1Fe8gX/oIKDeSA==}
     engines: {node: '>=8'}
+    dev: true
 
   /caniuse-lite/1.0.30001383:
     resolution: {integrity: sha512-swMpEoTp5vDoGBZsYZX7L7nXHe6dsHxi9o6/LKf/f0LukVtnrxly5GVb/fWdCDTqi/yw6Km6tiJ0pmBacm0gbg==}
@@ -1613,7 +1628,7 @@ packages:
   /kleur/4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
-    dev: false
+    dev: true
 
   /knex/2.1.0_pg@8.7.3:
     resolution: {integrity: sha512-vVsnD6UJdSJy55TvCXfFF9syfwyXNxfE9mvr2hJL/4Obciy2EPGoqjDpgRSlMruHuPWDOeYAG25nyrGvU+jJog==}
@@ -1749,7 +1764,7 @@ packages:
     dependencies:
       kleur: 4.1.5
       shared-log: 1.2.8
-    dev: false
+    dev: true
 
   /mkdirp/1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
@@ -2223,7 +2238,7 @@ packages:
 
   /shared-log/1.2.8:
     resolution: {integrity: sha512-fQczpibSqAtS7wEBJsKPdhX0DXf+jsOoA15afHad1vvUUI//zKlnQdCCSsyKVOt9wIPkIp+M7wKkya2yduF+3Q==}
-    dev: false
+    dev: true
 
   /shebang-command/2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}

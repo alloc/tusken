@@ -4,6 +4,6 @@
                 "@tusken/cli": "link:../../node_modules/@tusken/cli"
         },
         "dependencies": {
-                "tusken": "link:../.."
+                "tusken": "link:./tusken"
         }
 }

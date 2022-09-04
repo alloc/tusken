@@ -1,5 +1,6 @@
 import { Any, Intersect } from '@alloc/types'
 import { BoolExpression } from '../expression'
+import { JoinProps } from '../join'
 import { Query } from '../query'
 import { Selection, SelectionSource } from '../selection'
 import { kDatabaseQueryStream } from '../symbols'
@@ -7,7 +8,6 @@ import { toTableName } from '../table'
 import { TokenArray } from '../token'
 import { tokenizeSelected, tokenizeWhere } from '../tokenize'
 import { QueryStreamConfig, SetType, Type } from '../type'
-import { JoinProps } from './join'
 import { Where, where } from './where'
 
 export interface SelectProps {

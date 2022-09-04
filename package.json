@@ -22,6 +22,11 @@
       "import": "./dist/config.mjs",
       "default": "./dist/config.cjs"
     },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "default": "./dist/utils.cjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [

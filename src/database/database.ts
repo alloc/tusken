@@ -1,6 +1,4 @@
 import { isObject } from '../utils/isObject'
-import { Narrow } from '../utils/Narrow'
-import { QueryBatch } from './batch'
 import { Query, ValidQuery } from './query'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
@@ -26,31 +24,6 @@ export class Database {
     this[kDatabaseReserved] = config.reserved
     this[kDatabaseQueryStream] = config.QueryStream
     this.client = config.client
-  }
-
-  /** Create an empty query batch. */
-  batch<T = void>(
-    props?: QueryBatch.Props
-  ): QueryBatch<T extends void ? T : ValidQuery<T>>
-
-  /** Batch a static number of queries. */
-  batch<T extends [ValidQuery, ...ValidQuery[]]>(
-    ...queries: Narrow<T>
-  ): Promise<{
-    [P in keyof T]: Awaited<T[P]>
-  }>
-
-  batch(arg1?: ValidQuery | QueryBatch.Props, ...queries: ValidQuery[]): any {
-    let batch: QueryBatch
-    if (arg1 instanceof Query) {
-      batch = new QueryBatch(this, {})
-      queries.unshift(arg1)
-      for (const query of queries) {
-        batch.add(query)
-      }
-      return batch.flush()
-    }
-    return new QueryBatch(this, arg1 || {})
   }
 
   delete<From extends TableRef>(from: From): Delete<From>
@@ -96,13 +69,13 @@ export class Database {
     return this.find<any>(from, from => from[kPrimaryKey].eq(pk))
   }
 
-  /** https://www.postgresql.org/docs/15/sql-insert.html */
-  insert<T extends TableRef>(table: T) {
+  /** https://www.postgresql.org/docs/current/sql-insert.html */
+  insert<T extends TableRef>(table: T): never {
     throw Error('not implemented')
   }
 
-  /** https://www.postgresql.org/docs/15/sql-merge.html */
-  mergeInto<T extends TableRef>(table: T) {
+  /** https://www.postgresql.org/docs/current/sql-merge.html */
+  mergeInto<T extends TableRef>(table: T): never {
     throw Error('not implemented')
   }
 
@@ -142,7 +115,7 @@ export class Database {
     })
   }
 
-  /** https://www.postgresql.org/docs/15/sql-update.html */
+  /** https://www.postgresql.org/docs/current/sql-update.html */
   update<T extends TableRef>(table: T): never {
     throw Error('not implemented')
   }

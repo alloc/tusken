@@ -1,5 +1,5 @@
 import type { ClientResult, Database } from './database'
-import type { CheckList } from './query/check'
+import type { Delete } from './query/delete'
 import type { Put } from './query/put'
 import type { Select, SelectProps } from './query/select'
 import { renderTokens, TokenArray } from './token'
@@ -126,6 +126,6 @@ export type Node<T extends Query = any, Type extends string = any> = {
 
 export type AnyNodeType = AnyNode extends { type: infer Type } ? Type : never
 export type AnyNode =
-  | Node<CheckList, 'is'>
   | Node<Put, 'put'>
   | Node<Select, 'select'>
+  | Node<Delete, 'delete'>

@@ -1,5 +1,5 @@
+import { CheckBuilder, CheckList } from './check'
 import { BoolExpression, Expression } from './expression'
-import { CheckBuilder, CheckList } from './query/check'
 import { isBoolExpression, t, Type } from './type'
 
 export function is(left: BoolExpression): CheckList<t.bool>

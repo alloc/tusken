@@ -18,21 +18,25 @@
   ],
   "devDependencies": {
     "@types/node": "^18.7.9",
+    "@types/pg": "^8.6.5",
+    "cac": "^6.0.0",
+    "kleur": "^4.1.5",
+    "misty": "^1.6.10",
+    "pg": "^8.8.0",
+    "tsup": "^6.2.2",
     "tusken": "workspace:^0.1.0",
-    "typescript": "^4.7.4",
-    "unbuild": "^0.8.9"
+    "typescript": "^4.7.4"
   },
   "dependencies": {
     "@tusken/schema": "^0.1.0",
-    "cac": "^6.0.0",
     "chokidar": "^3.5.3",
-    "jiti": "^1.14.0",
-    "kleur": "^4.1.5",
-    "misty": "^1.6.10",
-    "pg": "^8.8.0"
+    "jiti": "^1.14.0"
+  },
+  "peerDependencies": {
+    "pg": ">=8.0.0"
   },
   "scripts": {
-    "dev": "unbuild --stub",
-    "build": "unbuild"
+    "dev": "tsup --sourcemap --watch",
+    "build": "tsup --clean"
   }
 }

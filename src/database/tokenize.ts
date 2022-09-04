@@ -1,7 +1,7 @@
 import { callProp } from '../utils/callProp'
+import { Check, CheckBuilder } from './check'
 import { BoolExpression, Expression } from './expression'
 import { Query } from './query'
-import { Check, CheckBuilder } from './query/check'
 import { Selectable } from './query/select'
 import type { AliasMapping, Selection } from './selection'
 import { kExprProps, kExprTokens, kSelectionArgs, kTableName } from './symbols'
@@ -11,7 +11,6 @@ import {
   isColumnRef,
   isExpression,
   isSelection,
-  isSetExpression,
   isTableRef,
 } from './type'
 
@@ -75,7 +74,7 @@ export function tokenizeSelectedColumns(
       return tokenizeAliasMapping(arg, ctx)
     })
   }
-  if (isSetExpression(args)) {
+  if (isExpression(args)) {
     return tokenizeExpression(args, ctx)
   }
   return tokenizeAliasMapping(args, ctx)

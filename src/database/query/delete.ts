@@ -13,7 +13,10 @@ type Props = {
   where?: BoolExpression
 }
 
-export class Delete<From extends TableRef> extends Query<Props, 'delete'> {
+export class Delete<From extends TableRef = any> extends Query<
+  Props,
+  'delete'
+> {
   protected tokens(props: Props, ctx: Query.Context) {
     const tokens: TokenArray = ['DELETE FROM', { id: props.from[kTableName] }]
     if (props.where) {

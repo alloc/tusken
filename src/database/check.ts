@@ -3,10 +3,10 @@ import {
   Expression,
   ExpressionProps,
   ExpressionType,
-} from '../expression'
-import { Query } from '../query'
-import { tokenizeCheck, tokenizeExpression } from '../tokenize'
-import { Input, isBoolExpression, t, Type } from '../type'
+} from './expression'
+import { Query } from './query'
+import { tokenizeCheck, tokenizeExpression } from './tokenize'
+import { Input, isBoolExpression, t, Type } from './type'
 
 interface Props extends ExpressionProps {
   type: 'bool'
@@ -94,6 +94,10 @@ export class CheckBuilder<T extends Type = any> {
         true
       )
     )
+  }
+
+  in(arr: Input<T>[] | Input<T[]>): CheckList<t.bool | Extract<T, t.null>> {
+    return this.wrap(new Check(this.left, this.negated ? 'NOT IN' : 'IN', arr))
   }
 }
 

@@ -1,9 +1,9 @@
-import { Selectable } from './query/select'
-import { Selection } from './selection'
+import { makeColumnRef } from './column'
+import { Selection, SelectionSource } from './selection'
 import { kPrimaryKey } from './symbols'
 import { SetType } from './type'
 
-export function makeSelector<T extends Selectable>(
+export function makeSelector<T extends SelectionSource>(
   type: SetType,
   onlyColumn?: () => string
 ): T {

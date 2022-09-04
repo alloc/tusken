@@ -5,8 +5,11 @@ importers:
   .:
     specifiers:
       '@tusken/cli': link:../../node_modules/@tusken/cli
-      tusken: link:../..
+      tusken: link:./tusken
     dependencies:
-      tusken: link:../..
+      tusken: link:tusken
     devDependencies:
       '@tusken/cli': link:../../node_modules/@tusken/cli
+
+  tusken:
+    specifiers: {}

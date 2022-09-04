@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "exports": {
+    ".": {
+      "default": "./tusken.ts"
+    },
+    "./config": {
+      "default": "./config.ts"
+    }
+  }
+}

@@ -1,15 +1,15 @@
 import { Any, Intersect } from '@alloc/types'
-import { ColumnRef, ColumnType } from '../column'
+import { CheckBuilder } from '../check'
+import { ColumnRef, ColumnType, makeColumnRef } from '../column'
 import { BoolExpression, Expression } from '../expression'
 import { CallExpression } from '../function'
 import { is } from '../is'
+import { JoinProps } from '../join'
 import { Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
 import { kPrimaryKey, kTableName } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
 import { t, Type } from '../type'
-import { CheckBuilder } from './check'
-import { JoinProps } from './join'
 import { Selectable } from './select'
 
 export function where<From extends Selectable[]>(
@@ -83,7 +83,9 @@ type WhereRef<From extends Selectable> = [From] extends [Any]
         [kPrimaryKey]: PrimaryKeyOf<From> extends infer PK
           ? PK extends ''
             ? never
-            : WhereBuilder<ColumnType<Values, PK>, PK>
+            : PK extends string
+            ? WhereBuilder<ColumnType<Values, PK>, PK>
+            : never
           : never
       }
     : never
