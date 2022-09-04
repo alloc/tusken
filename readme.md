@@ -160,8 +160,8 @@ This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but 
 - domain types
 - composite types
 - array-based primary key
-- multiple primary keys
-- [views](https://www.postgresql.org/docs/current/tutorial-views.html)
+- multiple primary keys in one row
+- [materialized views](https://www.postgresql.org/docs/14/rules-materializedviews.html)
 - plugin packages
   - these plugins can do any of:
     - alter your schema
