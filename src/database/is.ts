@@ -1,6 +1,7 @@
 import { CheckBuilder, CheckList } from './check'
 import { BoolExpression, Expression } from './expression'
-import { isBoolExpression, t, Type } from './type'
+import { isBoolExpression, Type } from './type'
+import { t } from './type-builtin'
 
 export function is(left: BoolExpression): CheckList<t.bool>
 export function is(

@@ -3,9 +3,6 @@ import type { BoolExpression, Expression, SetExpression } from './expression'
 import type { Selection } from './selection'
 import { kColumnFrom, kExprProps, kSelectionFrom, kTableName } from './symbols'
 import type { TableRef } from './table'
-import * as t from './type-builtin'
-
-export type { t }
 
 const kTypeName = Symbol()
 const kRuntimeType = Symbol()
