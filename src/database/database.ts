@@ -9,7 +9,10 @@ import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
 
 export type ClientResult = { rows: any[]; rowCount?: number }
-export type Client = { query: (query: string) => Promise<ClientResult> }
+export type Client = {
+  query: (query: string) => Promise<ClientResult>
+  end: () => Promise<void>
+}
 
 export class Database {
   protected [kDatabaseReserved]: string[]
