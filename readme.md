@@ -138,8 +138,8 @@ await db.get(t.user.omit('id', 'password'), 1)
 ```ts
 // Find all books with >= 100 likes and also get the author of each.
 await db.select(t.author).innerJoin(
-  t.book.where(book => book.likes.gte(100)),
-  (author, book) => author.id.eq(book.authorId)
+  t.book.where(b => b.likes.gte(100)),
+  t => t.author.id.eq(t.book.authorId)
 )
 ```
 
