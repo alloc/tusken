@@ -4,22 +4,22 @@ import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select, Selectable, SelectedRow } from './query/select'
 import { Where } from './query/where'
+import { QueryStream } from './stream'
 import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
-import { QueryStreamConstructor } from './type'
 
 export type ClientResult = { rows: any[]; rowCount?: number }
 export type Client = { query: (query: string) => Promise<ClientResult> }
 
 export class Database {
   protected [kDatabaseReserved]: string[]
-  protected [kDatabaseQueryStream]?: QueryStreamConstructor
+  protected [kDatabaseQueryStream]?: typeof QueryStream
   client: Client
 
   constructor(config: {
     client: Client
     reserved: string[]
-    QueryStream?: QueryStreamConstructor
+    QueryStream?: typeof QueryStream
   }) {
     this[kDatabaseReserved] = config.reserved
     this[kDatabaseQueryStream] = config.QueryStream

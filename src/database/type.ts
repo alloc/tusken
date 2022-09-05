@@ -6,9 +6,6 @@ import type { TableRef } from './table'
 import * as t from './type-builtin'
 
 export type { t }
-export type QueryStream = InstanceType<QueryStreamConstructor>
-export type QueryStreamConstructor = typeof import('pg-query-stream')
-export type QueryStreamConfig = ConstructorParameters<QueryStreamConstructor>[2]
 
 const kTypeName = Symbol()
 const kRuntimeType = Symbol()

@@ -5,7 +5,7 @@ const pkg = require('./package.json')
 export default defineBuildConfig({
   entries: ['src/tusken', 'src/config'],
   externals: ['pg'],
-  // declaration: true,
+  declaration: true,
   rollup: {
     emitCJS: true,
     esbuild: { target: 'node16' },
