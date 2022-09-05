@@ -3,12 +3,12 @@ import { kExprProps, kExprTokens } from './symbols'
 import type { TokenProducer } from './token'
 import type {
   SetType,
-  t,
   toDownCasts,
   toRuntimeType,
   toTypeName,
   Type,
 } from './type'
+import { t } from './type-builtin'
 
 /**
  * This list is non-exhaustive. \

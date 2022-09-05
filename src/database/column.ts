@@ -5,7 +5,8 @@ import { Selectable } from './query/select'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
 import { tokenizeColumn } from './tokenize'
-import { Input, t, Type } from './type'
+import { Input, Type } from './type'
+import { t } from './type-builtin'
 
 export type ColumnOf<T> = string & keyof RowType<T>
 

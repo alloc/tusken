@@ -9,7 +9,8 @@ import { Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
 import { kPrimaryKey, kTableName } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
-import { t, Type } from '../type'
+import { Type } from '../type'
+import { t } from '../type-builtin'
 import { Selectable } from './select'
 
 export function where<From extends Selectable[]>(
