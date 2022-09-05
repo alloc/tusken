@@ -25,7 +25,8 @@ Use [graphile-migrate](https://github.com/graphile/migrate).
 ## Install
 
 ```sh
-pnpm i tusken && pnpm i @tusken/cli -D
+pnpm i tusken pg postgres-range postgres-interval
+pnpm i @tusken/cli -D
 ```
 
 ## Usage
