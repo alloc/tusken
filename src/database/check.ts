@@ -6,7 +6,8 @@ import {
 } from './expression'
 import { Query } from './query'
 import { tokenizeCheck, tokenizeExpression } from './tokenize'
-import { Input, isBoolExpression, t, Type } from './type'
+import { Input, isBoolExpression, Type } from './type'
+import { t } from './type-builtin'
 
 interface Props extends ExpressionProps {
   type: 'bool'
