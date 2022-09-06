@@ -5,38 +5,23 @@ importers:
   .:
     specifiers:
       '@alloc/prettier-config': ^1.0.0
-      '@alloc/types': ^2.2.1
       '@tusken/cli': workspace:*
-      '@types/node': ^18.7.9
       '@types/pg': ^8.6.5
       dotenv-cli: ^6.0.0
       multi-semantic-release: ^3.0.0
-      pg: ^8.8.0
       pg-mem: ^2.6.3
-      pg-query-stream: ^4.2.4
-      postgres-interval: ^4.0.0
-      postgres-range: ^1.1.3
       prettier: ^2.7.1
       typescript: ^4.7.4
-      unbuild: ^0.8.9
       vitest: ^0.22.1
-    dependencies:
-      '@alloc/types': 2.2.1
     devDependencies:
       '@alloc/prettier-config': 1.0.0
       '@tusken/cli': link:packages/tusken-cli
-      '@types/node': 18.7.13
       '@types/pg': 8.6.5
       dotenv-cli: 6.0.0
       multi-semantic-release: 3.0.0
-      pg: 8.8.0
       pg-mem: 2.6.3
-      pg-query-stream: 4.2.4_pg@8.8.0
-      postgres-interval: 4.0.0
-      postgres-range: 1.1.3
       prettier: 2.7.1
       typescript: 4.8.2
-      unbuild: 0.8.9
       vitest: 0.22.1
 
   packages/tusken-cli:
@@ -65,20 +50,8 @@ importers:
       misty: 1.6.10
       pg: 8.8.0
       tsup: 6.2.3_typescript@4.8.2
-      tusken: link:../..
+      tusken: link:../../src
       typescript: 4.8.2
-
-  packages/tusken-plugin-batch:
-    specifiers:
-      tusken: workspace:^0.1.0
-      typescript: ^4.7.4
-      unbuild: ^0.8.9
-      vitest: ^0.22.1
-    devDependencies:
-      tusken: link:../..
-      typescript: 4.8.2
-      unbuild: 0.8.9
-      vitest: 0.22.1
 
   packages/tusken-schema:
     specifiers:
@@ -108,10 +81,29 @@ importers:
       cheerio: 1.0.0-rc.12
       node-fetch: 2.6.7
       sucrase: 3.25.0
-      tusken: link:../..
+      tusken: link:../../src
       typescript: 4.8.2
       unbuild: 0.8.9
       vitest: 0.22.1
+
+  src:
+    specifiers:
+      '@alloc/types': ^2.2.1
+      '@types/node': ^18.7.9
+      pg: ^8.8.0
+      pg-query-stream: ^4.2.4
+      postgres-interval: ^4.0.0
+      postgres-range: ^1.1.3
+      unbuild: ^0.8.9
+    dependencies:
+      '@alloc/types': 2.2.1
+    devDependencies:
+      '@types/node': 18.7.13
+      pg: 8.8.0
+      pg-query-stream: 4.2.4_pg@8.8.0
+      postgres-interval: 4.0.0
+      postgres-range: 1.1.3
+      unbuild: 0.8.9
 
 packages:
 
