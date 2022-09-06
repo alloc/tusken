@@ -1,3 +1,7 @@
+⚠️ This library is currently in alpha. Contributors wanted!
+
+---
+
 # tusken
 
 Postgres client from a galaxy far, far away.
@@ -25,8 +29,8 @@ Use [graphile-migrate](https://github.com/graphile/migrate).
 ## Install
 
 ```sh
-pnpm i tusken pg postgres-range postgres-interval
-pnpm i @tusken/cli -D
+pnpm i tusken@alpha pg postgres-range postgres-interval
+pnpm i @tusken/cli@alpha -D
 ```
 
 ## Usage
