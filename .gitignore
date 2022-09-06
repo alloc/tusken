@@ -3,4 +3,3 @@ dist
 vendor
 node_modules
 spec/generated/postgres
-src/query
