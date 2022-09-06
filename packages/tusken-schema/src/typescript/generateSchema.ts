@@ -49,21 +49,26 @@ export function generateTypeSchema(
 
     pkColumn = pkColumn ? quoted(pkColumn) : '""'
 
-    userTypes.imports[tuskenId].push('makeTableRef', 'TableRef')
+    userTypes.imports[tuskenId].push(
+      'makeTableRef',
+      'RowType',
+      'TableRef',
+      'Values'
+    )
     userTypes.refs.push(
       endent`
-        const ${table.name}: ${table.name} = makeTableRef("${
-        table.name
-      }", [${allColumns.map(quoted).join(', ')}], ${pkColumn})
+        const ${table.name}: TableRef<{
+          ${renderColumns(table.columns)}
+        }, "${table.name}", ${pkColumn}, ${
+        optionColumns.map(quoted).join(' | ') || '""'
+      }> = makeTableRef("${table.name}", [${allColumns
+        .map(quoted)
+        .join(', ')}], ${pkColumn})
       `
     )
     userTypes.lines.push(
       endent`
-        interface ${table.name} extends TableRef<{
-          ${renderColumns(table.columns)}
-        }, "${table.name}", ${pkColumn}, ${
-        optionColumns.map(quoted).join(' | ') || '""'
-      }> {}
+        interface ${table.name} extends Values<RowType<typeof ${table.name}>> {}
       `
     )
   }
@@ -117,9 +122,9 @@ export function generateTypeSchema(
   const typesFile = endent`
     ${serializeImports(mergeImports(userTypes.imports, nativeTypes.imports))}
 
-    ${userTypes.refs.map(toExport).join('\n')}
+    ${userTypes.refs.map(toExport).join('\n\n')}
 
-    ${userTypes.lines.map(toExport).join('\n\n')}
+    ${userTypes.lines.map(toExport).join('\n')}
     ${nativeTypes.lines.join('\n')}
   `
 

@@ -1,34 +1,34 @@
-import { Input, Interval, Json, Range, TableRef, Type, makeTableRef } from "tusken"
+import { Input, Interval, Json, Range, RowType, TableRef, Type, Values, makeTableRef } from "tusken"
 
-export const user: user = makeTableRef("user", ["id", "name", "joinedAt", "bio"], "id")
-export const tweet: tweet = makeTableRef("tweet", ["id", "author", "text"], "id")
-export const like: like = makeTableRef("like", ["id", "tweet", "author"], "id")
-export const follow: follow = makeTableRef("follow", ["id", "follower", "author"], "id")
+export const follow: TableRef<{
+  id: int4
+  follower: int4
+  author: int4
+}, "follow", "id", "id"> = makeTableRef("follow", ["id", "follower", "author"], "id")
 
-export interface user extends TableRef<{
+export const like: TableRef<{
+  id: int4
+  tweet: int4
+  author: int4
+}, "like", "id", "id"> = makeTableRef("like", ["id", "tweet", "author"], "id")
+
+export const tweet: TableRef<{
+  id: int4
+  author: int4
+  text: text
+}, "tweet", "id", "id"> = makeTableRef("tweet", ["id", "author", "text"], "id")
+
+export const user: TableRef<{
   id: int4
   name: text
   joinedAt: timestamptz
   bio?: text
-}, "user", "id", "id" | "joinedAt"> {}
+}, "user", "id", "id" | "joinedAt"> = makeTableRef("user", ["id", "name", "joinedAt", "bio"], "id")
 
-export interface tweet extends TableRef<{
-  id: int4
-  author: int4
-  text: text
-}, "tweet", "id", "id"> {}
-
-export interface like extends TableRef<{
-  id: int4
-  tweet: int4
-  author: int4
-}, "like", "id", "id"> {}
-
-export interface follow extends TableRef<{
-  id: int4
-  follower: int4
-  author: int4
-}, "follow", "id", "id"> {}
+export interface follow extends Values<RowType<typeof follow>> {}
+export interface like extends Values<RowType<typeof like>> {}
+export interface tweet extends Values<RowType<typeof tweet>> {}
+export interface user extends Values<RowType<typeof user>> {}
 
 // Primitive types
 export type bit = Type<"bit", number, ColumnCast<"bit">>

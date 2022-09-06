@@ -8,6 +8,7 @@ import { kExprProps, kExprTokens, kSelectionArgs, kTableName } from './symbols'
 import type { Token, TokenArray } from './token'
 import {
   isBoolExpression,
+  isCallExpression,
   isColumnRef,
   isExpression,
   isSelection,
@@ -61,18 +62,21 @@ export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
 export function tokenizeSelectedColumns(
   selection: Selection,
   ctx: Query.Context
-): TokenArray {
+): Token | TokenArray {
   const args = selection[kSelectionArgs]
   if (Array.isArray(args)) {
-    return args.map(arg => {
-      if (typeof arg == 'string') {
-        return { id: arg }
-      }
-      if (isColumnRef(arg)) {
-        return tokenizeExpression(arg, ctx)
-      }
-      return tokenizeAliasMapping(arg, ctx)
-    })
+    return {
+      join: args.map(arg => {
+        if (typeof arg == 'string') {
+          return { id: arg }
+        }
+        if (isColumnRef(arg)) {
+          return tokenizeExpression(arg, ctx)
+        }
+        return tokenizeAliasMapping(arg, ctx)
+      }),
+      with: ', ',
+    }
   }
   if (isExpression(args)) {
     return tokenizeExpression(args, ctx)
@@ -99,7 +103,15 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
 
   // This allows for overriding of operator precedence.
   if (isBoolExpression(left)) {
-    tokens.push('(', tokenizeExpression(left, ctx), ')')
+    const expr = tokenizeExpression(left, ctx)
+    tokens.push(
+      isCallExpression(left)
+        ? expr
+        : {
+            join: ['(', expr, ')'],
+            with: '',
+          }
+    )
   }
   // Some checks have a check as their left side. (eg AND, OR)
   else if (left instanceof Check) {
@@ -112,9 +124,16 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
 
   tokens.push(check.op)
 
+  // For range checks, the right side is an array.
   if (check.isRange) {
     tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
-  } else {
+  }
+  // Some checks have a check as their right side. (eg AND, OR)
+  else if (right instanceof Check) {
+    tokens.push(tokenizeCheck(right, ctx))
+  }
+  // Infer the type of any other values.
+  else {
     tokens.push(tokenize(right, ctx))
   }
 
@@ -125,19 +144,14 @@ export function tokenizeSelected(
   selections: Selectable[],
   ctx: Query.Context
 ): Token | TokenArray {
-  return selections.length == 1
-    ? isTableRef(selections[0])
-      ? '*'
-      : isSelection(selections[0])
-      ? {
-          join: tokenizeSelectedColumns(selections[0], ctx),
-          with: ', ',
-        }
-      : tokenizeExpression(selections[0], ctx)
+  return selections.every(isTableRef)
+    ? '*'
     : {
         join: selections.map(selection => {
           if (isTableRef(selection)) {
-            return selection[kTableName] + '.*'
+            return {
+              id: [selection[kTableName], '*'],
+            }
           }
           if (isSelection(selection)) {
             return tokenizeSelectedColumns(selection, ctx)

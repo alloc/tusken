@@ -7,8 +7,12 @@ import { QueryStreamConfig } from '../stream'
 import { kDatabaseQueryStream } from '../symbols'
 import { toTableName } from '../table'
 import { TokenArray } from '../token'
-import { tokenizeSelected, tokenizeWhere } from '../tokenize'
-import { SetType, Type } from '../type'
+import {
+  tokenizeExpression,
+  tokenizeSelected,
+  tokenizeWhere,
+} from '../tokenize'
+import { SetType, Values } from '../type'
 import { Where, where } from './where'
 
 export interface SelectProps {
@@ -16,6 +20,7 @@ export interface SelectProps {
   joins?: JoinProps[]
   where?: BoolExpression
   limit?: number
+  offset?: number
 }
 
 const kSelectFrom = Symbol()
@@ -37,7 +42,7 @@ export class Select<From extends Selectable[] = any> //
         'INNER JOIN',
         { id: toTableName(join.from) },
         'ON',
-        tokenizeWhere(join.where, ctx),
+        tokenizeExpression(join.where, ctx),
       ]
     })
 
@@ -53,7 +58,27 @@ export class Select<From extends Selectable[] = any> //
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))
     }
+    if (props.limit) {
+      tokens.push('LIMIT', { number: props.limit })
+    }
+    if (props.offset) {
+      tokens.push('OFFSET', { number: props.offset })
+    }
     return tokens
+  }
+
+  /**
+   * Resolve with a single row at the given offset.
+   * - Negative offset is treated as zero.
+   * - Multiple calls are not supported.
+   * - Does nothing on a subquery.
+   */
+  at(offset: number) {
+    if (offset > 0) {
+      this.props.offset = offset
+    }
+    this.context.single = true
+    return this.limit(1)
   }
 
   innerJoin<Joined extends Selectable>(
@@ -72,8 +97,8 @@ export class Select<From extends Selectable[] = any> //
     return this
   }
 
-  where(compose: Where<From>) {
-    this.props.where = where(this.props, compose)
+  where(filter: Where<From>) {
+    this.props.where = where(this.props, filter)
     return this
   }
 
@@ -98,9 +123,5 @@ export type SelectedRow<T> = unknown &
   ([T] extends [Any]
     ? Record<string, any>
     : Intersect<T extends SetType<infer Row> ? Row : never> extends infer Row
-    ? Materialize<Row>
+    ? Values<Extract<Row, object>>
     : never)
-
-type Materialize<T> = {
-  [P in keyof T]: T[P] extends Type<any, infer Value> ? Value : T[P]
-}

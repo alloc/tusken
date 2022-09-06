@@ -160,9 +160,12 @@ This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but 
 - enum types
 - domain types
 - composite types
+- more geometry types
 - array-based primary key
 - multiple primary keys in one row
 - views & [materialized views](https://www.postgresql.org/docs/14/rules-materializedviews.html)
+- table [inheritance](https://www.postgresql.org/docs/current/tutorial-inheritance.html)
+- window functions
 - plugin packages
   - these plugins can do any of:
     - alter your schema

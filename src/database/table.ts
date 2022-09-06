@@ -1,6 +1,6 @@
 import { LoosePick, Omit, Remap } from '@alloc/types'
 import { Narrow } from '../utils/Narrow'
-import { ColumnInput, ColumnOf, ColumnRefs, ColumnType } from './column'
+import { ColumnInput, ColumnRefs, ColumnType } from './column'
 import { Selectable } from './query/select'
 import { RawSelection, ResolveSelection, Selection } from './selection'
 import { makeSelector } from './selector'
@@ -58,7 +58,7 @@ export interface TableRef<
   /**
    * Exclude specific columns from the result set.
    */
-  omit<Omitted extends ColumnOf<T>[]>(
+  omit<Omitted extends (string & keyof T)[]>(
     ...omitted: Omitted
   ): Selection<Omit<T, Omitted[number]>, this>
 }

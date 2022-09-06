@@ -52,7 +52,7 @@ class ColumnExpression<
   protected [kColumnName]: Name
 
   constructor(from: Selectable, name: Name) {
-    super({}, (_, ctx) => [
+    super(null, (_, ctx) => [
       tokenizeColumn(
         this[kColumnName],
         // Omit the table name if no joins exist.

@@ -18,9 +18,10 @@ export function where<From extends Selectable[]>(
     from: Selectable
     joins?: JoinProps[]
   },
-  compose: Where<From>
+  filter: Where<From>
 ): BoolExpression {
-  const sources = [props.from].concat(props.joins?.map(join => join.from) || [])
+  const joined = props.joins?.map(join => join.from)
+  const sources = [props.from].concat(joined || [])
 
   const refs = {} as WhereRefs<From>
   sources.forEach(from => {
@@ -42,7 +43,7 @@ export function where<From extends Selectable[]>(
     }
   })
 
-  return compose(refs)
+  return filter(joined ? refs : Object.values(refs)[0])
 }
 
 export type Where<From extends Selectable[]> = (

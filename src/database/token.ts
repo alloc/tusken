@@ -12,6 +12,9 @@ export type Literal = { literal: any }
 /** Format like %s */
 export type Stringify = { string: any }
 
+/** Coerce into a number, throw if `NaN` */
+export type Numeric = { number: any }
+
 /** Join token list with a character */
 export type StringJoin = { join: TokenArray; with: string }
 
@@ -25,7 +28,14 @@ export type SubQuery = { query: Query }
 export type Token =
   | string
   | Exclusive<
-      Identifier | Literal | Stringify | StringJoin | Tuple | Call | SubQuery
+      | Identifier
+      | Literal
+      | Stringify
+      | Numeric
+      | StringJoin
+      | Tuple
+      | Call
+      | SubQuery
     >
 
 export type TokenArray = (Token | TokenArray)[]
@@ -45,6 +55,8 @@ export function renderToken(token: Token, ctx: Query.Context): string {
     ? toLiteral(token.literal)
     : 'string' in token
     ? toString(token.string)
+    : 'number' in token
+    ? toNumber(token.number)
     : token.join
     ? token.join
         .map(t =>
@@ -86,7 +98,7 @@ function mapToIdent(this: Database, val: any) {
 }
 
 // https://github.com/segmentio/pg-escape/blob/780350b461f4f2ab50ca8b5aafcbb57433835f6b/index.js
-export function toLiteral(val: any): string {
+function toLiteral(val: any): string {
   if (val == null) {
     return 'NULL'
   }
@@ -103,13 +115,29 @@ export function toLiteral(val: any): string {
   )
 }
 
-export function toIdentifier(val: any, db: Database): string {
+function toIdentifier(val: any, db: Database): string {
   val = String(val).replace(/"/g, '""')
   return /[A-Z\s]/.test(val) || db[kDatabaseReserved].includes(val)
     ? '"' + val + '"'
     : val
 }
 
-export function toString(val: any) {
+function toString(val: any) {
   return val == null ? '' : String(val)
+}
+
+function toNumber(val: any) {
+  const type = typeof val
+  if (type !== 'number' || isNaN(val) || !isFinite(val)) {
+    throw Error(
+      `Expected a number, got ${
+        type == 'number'
+          ? val
+          : type == 'object'
+          ? Object.prototype.toString.call(val)
+          : type
+      }`
+    )
+  }
+  return String(val)
 }
