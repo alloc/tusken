@@ -2,7 +2,7 @@
   "name": "tusken",
   "version": "0.1.0",
   "author": "Alec Larson",
-  "license": "All rights reserved",
+  "license": "See LICENSE.md",
   "keywords": [
     "postgres",
     "typescript",
