@@ -2,7 +2,7 @@
   "name": "@tusken/cli",
   "version": "0.1.0",
   "author": "Alec Larson",
-  "license": "All rights reserved",
+  "license": "MIT",
   "keywords": [
     "postgres",
     "typescript",
