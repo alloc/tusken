@@ -2,8 +2,10 @@ import { Any, Intersect } from '@alloc/types'
 import { QueryStreamConfig } from '../stream'
 import { kDatabaseQueryStream } from '../symbols'
 import { SetType, Values } from '../type'
-import { AbstractSelect, Selectable } from './abstract/select'
+import { AbstractSelect, Selectable, SelectProps } from './abstract/select'
 import { Where } from './where'
+
+export type { Selectable, SelectProps }
 
 export class Select<From extends Selectable[] = any> //
   extends AbstractSelect<From, 'select'>
