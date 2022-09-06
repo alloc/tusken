@@ -16,6 +16,11 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alloc/tusken",
+    "directory": "packages/tusken-cli"
+  },
   "devDependencies": {
     "@types/node": "^18.7.9",
     "@types/pg": "^8.6.5",

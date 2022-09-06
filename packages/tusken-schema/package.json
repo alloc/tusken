@@ -20,6 +20,11 @@
     "docs.json",
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alloc/tusken",
+    "directory": "packages/tusken-schema"
+  },
   "devDependencies": {
     "@types/cheerio": "^0.22.31",
     "@types/node": "^18.7.9",

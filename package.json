@@ -1,12 +1,12 @@
 {
-  "name": "@tusken/$",
+  "name": "@tusken/~",
   "private": true,
   "author": "Alec Larson",
   "license": "See LICENSE.md",
   "scripts": {
     "build": "pnpm -r --no-bail build",
     "dev": "pnpm -r --no-bail --parallel dev",
-    "release": "dotenv -- multi-semantic-release"
+    "release": "dotenv -- multi-semantic-release --deps.release inherit"
   },
   "prettier": "@alloc/prettier-config",
   "devDependencies": {
