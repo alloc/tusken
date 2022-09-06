@@ -163,6 +163,7 @@ This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but 
 - more geometry types
 - array-based primary key
 - multiple primary keys in one row
+- explicit [locking](https://www.postgresql.org/docs/current/explicit-locking.html)
 - views & [materialized views](https://www.postgresql.org/docs/14/rules-materializedviews.html)
 - table [inheritance](https://www.postgresql.org/docs/current/tutorial-inheritance.html)
 - window functions
