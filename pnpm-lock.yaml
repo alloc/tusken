@@ -7,6 +7,7 @@ importers:
       '@alloc/prettier-config': ^1.0.0
       '@tusken/cli': workspace:*
       '@types/pg': ^8.6.5
+      conventional-changelog-conventionalcommits: ^5.0.0
       dotenv-cli: ^6.0.0
       multi-semantic-release: ^3.0.0
       pg-mem: ^2.6.3
@@ -17,6 +18,7 @@ importers:
       '@alloc/prettier-config': 1.0.0
       '@tusken/cli': link:packages/tusken-cli
       '@types/pg': 8.6.5
+      conventional-changelog-conventionalcommits: 5.0.0
       dotenv-cli: 6.0.0
       multi-semantic-release: 3.0.0
       pg-mem: 2.6.3
@@ -1379,6 +1381,15 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       compare-func: 2.0.0
+      q: 1.5.1
+    dev: true
+
+  /conventional-changelog-conventionalcommits/5.0.0:
+    resolution: {integrity: sha512-lCDbA+ZqVFQGUj7h9QBKoIpLhl8iihkO0nCTyRNzuXtcd7ubODpYB04IFy31JloiJgG0Uovu8ot8oxRzn7Nwtw==}
+    engines: {node: '>=10'}
+    dependencies:
+      compare-func: 2.0.0
+      lodash: 4.17.21
       q: 1.5.1
     dev: true
 

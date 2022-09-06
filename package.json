@@ -13,6 +13,7 @@
     "@alloc/prettier-config": "^1.0.0",
     "@tusken/cli": "workspace:*",
     "@types/pg": "^8.6.5",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
     "dotenv-cli": "^6.0.0",
     "multi-semantic-release": "^3.0.0",
     "pg-mem": "^2.6.3",
