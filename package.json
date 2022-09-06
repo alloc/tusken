@@ -32,7 +32,8 @@
   ],
   "scripts": {
     "dev": "unbuild --stub",
-    "build": "unbuild"
+    "build": "unbuild",
+    "release": "dotenv -- multi-semantic-release"
   },
   "prettier": "@alloc/prettier-config",
   "devDependencies": {
@@ -40,6 +41,8 @@
     "@tusken/cli": "workspace:*",
     "@types/node": "^18.7.9",
     "@types/pg": "^8.6.5",
+    "dotenv-cli": "^6.0.0",
+    "multi-semantic-release": "^3.0.0",
     "pg": "^8.8.0",
     "pg-mem": "^2.6.3",
     "pg-query-stream": "^4.2.4",
