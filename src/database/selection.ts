@@ -33,6 +33,7 @@ export type RawSelection =
   | string[]
   | SetRef
   | ColumnRef
+  | CallExpression
   | AliasMapping
   | (ColumnRef | AliasMapping)[]
 
@@ -50,6 +51,8 @@ export type ResolveAliasMapping<T> = T extends AliasMapping
 export type ResolveSelection<T extends RawSelection> = Intersect<
   T extends ColumnRef<infer Value, infer Column>
     ? { [P in Column]: Value }
+    : T extends CallExpression<infer ReturnType, infer Callee>
+    ? { [P in Callee]: ReturnType }
     : T extends (infer E)[]
     ? E extends ColumnRef<infer Value, infer Column>
       ? { [P in Column]: Value }

@@ -10,6 +10,8 @@ import type {
 } from './type'
 import { t } from './type-builtin'
 
+const emptyProps: any = Object.freeze({})
+
 /**
  * This list is non-exhaustive. \
  * Only types needed at runtime are listed.
@@ -30,10 +32,10 @@ export class Expression<
     return this[kExprProps]
   }
   constructor(
-    props: [Props] extends [Any] ? Record<string, any> : Props,
+    props: ([Props] extends [Any] ? Record<string, any> : Props) | null,
     tokens: TokenProducer
   ) {
-    this[kExprProps] = props as any
+    this[kExprProps] = props || emptyProps
     this[kExprTokens] = tokens
   }
 }

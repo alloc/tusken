@@ -2,11 +2,11 @@ import { ClientResult } from '../database'
 import { BoolExpression } from '../expression'
 import { Query } from '../query'
 import { kTableName } from '../symbols'
-import { TableRef, toTableName } from '../table'
+import { TableRef } from '../table'
 import { TokenArray } from '../token'
 import { tokenizeWhere } from '../tokenize'
 import { Type } from '../type'
-import { where, Where, WhereRefs } from './where'
+import { where, Where } from './where'
 
 type Props = {
   from: TableRef
@@ -25,11 +25,8 @@ export class Delete<From extends TableRef = any> extends Query<
     return tokens
   }
 
-  where(compose: Where<[From]>) {
-    const table = toTableName(this.props.from)
-    this.props.where = where(this.props, refs =>
-      compose(refs[table] as WhereRefs<[From]>)
-    )
+  where(filter: Where<[From]>) {
+    this.props.where = where(this.props, filter)
     return this
   }
 

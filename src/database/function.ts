@@ -5,10 +5,15 @@ import { TokenArray } from './token'
 import { tokenize } from './tokenize'
 import type { Type } from './type'
 
+interface FunctionConfig {
+  type?: ExpressionTypeName
+  args?: (args: any[]) => any[]
+}
+
 export const defineFunction =
-  (callee: string, type?: ExpressionTypeName): any =>
+  (callee: string, config?: FunctionConfig): any =>
   (...args: any[]) =>
-    new CallExpression(callee, args, type)
+    new CallExpression(callee, args, config)
 
 interface Props<Callee extends string = any> extends ExpressionProps {
   alias?: string
@@ -20,8 +25,11 @@ export class CallExpression<
   T extends Type = any,
   Callee extends string = any
 > extends Expression<T, Props<Callee>> {
-  constructor(callee: Callee, args: any[], type?: ExpressionTypeName) {
-    super({ callee, args, type }, tokenizeCallExpression)
+  constructor(callee: Callee, args: any[], config: FunctionConfig = {}) {
+    if (config.args) {
+      args = config.args(args)
+    }
+    super({ callee, args, type: config.type }, tokenizeCallExpression)
   }
 }
 

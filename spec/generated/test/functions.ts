@@ -35,7 +35,7 @@ export const age: {
 export const amvalidate: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "amvalidate">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "amvalidate">
-} = defineFunction("amvalidate", "bool")
+} = defineFunction("amvalidate", {type: "bool"})
 
 export const anyarray_send: {
   (arg: t.param<t.anyarray>): CallExpression<t.bytea, "anyarray_send">
@@ -68,7 +68,9 @@ export const array_agg: {
    * 
    * @see https://pgpedia.info/a/array_agg.html
    */
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.anynonarray>): Aggregate<t.anyarray, "array_agg">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.anyarray>): Aggregate<t.anyarray, "array_agg">
 } = defineFunction("array_agg")
 
@@ -118,7 +120,7 @@ export const array_dims: {
 export const array_eq: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "array_eq">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "array_eq">
-} = defineFunction("array_eq", "bool")
+} = defineFunction("array_eq", {type: "bool"})
 
 /** 
  * A function returning a pre-filled array
@@ -138,12 +140,12 @@ export const array_fill: {
 export const array_ge: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "array_ge">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "array_ge">
-} = defineFunction("array_ge", "bool")
+} = defineFunction("array_ge", {type: "bool"})
 
 export const array_gt: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "array_gt">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "array_gt">
-} = defineFunction("array_gt", "bool")
+} = defineFunction("array_gt", {type: "bool"})
 
 export const array_larger: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.anyarray, "array_larger">
@@ -153,7 +155,7 @@ export const array_larger: {
 export const array_le: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "array_le">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "array_le">
-} = defineFunction("array_le", "bool")
+} = defineFunction("array_le", {type: "bool"})
 
 /** 
  * A function returning the length of an array dimension
@@ -188,7 +190,7 @@ export const array_lower: {
 export const array_lt: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "array_lt">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "array_lt">
-} = defineFunction("array_lt", "bool")
+} = defineFunction("array_lt", {type: "bool"})
 
 /** 
  * A function returning the number of dimensions of an array
@@ -208,7 +210,7 @@ export const array_ndims: {
 export const array_ne: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "array_ne">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "array_ne">
-} = defineFunction("array_ne", "bool")
+} = defineFunction("array_ne", {type: "bool"})
 
 /** 
  * A function returning the first occurrence of a value in an array
@@ -357,17 +359,17 @@ export const array_upper: {
 export const arraycontained: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "arraycontained">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "arraycontained">
-} = defineFunction("arraycontained", "bool")
+} = defineFunction("arraycontained", {type: "bool"})
 
 export const arraycontains: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "arraycontains">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "arraycontains">
-} = defineFunction("arraycontains", "bool")
+} = defineFunction("arraycontains", {type: "bool"})
 
 export const arrayoverlap: {
   <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.bool, "arrayoverlap">
   <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.bool | t.null, "arrayoverlap">
-} = defineFunction("arrayoverlap", "bool")
+} = defineFunction("arrayoverlap", {type: "bool"})
 
 /** 
  * A function returning the numeric code of a character
@@ -425,8 +427,11 @@ export const atanh: {
 } = defineFunction("atanh")
 
 export const avg: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "avg">
+  // AGGREGATE FUNCTION
   <T extends t.numeric | t.float8 | t.interval>(arg: T): Aggregate<T, "avg">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "avg">
 } = defineFunction("avg")
 
@@ -496,6 +501,7 @@ export const bit_and: {
    * 
    * @see https://pgpedia.info/b/bit_and.html
    */
+  // AGGREGATE FUNCTION
   <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: T): Aggregate<T, "bit_and">
 } = defineFunction("bit_and")
 
@@ -530,6 +536,7 @@ export const bit_or: {
    * 
    * @see https://pgpedia.info/b/bit_or.html
    */
+  // AGGREGATE FUNCTION
   <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: T): Aggregate<T, "bit_or">
 } = defineFunction("bit_or")
 
@@ -549,6 +556,7 @@ export const bit_xor: {
    * 
    * @see https://pgpedia.info/b/bit_xor.html
    */
+  // AGGREGATE FUNCTION
   <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: T): Aggregate<T, "bit_xor">
 } = defineFunction("bit_xor")
 
@@ -570,32 +578,32 @@ export const bitcmp: {
 export const biteq: {
   (arg1: t.param<t.bit>, arg2: t.param<t.bit>): CallExpression<t.bool, "biteq">
   (arg1: t.param<t.bit | t.null>, arg2: t.param<t.bit | t.null>): CallExpression<t.bool | t.null, "biteq">
-} = defineFunction("biteq", "bool")
+} = defineFunction("biteq", {type: "bool"})
 
 export const bitge: {
   (arg1: t.param<t.bit>, arg2: t.param<t.bit>): CallExpression<t.bool, "bitge">
   (arg1: t.param<t.bit | t.null>, arg2: t.param<t.bit | t.null>): CallExpression<t.bool | t.null, "bitge">
-} = defineFunction("bitge", "bool")
+} = defineFunction("bitge", {type: "bool"})
 
 export const bitgt: {
   (arg1: t.param<t.bit>, arg2: t.param<t.bit>): CallExpression<t.bool, "bitgt">
   (arg1: t.param<t.bit | t.null>, arg2: t.param<t.bit | t.null>): CallExpression<t.bool | t.null, "bitgt">
-} = defineFunction("bitgt", "bool")
+} = defineFunction("bitgt", {type: "bool"})
 
 export const bitle: {
   (arg1: t.param<t.bit>, arg2: t.param<t.bit>): CallExpression<t.bool, "bitle">
   (arg1: t.param<t.bit | t.null>, arg2: t.param<t.bit | t.null>): CallExpression<t.bool | t.null, "bitle">
-} = defineFunction("bitle", "bool")
+} = defineFunction("bitle", {type: "bool"})
 
 export const bitlt: {
   (arg1: t.param<t.bit>, arg2: t.param<t.bit>): CallExpression<t.bool, "bitlt">
   (arg1: t.param<t.bit | t.null>, arg2: t.param<t.bit | t.null>): CallExpression<t.bool | t.null, "bitlt">
-} = defineFunction("bitlt", "bool")
+} = defineFunction("bitlt", {type: "bool"})
 
 export const bitne: {
   (arg1: t.param<t.bit>, arg2: t.param<t.bit>): CallExpression<t.bool, "bitne">
   (arg1: t.param<t.bit | t.null>, arg2: t.param<t.bit | t.null>): CallExpression<t.bool | t.null, "bitne">
-} = defineFunction("bitne", "bool")
+} = defineFunction("bitne", {type: "bool"})
 
 export const bitnot: {
   (arg: t.param<t.bit>): CallExpression<t.bit, "bitnot">
@@ -625,7 +633,7 @@ export const bitxor: {
 export const bool: {
   (arg: t.param<t.jsonb | t.int4>): CallExpression<t.bool, "bool">
   (arg: t.param<t.jsonb | t.int4 | t.null>): CallExpression<t.bool | t.null, "bool">
-} = defineFunction("bool", "bool")
+} = defineFunction("bool", {type: "bool"})
 
 /** 
  * A function returning true or false depending on whether all non-NULL input values are true
@@ -638,8 +646,9 @@ export const bool_and: {
    * 
    * @see https://pgpedia.info/b/bool_and.html
    */
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.bool>): Aggregate<t.bool, "bool_and">
-} = defineFunction("bool_and", "bool")
+} = defineFunction("bool_and", {type: "bool"})
 
 /** 
  * A function returning true or false depending on whether any non-NULL input value is true
@@ -652,48 +661,49 @@ export const bool_or: {
    * 
    * @see https://pgpedia.info/b/bool_or.html
    */
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.bool>): Aggregate<t.bool, "bool_or">
-} = defineFunction("bool_or", "bool")
+} = defineFunction("bool_or", {type: "bool"})
 
 export const booland_statefunc: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "booland_statefunc">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "booland_statefunc">
-} = defineFunction("booland_statefunc", "bool")
+} = defineFunction("booland_statefunc", {type: "bool"})
 
 export const booleq: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "booleq">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "booleq">
-} = defineFunction("booleq", "bool")
+} = defineFunction("booleq", {type: "bool"})
 
 export const boolge: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "boolge">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "boolge">
-} = defineFunction("boolge", "bool")
+} = defineFunction("boolge", {type: "bool"})
 
 export const boolgt: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "boolgt">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "boolgt">
-} = defineFunction("boolgt", "bool")
+} = defineFunction("boolgt", {type: "bool"})
 
 export const boolle: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "boolle">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "boolle">
-} = defineFunction("boolle", "bool")
+} = defineFunction("boolle", {type: "bool"})
 
 export const boollt: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "boollt">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "boollt">
-} = defineFunction("boollt", "bool")
+} = defineFunction("boollt", {type: "bool"})
 
 export const boolne: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "boolne">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "boolne">
-} = defineFunction("boolne", "bool")
+} = defineFunction("boolne", {type: "bool"})
 
 export const boolor_statefunc: {
   (arg1: t.param<t.bool>, arg2: t.param<t.bool>): CallExpression<t.bool, "boolor_statefunc">
   (arg1: t.param<t.bool | t.null>, arg2: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "boolor_statefunc">
-} = defineFunction("boolor_statefunc", "bool")
+} = defineFunction("boolor_statefunc", {type: "bool"})
 
 export const boolsend: {
   (arg: t.param<t.bool>): CallExpression<t.bytea, "boolsend">
@@ -715,22 +725,22 @@ export const bpchar_larger: {
 export const bpchar_pattern_ge: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpchar_pattern_ge">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpchar_pattern_ge">
-} = defineFunction("bpchar_pattern_ge", "bool")
+} = defineFunction("bpchar_pattern_ge", {type: "bool"})
 
 export const bpchar_pattern_gt: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpchar_pattern_gt">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpchar_pattern_gt">
-} = defineFunction("bpchar_pattern_gt", "bool")
+} = defineFunction("bpchar_pattern_gt", {type: "bool"})
 
 export const bpchar_pattern_le: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpchar_pattern_le">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpchar_pattern_le">
-} = defineFunction("bpchar_pattern_le", "bool")
+} = defineFunction("bpchar_pattern_le", {type: "bool"})
 
 export const bpchar_pattern_lt: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpchar_pattern_lt">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpchar_pattern_lt">
-} = defineFunction("bpchar_pattern_lt", "bool")
+} = defineFunction("bpchar_pattern_lt", {type: "bool"})
 
 export const bpchar_smaller: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bpchar, "bpchar_smaller">
@@ -745,72 +755,72 @@ export const bpcharcmp: {
 export const bpchareq: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpchareq">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpchareq">
-} = defineFunction("bpchareq", "bool")
+} = defineFunction("bpchareq", {type: "bool"})
 
 export const bpcharge: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpcharge">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpcharge">
-} = defineFunction("bpcharge", "bool")
+} = defineFunction("bpcharge", {type: "bool"})
 
 export const bpchargt: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpchargt">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpchargt">
-} = defineFunction("bpchargt", "bool")
+} = defineFunction("bpchargt", {type: "bool"})
 
 export const bpchariclike: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpchariclike">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpchariclike">
-} = defineFunction("bpchariclike", "bool")
+} = defineFunction("bpchariclike", {type: "bool"})
 
 export const bpcharicnlike: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpcharicnlike">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpcharicnlike">
-} = defineFunction("bpcharicnlike", "bool")
+} = defineFunction("bpcharicnlike", {type: "bool"})
 
 export const bpcharicregexeq: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpcharicregexeq">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpcharicregexeq">
-} = defineFunction("bpcharicregexeq", "bool")
+} = defineFunction("bpcharicregexeq", {type: "bool"})
 
 export const bpcharicregexne: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpcharicregexne">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpcharicregexne">
-} = defineFunction("bpcharicregexne", "bool")
+} = defineFunction("bpcharicregexne", {type: "bool"})
 
 export const bpcharle: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpcharle">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpcharle">
-} = defineFunction("bpcharle", "bool")
+} = defineFunction("bpcharle", {type: "bool"})
 
 export const bpcharlike: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpcharlike">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpcharlike">
-} = defineFunction("bpcharlike", "bool")
+} = defineFunction("bpcharlike", {type: "bool"})
 
 export const bpcharlt: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpcharlt">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpcharlt">
-} = defineFunction("bpcharlt", "bool")
+} = defineFunction("bpcharlt", {type: "bool"})
 
 export const bpcharne: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.bpchar>): CallExpression<t.bool, "bpcharne">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.bpchar | t.null>): CallExpression<t.bool | t.null, "bpcharne">
-} = defineFunction("bpcharne", "bool")
+} = defineFunction("bpcharne", {type: "bool"})
 
 export const bpcharnlike: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpcharnlike">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpcharnlike">
-} = defineFunction("bpcharnlike", "bool")
+} = defineFunction("bpcharnlike", {type: "bool"})
 
 export const bpcharregexeq: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpcharregexeq">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpcharregexeq">
-} = defineFunction("bpcharregexeq", "bool")
+} = defineFunction("bpcharregexeq", {type: "bool"})
 
 export const bpcharregexne: {
   (arg1: t.param<t.bpchar>, arg2: t.param<t.text>): CallExpression<t.bool, "bpcharregexne">
   (arg1: t.param<t.bpchar | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "bpcharregexne">
-} = defineFunction("bpcharregexne", "bool")
+} = defineFunction("bpcharregexne", {type: "bool"})
 
 export const bpcharsend: {
   (arg: t.param<t.bpchar>): CallExpression<t.bytea, "bpcharsend">
@@ -859,7 +869,7 @@ export const btcharcmp: {
 export const btequalimage: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "btequalimage">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "btequalimage">
-} = defineFunction("btequalimage", "bool")
+} = defineFunction("btequalimage", {type: "bool"})
 
 export const btfloat48cmp: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.int4, "btfloat48cmp">
@@ -978,7 +988,7 @@ export const bttextnamecmp: {
 export const btvarstrequalimage: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "btvarstrequalimage">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "btvarstrequalimage">
-} = defineFunction("btvarstrequalimage", "bool")
+} = defineFunction("btvarstrequalimage", {type: "bool"})
 
 export const byteacat: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bytea, "byteacat">
@@ -993,42 +1003,42 @@ export const byteacmp: {
 export const byteaeq: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "byteaeq">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "byteaeq">
-} = defineFunction("byteaeq", "bool")
+} = defineFunction("byteaeq", {type: "bool"})
 
 export const byteage: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "byteage">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "byteage">
-} = defineFunction("byteage", "bool")
+} = defineFunction("byteage", {type: "bool"})
 
 export const byteagt: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "byteagt">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "byteagt">
-} = defineFunction("byteagt", "bool")
+} = defineFunction("byteagt", {type: "bool"})
 
 export const byteale: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "byteale">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "byteale">
-} = defineFunction("byteale", "bool")
+} = defineFunction("byteale", {type: "bool"})
 
 export const bytealike: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "bytealike">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "bytealike">
-} = defineFunction("bytealike", "bool")
+} = defineFunction("bytealike", {type: "bool"})
 
 export const bytealt: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "bytealt">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "bytealt">
-} = defineFunction("bytealt", "bool")
+} = defineFunction("bytealt", {type: "bool"})
 
 export const byteane: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "byteane">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "byteane">
-} = defineFunction("byteane", "bool")
+} = defineFunction("byteane", {type: "bool"})
 
 export const byteanlike: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>): CallExpression<t.bool, "byteanlike">
   (arg1: t.param<t.bytea | t.null>, arg2: t.param<t.bytea | t.null>): CallExpression<t.bool | t.null, "byteanlike">
-} = defineFunction("byteanlike", "bool")
+} = defineFunction("byteanlike", {type: "bool"})
 
 export const byteasend: {
   (arg: t.param<t.bytea>): CallExpression<t.bytea, "byteasend">
@@ -1088,27 +1098,27 @@ export const cash_div_int8: {
 export const cash_eq: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.bool, "cash_eq">
   (arg1: t.param<t.money | t.null>, arg2: t.param<t.money | t.null>): CallExpression<t.bool | t.null, "cash_eq">
-} = defineFunction("cash_eq", "bool")
+} = defineFunction("cash_eq", {type: "bool"})
 
 export const cash_ge: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.bool, "cash_ge">
   (arg1: t.param<t.money | t.null>, arg2: t.param<t.money | t.null>): CallExpression<t.bool | t.null, "cash_ge">
-} = defineFunction("cash_ge", "bool")
+} = defineFunction("cash_ge", {type: "bool"})
 
 export const cash_gt: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.bool, "cash_gt">
   (arg1: t.param<t.money | t.null>, arg2: t.param<t.money | t.null>): CallExpression<t.bool | t.null, "cash_gt">
-} = defineFunction("cash_gt", "bool")
+} = defineFunction("cash_gt", {type: "bool"})
 
 export const cash_le: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.bool, "cash_le">
   (arg1: t.param<t.money | t.null>, arg2: t.param<t.money | t.null>): CallExpression<t.bool | t.null, "cash_le">
-} = defineFunction("cash_le", "bool")
+} = defineFunction("cash_le", {type: "bool"})
 
 export const cash_lt: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.bool, "cash_lt">
   (arg1: t.param<t.money | t.null>, arg2: t.param<t.money | t.null>): CallExpression<t.bool | t.null, "cash_lt">
-} = defineFunction("cash_lt", "bool")
+} = defineFunction("cash_lt", {type: "bool"})
 
 export const cash_mi: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.money, "cash_mi">
@@ -1143,7 +1153,7 @@ export const cash_mul_int8: {
 export const cash_ne: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.bool, "cash_ne">
   (arg1: t.param<t.money | t.null>, arg2: t.param<t.money | t.null>): CallExpression<t.bool | t.null, "cash_ne">
-} = defineFunction("cash_ne", "bool")
+} = defineFunction("cash_ne", {type: "bool"})
 
 export const cash_pl: {
   (arg1: t.param<t.money>, arg2: t.param<t.money>): CallExpression<t.money, "cash_pl">
@@ -1206,32 +1216,32 @@ export const character_length: {
 export const chareq: {
   (arg1: t.param<t.char>, arg2: t.param<t.char>): CallExpression<t.bool, "chareq">
   (arg1: t.param<t.char | t.null>, arg2: t.param<t.char | t.null>): CallExpression<t.bool | t.null, "chareq">
-} = defineFunction("chareq", "bool")
+} = defineFunction("chareq", {type: "bool"})
 
 export const charge: {
   (arg1: t.param<t.char>, arg2: t.param<t.char>): CallExpression<t.bool, "charge">
   (arg1: t.param<t.char | t.null>, arg2: t.param<t.char | t.null>): CallExpression<t.bool | t.null, "charge">
-} = defineFunction("charge", "bool")
+} = defineFunction("charge", {type: "bool"})
 
 export const chargt: {
   (arg1: t.param<t.char>, arg2: t.param<t.char>): CallExpression<t.bool, "chargt">
   (arg1: t.param<t.char | t.null>, arg2: t.param<t.char | t.null>): CallExpression<t.bool | t.null, "chargt">
-} = defineFunction("chargt", "bool")
+} = defineFunction("chargt", {type: "bool"})
 
 export const charle: {
   (arg1: t.param<t.char>, arg2: t.param<t.char>): CallExpression<t.bool, "charle">
   (arg1: t.param<t.char | t.null>, arg2: t.param<t.char | t.null>): CallExpression<t.bool | t.null, "charle">
-} = defineFunction("charle", "bool")
+} = defineFunction("charle", {type: "bool"})
 
 export const charlt: {
   (arg1: t.param<t.char>, arg2: t.param<t.char>): CallExpression<t.bool, "charlt">
   (arg1: t.param<t.char | t.null>, arg2: t.param<t.char | t.null>): CallExpression<t.bool | t.null, "charlt">
-} = defineFunction("charlt", "bool")
+} = defineFunction("charlt", {type: "bool"})
 
 export const charne: {
   (arg1: t.param<t.char>, arg2: t.param<t.char>): CallExpression<t.bool, "charne">
   (arg1: t.param<t.char | t.null>, arg2: t.param<t.char | t.null>): CallExpression<t.bool | t.null, "charne">
-} = defineFunction("charne", "bool")
+} = defineFunction("charne", {type: "bool"})
 
 export const charsend: {
   (arg: t.param<t.char>): CallExpression<t.bytea, "charsend">
@@ -1271,7 +1281,7 @@ export const circle: {
 export const circle_above: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_above">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_above">
-} = defineFunction("circle_above", "bool")
+} = defineFunction("circle_above", {type: "bool"})
 
 export const circle_add_pt: {
   (arg1: t.param<t.circle>, arg2: t.param<t.point>): CallExpression<t.circle, "circle_add_pt">
@@ -1281,7 +1291,7 @@ export const circle_add_pt: {
 export const circle_below: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_below">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_below">
-} = defineFunction("circle_below", "bool")
+} = defineFunction("circle_below", {type: "bool"})
 
 export const circle_center: {
   (arg: t.param<t.circle>): CallExpression<t.point, "circle_center">
@@ -1291,17 +1301,17 @@ export const circle_center: {
 export const circle_contain: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_contain">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_contain">
-} = defineFunction("circle_contain", "bool")
+} = defineFunction("circle_contain", {type: "bool"})
 
 export const circle_contain_pt: {
   (arg1: t.param<t.circle>, arg2: t.param<t.point>): CallExpression<t.bool, "circle_contain_pt">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "circle_contain_pt">
-} = defineFunction("circle_contain_pt", "bool")
+} = defineFunction("circle_contain_pt", {type: "bool"})
 
 export const circle_contained: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_contained">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_contained">
-} = defineFunction("circle_contained", "bool")
+} = defineFunction("circle_contained", {type: "bool"})
 
 export const circle_distance: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.float8, "circle_distance">
@@ -1316,32 +1326,32 @@ export const circle_div_pt: {
 export const circle_eq: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_eq">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_eq">
-} = defineFunction("circle_eq", "bool")
+} = defineFunction("circle_eq", {type: "bool"})
 
 export const circle_ge: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_ge">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_ge">
-} = defineFunction("circle_ge", "bool")
+} = defineFunction("circle_ge", {type: "bool"})
 
 export const circle_gt: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_gt">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_gt">
-} = defineFunction("circle_gt", "bool")
+} = defineFunction("circle_gt", {type: "bool"})
 
 export const circle_le: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_le">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_le">
-} = defineFunction("circle_le", "bool")
+} = defineFunction("circle_le", {type: "bool"})
 
 export const circle_left: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_left">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_left">
-} = defineFunction("circle_left", "bool")
+} = defineFunction("circle_left", {type: "bool"})
 
 export const circle_lt: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_lt">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_lt">
-} = defineFunction("circle_lt", "bool")
+} = defineFunction("circle_lt", {type: "bool"})
 
 export const circle_mul_pt: {
   (arg1: t.param<t.circle>, arg2: t.param<t.point>): CallExpression<t.circle, "circle_mul_pt">
@@ -1351,42 +1361,42 @@ export const circle_mul_pt: {
 export const circle_ne: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_ne">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_ne">
-} = defineFunction("circle_ne", "bool")
+} = defineFunction("circle_ne", {type: "bool"})
 
 export const circle_overabove: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_overabove">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_overabove">
-} = defineFunction("circle_overabove", "bool")
+} = defineFunction("circle_overabove", {type: "bool"})
 
 export const circle_overbelow: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_overbelow">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_overbelow">
-} = defineFunction("circle_overbelow", "bool")
+} = defineFunction("circle_overbelow", {type: "bool"})
 
 export const circle_overlap: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_overlap">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_overlap">
-} = defineFunction("circle_overlap", "bool")
+} = defineFunction("circle_overlap", {type: "bool"})
 
 export const circle_overleft: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_overleft">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_overleft">
-} = defineFunction("circle_overleft", "bool")
+} = defineFunction("circle_overleft", {type: "bool"})
 
 export const circle_overright: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_overright">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_overright">
-} = defineFunction("circle_overright", "bool")
+} = defineFunction("circle_overright", {type: "bool"})
 
 export const circle_right: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_right">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_right">
-} = defineFunction("circle_right", "bool")
+} = defineFunction("circle_right", {type: "bool"})
 
 export const circle_same: {
   (arg1: t.param<t.circle>, arg2: t.param<t.circle>): CallExpression<t.bool, "circle_same">
   (arg1: t.param<t.circle | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "circle_same">
-} = defineFunction("circle_same", "bool")
+} = defineFunction("circle_same", {type: "bool"})
 
 export const circle_send: {
   (arg: t.param<t.circle>): CallExpression<t.bytea, "circle_send">
@@ -1501,6 +1511,7 @@ export const convert_to: {
 } = defineFunction("convert_to")
 
 export const corr: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "corr">
 } = defineFunction("corr")
 
@@ -1530,22 +1541,21 @@ export const cotd: {
 } = defineFunction("cotd")
 
 export const count: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.any>): Aggregate<t.int8, "count">
+  // AGGREGATE FUNCTION
   (): Aggregate<t.int8, "count">
-} = defineFunction("count")
+} = defineFunction("count", {args: args => args.length ? args : ["*"]})
 
 export const covar_pop: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "covar_pop">
 } = defineFunction("covar_pop")
 
 export const covar_samp: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "covar_samp">
 } = defineFunction("covar_samp")
-
-export const cume_dist: {
-  (): CallExpression<t.float8, "cume_dist">
-  (...args: t.aggParam<t.any>[]): Aggregate<t.float8, "cume_dist">
-} = defineFunction("cume_dist")
 
 /** 
  * A function returning the name of the current database
@@ -1671,47 +1681,47 @@ export const date_cmp_timestamptz: {
 export const date_eq: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.bool, "date_eq">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "date_eq">
-} = defineFunction("date_eq", "bool")
+} = defineFunction("date_eq", {type: "bool"})
 
 export const date_eq_timestamp: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "date_eq_timestamp">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "date_eq_timestamp">
-} = defineFunction("date_eq_timestamp", "bool")
+} = defineFunction("date_eq_timestamp", {type: "bool"})
 
 export const date_eq_timestamptz: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "date_eq_timestamptz">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "date_eq_timestamptz">
-} = defineFunction("date_eq_timestamptz", "bool")
+} = defineFunction("date_eq_timestamptz", {type: "bool"})
 
 export const date_ge: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.bool, "date_ge">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "date_ge">
-} = defineFunction("date_ge", "bool")
+} = defineFunction("date_ge", {type: "bool"})
 
 export const date_ge_timestamp: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "date_ge_timestamp">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "date_ge_timestamp">
-} = defineFunction("date_ge_timestamp", "bool")
+} = defineFunction("date_ge_timestamp", {type: "bool"})
 
 export const date_ge_timestamptz: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "date_ge_timestamptz">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "date_ge_timestamptz">
-} = defineFunction("date_ge_timestamptz", "bool")
+} = defineFunction("date_ge_timestamptz", {type: "bool"})
 
 export const date_gt: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.bool, "date_gt">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "date_gt">
-} = defineFunction("date_gt", "bool")
+} = defineFunction("date_gt", {type: "bool"})
 
 export const date_gt_timestamp: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "date_gt_timestamp">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "date_gt_timestamp">
-} = defineFunction("date_gt_timestamp", "bool")
+} = defineFunction("date_gt_timestamp", {type: "bool"})
 
 export const date_gt_timestamptz: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "date_gt_timestamptz">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "date_gt_timestamptz">
-} = defineFunction("date_gt_timestamptz", "bool")
+} = defineFunction("date_gt_timestamptz", {type: "bool"})
 
 export const date_larger: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.date, "date_larger">
@@ -1721,32 +1731,32 @@ export const date_larger: {
 export const date_le: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.bool, "date_le">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "date_le">
-} = defineFunction("date_le", "bool")
+} = defineFunction("date_le", {type: "bool"})
 
 export const date_le_timestamp: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "date_le_timestamp">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "date_le_timestamp">
-} = defineFunction("date_le_timestamp", "bool")
+} = defineFunction("date_le_timestamp", {type: "bool"})
 
 export const date_le_timestamptz: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "date_le_timestamptz">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "date_le_timestamptz">
-} = defineFunction("date_le_timestamptz", "bool")
+} = defineFunction("date_le_timestamptz", {type: "bool"})
 
 export const date_lt: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.bool, "date_lt">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "date_lt">
-} = defineFunction("date_lt", "bool")
+} = defineFunction("date_lt", {type: "bool"})
 
 export const date_lt_timestamp: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "date_lt_timestamp">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "date_lt_timestamp">
-} = defineFunction("date_lt_timestamp", "bool")
+} = defineFunction("date_lt_timestamp", {type: "bool"})
 
 export const date_lt_timestamptz: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "date_lt_timestamptz">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "date_lt_timestamptz">
-} = defineFunction("date_lt_timestamptz", "bool")
+} = defineFunction("date_lt_timestamptz", {type: "bool"})
 
 export const date_mi: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.int4, "date_mi">
@@ -1766,17 +1776,17 @@ export const date_mii: {
 export const date_ne: {
   (arg1: t.param<t.date>, arg2: t.param<t.date>): CallExpression<t.bool, "date_ne">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "date_ne">
-} = defineFunction("date_ne", "bool")
+} = defineFunction("date_ne", {type: "bool"})
 
 export const date_ne_timestamp: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "date_ne_timestamp">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "date_ne_timestamp">
-} = defineFunction("date_ne_timestamp", "bool")
+} = defineFunction("date_ne_timestamp", {type: "bool"})
 
 export const date_ne_timestamptz: {
   (arg1: t.param<t.date>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "date_ne_timestamptz">
   (arg1: t.param<t.date | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "date_ne_timestamptz">
-} = defineFunction("date_ne_timestamptz", "bool")
+} = defineFunction("date_ne_timestamptz", {type: "bool"})
 
 /** 
  * A function for retrieving elements of a date or timestamp
@@ -1884,11 +1894,6 @@ export const degrees: {
   (arg: t.param<t.float8 | t.null>): CallExpression<t.float8 | t.null, "degrees">
 } = defineFunction("degrees")
 
-export const dense_rank: {
-  (): CallExpression<t.int8, "dense_rank">
-  (...args: t.aggParam<t.any>[]): Aggregate<t.int8, "dense_rank">
-} = defineFunction("dense_rank")
-
 export const dexp: {
   (arg: t.param<t.float8>): CallExpression<t.float8, "dexp">
   (arg: t.param<t.float8 | t.null>): CallExpression<t.float8 | t.null, "dexp">
@@ -1960,8 +1965,9 @@ export const encode: {
 } = defineFunction("encode")
 
 export const every: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.bool>): Aggregate<t.bool, "every">
-} = defineFunction("every", "bool")
+} = defineFunction("every", {type: "bool"})
 
 export const exp: {
   <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "exp">
@@ -2015,27 +2021,27 @@ export const float48div: {
 export const float48eq: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.bool, "float48eq">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float48eq">
-} = defineFunction("float48eq", "bool")
+} = defineFunction("float48eq", {type: "bool"})
 
 export const float48ge: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.bool, "float48ge">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float48ge">
-} = defineFunction("float48ge", "bool")
+} = defineFunction("float48ge", {type: "bool"})
 
 export const float48gt: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.bool, "float48gt">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float48gt">
-} = defineFunction("float48gt", "bool")
+} = defineFunction("float48gt", {type: "bool"})
 
 export const float48le: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.bool, "float48le">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float48le">
-} = defineFunction("float48le", "bool")
+} = defineFunction("float48le", {type: "bool"})
 
 export const float48lt: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.bool, "float48lt">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float48lt">
-} = defineFunction("float48lt", "bool")
+} = defineFunction("float48lt", {type: "bool"})
 
 export const float48mi: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.float8, "float48mi">
@@ -2050,7 +2056,7 @@ export const float48mul: {
 export const float48ne: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.bool, "float48ne">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float48ne">
-} = defineFunction("float48ne", "bool")
+} = defineFunction("float48ne", {type: "bool"})
 
 export const float48pl: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float8>): CallExpression<t.float8, "float48pl">
@@ -2075,17 +2081,17 @@ export const float4div: {
 export const float4eq: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.bool, "float4eq">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float4eq">
-} = defineFunction("float4eq", "bool")
+} = defineFunction("float4eq", {type: "bool"})
 
 export const float4ge: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.bool, "float4ge">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float4ge">
-} = defineFunction("float4ge", "bool")
+} = defineFunction("float4ge", {type: "bool"})
 
 export const float4gt: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.bool, "float4gt">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float4gt">
-} = defineFunction("float4gt", "bool")
+} = defineFunction("float4gt", {type: "bool"})
 
 export const float4larger: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.float4, "float4larger">
@@ -2095,12 +2101,12 @@ export const float4larger: {
 export const float4le: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.bool, "float4le">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float4le">
-} = defineFunction("float4le", "bool")
+} = defineFunction("float4le", {type: "bool"})
 
 export const float4lt: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.bool, "float4lt">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float4lt">
-} = defineFunction("float4lt", "bool")
+} = defineFunction("float4lt", {type: "bool"})
 
 export const float4mi: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.float4, "float4mi">
@@ -2115,7 +2121,7 @@ export const float4mul: {
 export const float4ne: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.bool, "float4ne">
   (arg1: t.param<t.float4 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float4ne">
-} = defineFunction("float4ne", "bool")
+} = defineFunction("float4ne", {type: "bool"})
 
 export const float4pl: {
   (arg1: t.param<t.float4>, arg2: t.param<t.float4>): CallExpression<t.float4, "float4pl">
@@ -2155,27 +2161,27 @@ export const float84div: {
 export const float84eq: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.bool, "float84eq">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float84eq">
-} = defineFunction("float84eq", "bool")
+} = defineFunction("float84eq", {type: "bool"})
 
 export const float84ge: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.bool, "float84ge">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float84ge">
-} = defineFunction("float84ge", "bool")
+} = defineFunction("float84ge", {type: "bool"})
 
 export const float84gt: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.bool, "float84gt">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float84gt">
-} = defineFunction("float84gt", "bool")
+} = defineFunction("float84gt", {type: "bool"})
 
 export const float84le: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.bool, "float84le">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float84le">
-} = defineFunction("float84le", "bool")
+} = defineFunction("float84le", {type: "bool"})
 
 export const float84lt: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.bool, "float84lt">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float84lt">
-} = defineFunction("float84lt", "bool")
+} = defineFunction("float84lt", {type: "bool"})
 
 export const float84mi: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.float8, "float84mi">
@@ -2190,7 +2196,7 @@ export const float84mul: {
 export const float84ne: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.bool, "float84ne">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float4 | t.null>): CallExpression<t.bool | t.null, "float84ne">
-} = defineFunction("float84ne", "bool")
+} = defineFunction("float84ne", {type: "bool"})
 
 export const float84pl: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float4>): CallExpression<t.float8, "float84pl">
@@ -2310,17 +2316,17 @@ export const float8div: {
 export const float8eq: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.bool, "float8eq">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float8eq">
-} = defineFunction("float8eq", "bool")
+} = defineFunction("float8eq", {type: "bool"})
 
 export const float8ge: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.bool, "float8ge">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float8ge">
-} = defineFunction("float8ge", "bool")
+} = defineFunction("float8ge", {type: "bool"})
 
 export const float8gt: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.bool, "float8gt">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float8gt">
-} = defineFunction("float8gt", "bool")
+} = defineFunction("float8gt", {type: "bool"})
 
 export const float8larger: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.float8, "float8larger">
@@ -2330,12 +2336,12 @@ export const float8larger: {
 export const float8le: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.bool, "float8le">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float8le">
-} = defineFunction("float8le", "bool")
+} = defineFunction("float8le", {type: "bool"})
 
 export const float8lt: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.bool, "float8lt">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float8lt">
-} = defineFunction("float8lt", "bool")
+} = defineFunction("float8lt", {type: "bool"})
 
 export const float8mi: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.float8, "float8mi">
@@ -2350,7 +2356,7 @@ export const float8mul: {
 export const float8ne: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.bool, "float8ne">
   (arg1: t.param<t.float8 | t.null>, arg2: t.param<t.float8 | t.null>): CallExpression<t.bool | t.null, "float8ne">
-} = defineFunction("float8ne", "bool")
+} = defineFunction("float8ne", {type: "bool"})
 
 export const float8pl: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.float8, "float8pl">
@@ -2553,7 +2559,7 @@ export const has_any_column_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_any_column_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_any_column_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_any_column_privilege">
-} = defineFunction("has_any_column_privilege", "bool")
+} = defineFunction("has_any_column_privilege", {type: "bool"})
 
 /** 
  * A function determining whether a user has a privilege for a table column
@@ -2570,7 +2576,7 @@ export const has_column_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.int2 | t.null>, arg4: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_column_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text | t.int2>, arg3: t.param<t.text>): CallExpression<t.bool, "has_column_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.int2 | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_column_privilege">
-} = defineFunction("has_column_privilege", "bool")
+} = defineFunction("has_column_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a database
@@ -2587,7 +2593,7 @@ export const has_database_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_database_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_database_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_database_privilege">
-} = defineFunction("has_database_privilege", "bool")
+} = defineFunction("has_database_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a foreign data wrapper
@@ -2604,7 +2610,7 @@ export const has_foreign_data_wrapper_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_foreign_data_wrapper_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_foreign_data_wrapper_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_foreign_data_wrapper_privilege">
-} = defineFunction("has_foreign_data_wrapper_privilege", "bool")
+} = defineFunction("has_foreign_data_wrapper_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a function
@@ -2621,7 +2627,7 @@ export const has_function_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_function_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_function_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_function_privilege">
-} = defineFunction("has_function_privilege", "bool")
+} = defineFunction("has_function_privilege", {type: "bool"})
 
 /** 
  * A function determining whether a user has a privilege for a language
@@ -2638,7 +2644,7 @@ export const has_language_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_language_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_language_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_language_privilege">
-} = defineFunction("has_language_privilege", "bool")
+} = defineFunction("has_language_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a schema
@@ -2655,7 +2661,7 @@ export const has_schema_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_schema_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_schema_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_schema_privilege">
-} = defineFunction("has_schema_privilege", "bool")
+} = defineFunction("has_schema_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a sequence
@@ -2672,7 +2678,7 @@ export const has_sequence_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_sequence_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_sequence_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_sequence_privilege">
-} = defineFunction("has_sequence_privilege", "bool")
+} = defineFunction("has_sequence_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a foreign server
@@ -2689,7 +2695,7 @@ export const has_server_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_server_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_server_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_server_privilege">
-} = defineFunction("has_server_privilege", "bool")
+} = defineFunction("has_server_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a table
@@ -2706,7 +2712,7 @@ export const has_table_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_table_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_table_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_table_privilege">
-} = defineFunction("has_table_privilege", "bool")
+} = defineFunction("has_table_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a tablespace
@@ -2723,7 +2729,7 @@ export const has_tablespace_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_tablespace_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_tablespace_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_tablespace_privilege">
-} = defineFunction("has_tablespace_privilege", "bool")
+} = defineFunction("has_tablespace_privilege", {type: "bool"})
 
 /** 
  * A system function determining whether a user has a privilege for a data type
@@ -2740,7 +2746,7 @@ export const has_type_privilege: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_type_privilege">
   (arg1: t.param<t.text | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "has_type_privilege">
   (arg1: t.param<t.text | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "has_type_privilege">
-} = defineFunction("has_type_privilege", "bool")
+} = defineFunction("has_type_privilege", {type: "bool"})
 
 export const hash_array: {
   (arg: t.param<t.anyarray>): CallExpression<t.int4, "hash_array">
@@ -2895,7 +2901,7 @@ export const hostmask: {
 export const in_range: {
   (arg1: t.param<t.int8 | t.int4 | t.int2 | t.float8 | t.float4 | t.numeric | t.date | t.timestamp | t.timestamptz | t.interval | t.time | t.timetz>, arg2: t.param<t.int8 | t.int4 | t.int2 | t.float8 | t.float4 | t.numeric | t.date | t.timestamp | t.timestamptz | t.interval | t.time | t.timetz>, arg3: t.param<t.int8 | t.int4 | t.int2 | t.float8 | t.numeric | t.interval>, arg4: t.param<t.bool>, arg5: t.param<t.bool>): CallExpression<t.bool, "in_range">
   (arg1: t.param<t.int8 | t.int4 | t.int2 | t.float8 | t.float4 | t.numeric | t.date | t.timestamp | t.timestamptz | t.interval | t.time | t.timetz | t.null>, arg2: t.param<t.int8 | t.int4 | t.int2 | t.float8 | t.float4 | t.numeric | t.date | t.timestamp | t.timestamptz | t.interval | t.time | t.timetz | t.null>, arg3: t.param<t.int8 | t.int4 | t.int2 | t.float8 | t.numeric | t.interval | t.null>, arg4: t.param<t.bool | t.null>, arg5: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "in_range">
-} = defineFunction("in_range", "bool")
+} = defineFunction("in_range", {type: "bool"})
 
 /** 
  * A function returning the client IP address
@@ -2933,7 +2939,7 @@ export const inet_merge: {
 export const inet_same_family: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "inet_same_family">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "inet_same_family">
-} = defineFunction("inet_same_family", "bool")
+} = defineFunction("inet_same_family", {type: "bool"})
 
 export const inet_send: {
   (arg: t.param<t.inet>): CallExpression<t.bytea, "inet_send">
@@ -3026,27 +3032,27 @@ export const int24div: {
 export const int24eq: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.bool, "int24eq">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int24eq">
-} = defineFunction("int24eq", "bool")
+} = defineFunction("int24eq", {type: "bool"})
 
 export const int24ge: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.bool, "int24ge">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int24ge">
-} = defineFunction("int24ge", "bool")
+} = defineFunction("int24ge", {type: "bool"})
 
 export const int24gt: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.bool, "int24gt">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int24gt">
-} = defineFunction("int24gt", "bool")
+} = defineFunction("int24gt", {type: "bool"})
 
 export const int24le: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.bool, "int24le">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int24le">
-} = defineFunction("int24le", "bool")
+} = defineFunction("int24le", {type: "bool"})
 
 export const int24lt: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.bool, "int24lt">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int24lt">
-} = defineFunction("int24lt", "bool")
+} = defineFunction("int24lt", {type: "bool"})
 
 export const int24mi: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.int4, "int24mi">
@@ -3061,7 +3067,7 @@ export const int24mul: {
 export const int24ne: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.bool, "int24ne">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int24ne">
-} = defineFunction("int24ne", "bool")
+} = defineFunction("int24ne", {type: "bool"})
 
 export const int24pl: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int4>): CallExpression<t.int4, "int24pl">
@@ -3076,27 +3082,27 @@ export const int28div: {
 export const int28eq: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.bool, "int28eq">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int28eq">
-} = defineFunction("int28eq", "bool")
+} = defineFunction("int28eq", {type: "bool"})
 
 export const int28ge: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.bool, "int28ge">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int28ge">
-} = defineFunction("int28ge", "bool")
+} = defineFunction("int28ge", {type: "bool"})
 
 export const int28gt: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.bool, "int28gt">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int28gt">
-} = defineFunction("int28gt", "bool")
+} = defineFunction("int28gt", {type: "bool"})
 
 export const int28le: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.bool, "int28le">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int28le">
-} = defineFunction("int28le", "bool")
+} = defineFunction("int28le", {type: "bool"})
 
 export const int28lt: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.bool, "int28lt">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int28lt">
-} = defineFunction("int28lt", "bool")
+} = defineFunction("int28lt", {type: "bool"})
 
 export const int28mi: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.int8, "int28mi">
@@ -3111,7 +3117,7 @@ export const int28mul: {
 export const int28ne: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.bool, "int28ne">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int28ne">
-} = defineFunction("int28ne", "bool")
+} = defineFunction("int28ne", {type: "bool"})
 
 export const int28pl: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int8>): CallExpression<t.int8, "int28pl">
@@ -3155,17 +3161,17 @@ export const int2div: {
 export const int2eq: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int2>): CallExpression<t.bool, "int2eq">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int2eq">
-} = defineFunction("int2eq", "bool")
+} = defineFunction("int2eq", {type: "bool"})
 
 export const int2ge: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int2>): CallExpression<t.bool, "int2ge">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int2ge">
-} = defineFunction("int2ge", "bool")
+} = defineFunction("int2ge", {type: "bool"})
 
 export const int2gt: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int2>): CallExpression<t.bool, "int2gt">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int2gt">
-} = defineFunction("int2gt", "bool")
+} = defineFunction("int2gt", {type: "bool"})
 
 export const int2int4_sum: {
   (arg: t.param<t.array<t.int8>>): CallExpression<t.int8, "int2int4_sum">
@@ -3180,12 +3186,12 @@ export const int2larger: {
 export const int2le: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int2>): CallExpression<t.bool, "int2le">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int2le">
-} = defineFunction("int2le", "bool")
+} = defineFunction("int2le", {type: "bool"})
 
 export const int2lt: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int2>): CallExpression<t.bool, "int2lt">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int2lt">
-} = defineFunction("int2lt", "bool")
+} = defineFunction("int2lt", {type: "bool"})
 
 export const int2mi: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int2>): CallExpression<t.int2, "int2mi">
@@ -3205,7 +3211,7 @@ export const int2mul: {
 export const int2ne: {
   (arg1: t.param<t.int2>, arg2: t.param<t.int2>): CallExpression<t.bool, "int2ne">
   (arg1: t.param<t.int2 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int2ne">
-} = defineFunction("int2ne", "bool")
+} = defineFunction("int2ne", {type: "bool"})
 
 export const int2not: {
   (arg: t.param<t.int2>): CallExpression<t.int2, "int2not">
@@ -3270,27 +3276,27 @@ export const int42div: {
 export const int42eq: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.bool, "int42eq">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int42eq">
-} = defineFunction("int42eq", "bool")
+} = defineFunction("int42eq", {type: "bool"})
 
 export const int42ge: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.bool, "int42ge">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int42ge">
-} = defineFunction("int42ge", "bool")
+} = defineFunction("int42ge", {type: "bool"})
 
 export const int42gt: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.bool, "int42gt">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int42gt">
-} = defineFunction("int42gt", "bool")
+} = defineFunction("int42gt", {type: "bool"})
 
 export const int42le: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.bool, "int42le">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int42le">
-} = defineFunction("int42le", "bool")
+} = defineFunction("int42le", {type: "bool"})
 
 export const int42lt: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.bool, "int42lt">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int42lt">
-} = defineFunction("int42lt", "bool")
+} = defineFunction("int42lt", {type: "bool"})
 
 export const int42mi: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.int4, "int42mi">
@@ -3305,7 +3311,7 @@ export const int42mul: {
 export const int42ne: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.bool, "int42ne">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int42ne">
-} = defineFunction("int42ne", "bool")
+} = defineFunction("int42ne", {type: "bool"})
 
 export const int42pl: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int2>): CallExpression<t.int4, "int42pl">
@@ -3320,27 +3326,27 @@ export const int48div: {
 export const int48eq: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.bool, "int48eq">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int48eq">
-} = defineFunction("int48eq", "bool")
+} = defineFunction("int48eq", {type: "bool"})
 
 export const int48ge: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.bool, "int48ge">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int48ge">
-} = defineFunction("int48ge", "bool")
+} = defineFunction("int48ge", {type: "bool"})
 
 export const int48gt: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.bool, "int48gt">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int48gt">
-} = defineFunction("int48gt", "bool")
+} = defineFunction("int48gt", {type: "bool"})
 
 export const int48le: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.bool, "int48le">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int48le">
-} = defineFunction("int48le", "bool")
+} = defineFunction("int48le", {type: "bool"})
 
 export const int48lt: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.bool, "int48lt">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int48lt">
-} = defineFunction("int48lt", "bool")
+} = defineFunction("int48lt", {type: "bool"})
 
 export const int48mi: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.int8, "int48mi">
@@ -3355,7 +3361,7 @@ export const int48mul: {
 export const int48ne: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.bool, "int48ne">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int48ne">
-} = defineFunction("int48ne", "bool")
+} = defineFunction("int48ne", {type: "bool"})
 
 export const int48pl: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int8>): CallExpression<t.int8, "int48pl">
@@ -3404,17 +3410,17 @@ export const int4div: {
 export const int4eq: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "int4eq">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int4eq">
-} = defineFunction("int4eq", "bool")
+} = defineFunction("int4eq", {type: "bool"})
 
 export const int4ge: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "int4ge">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int4ge">
-} = defineFunction("int4ge", "bool")
+} = defineFunction("int4ge", {type: "bool"})
 
 export const int4gt: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "int4gt">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int4gt">
-} = defineFunction("int4gt", "bool")
+} = defineFunction("int4gt", {type: "bool"})
 
 export const int4inc: {
   (arg: t.param<t.int4>): CallExpression<t.int4, "int4inc">
@@ -3429,12 +3435,12 @@ export const int4larger: {
 export const int4le: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "int4le">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int4le">
-} = defineFunction("int4le", "bool")
+} = defineFunction("int4le", {type: "bool"})
 
 export const int4lt: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "int4lt">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int4lt">
-} = defineFunction("int4lt", "bool")
+} = defineFunction("int4lt", {type: "bool"})
 
 export const int4mi: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.int4, "int4mi">
@@ -3454,7 +3460,7 @@ export const int4mul: {
 export const int4ne: {
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "int4ne">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int4ne">
-} = defineFunction("int4ne", "bool")
+} = defineFunction("int4ne", {type: "bool"})
 
 export const int4not: {
   (arg: t.param<t.int4>): CallExpression<t.int4, "int4not">
@@ -3534,27 +3540,27 @@ export const int82div: {
 export const int82eq: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.bool, "int82eq">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int82eq">
-} = defineFunction("int82eq", "bool")
+} = defineFunction("int82eq", {type: "bool"})
 
 export const int82ge: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.bool, "int82ge">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int82ge">
-} = defineFunction("int82ge", "bool")
+} = defineFunction("int82ge", {type: "bool"})
 
 export const int82gt: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.bool, "int82gt">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int82gt">
-} = defineFunction("int82gt", "bool")
+} = defineFunction("int82gt", {type: "bool"})
 
 export const int82le: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.bool, "int82le">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int82le">
-} = defineFunction("int82le", "bool")
+} = defineFunction("int82le", {type: "bool"})
 
 export const int82lt: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.bool, "int82lt">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int82lt">
-} = defineFunction("int82lt", "bool")
+} = defineFunction("int82lt", {type: "bool"})
 
 export const int82mi: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.int8, "int82mi">
@@ -3569,7 +3575,7 @@ export const int82mul: {
 export const int82ne: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.bool, "int82ne">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int2 | t.null>): CallExpression<t.bool | t.null, "int82ne">
-} = defineFunction("int82ne", "bool")
+} = defineFunction("int82ne", {type: "bool"})
 
 export const int82pl: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int2>): CallExpression<t.int8, "int82pl">
@@ -3584,27 +3590,27 @@ export const int84div: {
 export const int84eq: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.bool, "int84eq">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int84eq">
-} = defineFunction("int84eq", "bool")
+} = defineFunction("int84eq", {type: "bool"})
 
 export const int84ge: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.bool, "int84ge">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int84ge">
-} = defineFunction("int84ge", "bool")
+} = defineFunction("int84ge", {type: "bool"})
 
 export const int84gt: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.bool, "int84gt">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int84gt">
-} = defineFunction("int84gt", "bool")
+} = defineFunction("int84gt", {type: "bool"})
 
 export const int84le: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.bool, "int84le">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int84le">
-} = defineFunction("int84le", "bool")
+} = defineFunction("int84le", {type: "bool"})
 
 export const int84lt: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.bool, "int84lt">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int84lt">
-} = defineFunction("int84lt", "bool")
+} = defineFunction("int84lt", {type: "bool"})
 
 export const int84mi: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.int8, "int84mi">
@@ -3619,7 +3625,7 @@ export const int84mul: {
 export const int84ne: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.bool, "int84ne">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "int84ne">
-} = defineFunction("int84ne", "bool")
+} = defineFunction("int84ne", {type: "bool"})
 
 export const int84pl: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int4>): CallExpression<t.int8, "int84pl">
@@ -3668,17 +3674,17 @@ export const int8div: {
 export const int8eq: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int8>): CallExpression<t.bool, "int8eq">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int8eq">
-} = defineFunction("int8eq", "bool")
+} = defineFunction("int8eq", {type: "bool"})
 
 export const int8ge: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int8>): CallExpression<t.bool, "int8ge">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int8ge">
-} = defineFunction("int8ge", "bool")
+} = defineFunction("int8ge", {type: "bool"})
 
 export const int8gt: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int8>): CallExpression<t.bool, "int8gt">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int8gt">
-} = defineFunction("int8gt", "bool")
+} = defineFunction("int8gt", {type: "bool"})
 
 export const int8inc: {
   (arg: t.param<t.int8>): CallExpression<t.int8, "int8inc">
@@ -3703,12 +3709,12 @@ export const int8larger: {
 export const int8le: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int8>): CallExpression<t.bool, "int8le">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int8le">
-} = defineFunction("int8le", "bool")
+} = defineFunction("int8le", {type: "bool"})
 
 export const int8lt: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int8>): CallExpression<t.bool, "int8lt">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int8lt">
-} = defineFunction("int8lt", "bool")
+} = defineFunction("int8lt", {type: "bool"})
 
 export const int8mi: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int8>): CallExpression<t.int8, "int8mi">
@@ -3728,7 +3734,7 @@ export const int8mul: {
 export const int8ne: {
   (arg1: t.param<t.int8>, arg2: t.param<t.int8>): CallExpression<t.bool, "int8ne">
   (arg1: t.param<t.int8 | t.null>, arg2: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "int8ne">
-} = defineFunction("int8ne", "bool")
+} = defineFunction("int8ne", {type: "bool"})
 
 export const int8not: {
   (arg: t.param<t.int8>): CallExpression<t.int8, "int8not">
@@ -3845,17 +3851,17 @@ export const interval_div: {
 export const interval_eq: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.bool, "interval_eq">
   (arg1: t.param<t.interval | t.null>, arg2: t.param<t.interval | t.null>): CallExpression<t.bool | t.null, "interval_eq">
-} = defineFunction("interval_eq", "bool")
+} = defineFunction("interval_eq", {type: "bool"})
 
 export const interval_ge: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.bool, "interval_ge">
   (arg1: t.param<t.interval | t.null>, arg2: t.param<t.interval | t.null>): CallExpression<t.bool | t.null, "interval_ge">
-} = defineFunction("interval_ge", "bool")
+} = defineFunction("interval_ge", {type: "bool"})
 
 export const interval_gt: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.bool, "interval_gt">
   (arg1: t.param<t.interval | t.null>, arg2: t.param<t.interval | t.null>): CallExpression<t.bool | t.null, "interval_gt">
-} = defineFunction("interval_gt", "bool")
+} = defineFunction("interval_gt", {type: "bool"})
 
 export const interval_hash: {
   (arg: t.param<t.interval>): CallExpression<t.int4, "interval_hash">
@@ -3875,12 +3881,12 @@ export const interval_larger: {
 export const interval_le: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.bool, "interval_le">
   (arg1: t.param<t.interval | t.null>, arg2: t.param<t.interval | t.null>): CallExpression<t.bool | t.null, "interval_le">
-} = defineFunction("interval_le", "bool")
+} = defineFunction("interval_le", {type: "bool"})
 
 export const interval_lt: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.bool, "interval_lt">
   (arg1: t.param<t.interval | t.null>, arg2: t.param<t.interval | t.null>): CallExpression<t.bool | t.null, "interval_lt">
-} = defineFunction("interval_lt", "bool")
+} = defineFunction("interval_lt", {type: "bool"})
 
 export const interval_mi: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.interval, "interval_mi">
@@ -3895,7 +3901,7 @@ export const interval_mul: {
 export const interval_ne: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.bool, "interval_ne">
   (arg1: t.param<t.interval | t.null>, arg2: t.param<t.interval | t.null>): CallExpression<t.bool | t.null, "interval_ne">
-} = defineFunction("interval_ne", "bool")
+} = defineFunction("interval_ne", {type: "bool"})
 
 export const interval_pl: {
   (arg1: t.param<t.interval>, arg2: t.param<t.interval>): CallExpression<t.interval, "interval_pl">
@@ -3945,24 +3951,25 @@ export const interval_um: {
 export const is_normalized: {
   (arg1: t.param<t.text>, arg2?: t.param<t.text>): CallExpression<t.bool, "is_normalized">
   (arg1: t.param<t.text | t.null>, arg2?: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "is_normalized">
-} = defineFunction("is_normalized", "bool")
+} = defineFunction("is_normalized", {type: "bool"})
 
 export const isfinite: {
   (arg: t.param<t.date | t.timestamptz | t.interval | t.timestamp>): CallExpression<t.bool, "isfinite">
   (arg: t.param<t.date | t.timestamptz | t.interval | t.timestamp | t.null>): CallExpression<t.bool | t.null, "isfinite">
-} = defineFunction("isfinite", "bool")
+} = defineFunction("isfinite", {type: "bool"})
 
 export const ishorizontal: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "ishorizontal">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "ishorizontal">
-} = defineFunction("ishorizontal", "bool")
+} = defineFunction("ishorizontal", {type: "bool"})
 
 export const isvertical: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "isvertical">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "isvertical">
-} = defineFunction("isvertical", "bool")
+} = defineFunction("isvertical", {type: "bool"})
 
 export const json_agg: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.anyelement>): Aggregate<t.json, "json_agg">
 } = defineFunction("json_agg")
 
@@ -4037,6 +4044,7 @@ export const json_object: {
 } = defineFunction("json_object")
 
 export const json_object_agg: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.any>, arg2: t.aggParam<t.any>): Aggregate<t.json, "json_object_agg">
 } = defineFunction("json_object_agg")
 
@@ -4115,6 +4123,7 @@ export const json_typeof: {
 } = defineFunction("json_typeof")
 
 export const jsonb_agg: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.anyelement>): Aggregate<t.jsonb, "jsonb_agg">
 } = defineFunction("jsonb_agg")
 
@@ -4164,12 +4173,12 @@ export const jsonb_concat: {
 export const jsonb_contained: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_contained">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_contained">
-} = defineFunction("jsonb_contained", "bool")
+} = defineFunction("jsonb_contained", {type: "bool"})
 
 export const jsonb_contains: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_contains">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_contains">
-} = defineFunction("jsonb_contains", "bool")
+} = defineFunction("jsonb_contains", {type: "bool"})
 
 export const jsonb_delete: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.text | t.int4>): CallExpression<t.jsonb, "jsonb_delete">
@@ -4186,22 +4195,22 @@ export const jsonb_delete_path: {
 export const jsonb_eq: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_eq">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_eq">
-} = defineFunction("jsonb_eq", "bool")
+} = defineFunction("jsonb_eq", {type: "bool"})
 
 export const jsonb_exists: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.text>): CallExpression<t.bool, "jsonb_exists">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "jsonb_exists">
-} = defineFunction("jsonb_exists", "bool")
+} = defineFunction("jsonb_exists", {type: "bool"})
 
 export const jsonb_exists_all: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.array<t.text>>): CallExpression<t.bool, "jsonb_exists_all">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.array<t.text> | t.null>): CallExpression<t.bool | t.null, "jsonb_exists_all">
-} = defineFunction("jsonb_exists_all", "bool")
+} = defineFunction("jsonb_exists_all", {type: "bool"})
 
 export const jsonb_exists_any: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.array<t.text>>): CallExpression<t.bool, "jsonb_exists_any">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.array<t.text> | t.null>): CallExpression<t.bool | t.null, "jsonb_exists_any">
-} = defineFunction("jsonb_exists_any", "bool")
+} = defineFunction("jsonb_exists_any", {type: "bool"})
 
 export const jsonb_extract_path: {
   (from_json: t.param<t.jsonb>, path_elems: t.param<t.array<t.text>>): CallExpression<t.jsonb, "jsonb_extract_path">
@@ -4216,12 +4225,12 @@ export const jsonb_extract_path_text: {
 export const jsonb_ge: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_ge">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_ge">
-} = defineFunction("jsonb_ge", "bool")
+} = defineFunction("jsonb_ge", {type: "bool"})
 
 export const jsonb_gt: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_gt">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_gt">
-} = defineFunction("jsonb_gt", "bool")
+} = defineFunction("jsonb_gt", {type: "bool"})
 
 export const jsonb_hash: {
   (arg: t.param<t.jsonb>): CallExpression<t.int4, "jsonb_hash">
@@ -4241,17 +4250,17 @@ export const jsonb_insert: {
 export const jsonb_le: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_le">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_le">
-} = defineFunction("jsonb_le", "bool")
+} = defineFunction("jsonb_le", {type: "bool"})
 
 export const jsonb_lt: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_lt">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_lt">
-} = defineFunction("jsonb_lt", "bool")
+} = defineFunction("jsonb_lt", {type: "bool"})
 
 export const jsonb_ne: {
   (arg1: t.param<t.jsonb>, arg2: t.param<t.jsonb>): CallExpression<t.bool, "jsonb_ne">
   (arg1: t.param<t.jsonb | t.null>, arg2: t.param<t.jsonb | t.null>): CallExpression<t.bool | t.null, "jsonb_ne">
-} = defineFunction("jsonb_ne", "bool")
+} = defineFunction("jsonb_ne", {type: "bool"})
 
 export const jsonb_object: {
   (arg: t.param<t.array<t.text>>): CallExpression<t.jsonb, "jsonb_object">
@@ -4261,6 +4270,7 @@ export const jsonb_object: {
 } = defineFunction("jsonb_object")
 
 export const jsonb_object_agg: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.any>, arg2: t.aggParam<t.any>): Aggregate<t.jsonb, "jsonb_object_agg">
 } = defineFunction("jsonb_object_agg")
 
@@ -4455,7 +4465,7 @@ export const length: {
 export const like: {
   (arg1: t.param<t.text | t.name | t.bytea>, arg2: t.param<t.text | t.bytea>): CallExpression<t.bool, "like">
   (arg1: t.param<t.text | t.name | t.bytea | t.null>, arg2: t.param<t.text | t.bytea | t.null>): CallExpression<t.bool | t.null, "like">
-} = defineFunction("like", "bool")
+} = defineFunction("like", {type: "bool"})
 
 export const like_escape: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.text, "like_escape">
@@ -4665,32 +4675,32 @@ export const macaddr_cmp: {
 export const macaddr_eq: {
   (arg1: t.param<t.macaddr>, arg2: t.param<t.macaddr>): CallExpression<t.bool, "macaddr_eq">
   (arg1: t.param<t.macaddr | t.null>, arg2: t.param<t.macaddr | t.null>): CallExpression<t.bool | t.null, "macaddr_eq">
-} = defineFunction("macaddr_eq", "bool")
+} = defineFunction("macaddr_eq", {type: "bool"})
 
 export const macaddr_ge: {
   (arg1: t.param<t.macaddr>, arg2: t.param<t.macaddr>): CallExpression<t.bool, "macaddr_ge">
   (arg1: t.param<t.macaddr | t.null>, arg2: t.param<t.macaddr | t.null>): CallExpression<t.bool | t.null, "macaddr_ge">
-} = defineFunction("macaddr_ge", "bool")
+} = defineFunction("macaddr_ge", {type: "bool"})
 
 export const macaddr_gt: {
   (arg1: t.param<t.macaddr>, arg2: t.param<t.macaddr>): CallExpression<t.bool, "macaddr_gt">
   (arg1: t.param<t.macaddr | t.null>, arg2: t.param<t.macaddr | t.null>): CallExpression<t.bool | t.null, "macaddr_gt">
-} = defineFunction("macaddr_gt", "bool")
+} = defineFunction("macaddr_gt", {type: "bool"})
 
 export const macaddr_le: {
   (arg1: t.param<t.macaddr>, arg2: t.param<t.macaddr>): CallExpression<t.bool, "macaddr_le">
   (arg1: t.param<t.macaddr | t.null>, arg2: t.param<t.macaddr | t.null>): CallExpression<t.bool | t.null, "macaddr_le">
-} = defineFunction("macaddr_le", "bool")
+} = defineFunction("macaddr_le", {type: "bool"})
 
 export const macaddr_lt: {
   (arg1: t.param<t.macaddr>, arg2: t.param<t.macaddr>): CallExpression<t.bool, "macaddr_lt">
   (arg1: t.param<t.macaddr | t.null>, arg2: t.param<t.macaddr | t.null>): CallExpression<t.bool | t.null, "macaddr_lt">
-} = defineFunction("macaddr_lt", "bool")
+} = defineFunction("macaddr_lt", {type: "bool"})
 
 export const macaddr_ne: {
   (arg1: t.param<t.macaddr>, arg2: t.param<t.macaddr>): CallExpression<t.bool, "macaddr_ne">
   (arg1: t.param<t.macaddr | t.null>, arg2: t.param<t.macaddr | t.null>): CallExpression<t.bool | t.null, "macaddr_ne">
-} = defineFunction("macaddr_ne", "bool")
+} = defineFunction("macaddr_ne", {type: "bool"})
 
 export const macaddr_not: {
   (arg: t.param<t.macaddr>): CallExpression<t.macaddr, "macaddr_not">
@@ -4790,6 +4800,7 @@ export const masklen: {
 } = defineFunction("masklen")
 
 export const max: {
+  // AGGREGATE FUNCTION
   <T extends t.int8 | t.int4 | t.int2 | t.oid | t.float4 | t.float8 | t.date | t.time | t.timetz | t.money | t.timestamp | t.timestamptz | t.interval | t.text | t.numeric | t.anyarray | t.bpchar | t.inet>(arg: t.aggParam<T>): Aggregate<T, "max">
 } = defineFunction("max")
 
@@ -4811,6 +4822,7 @@ export const md5: {
 } = defineFunction("md5")
 
 export const min: {
+  // AGGREGATE FUNCTION
   <T extends t.int8 | t.int4 | t.int2 | t.oid | t.float4 | t.float8 | t.date | t.time | t.timetz | t.money | t.timestamp | t.timestamptz | t.interval | t.text | t.numeric | t.anyarray | t.bpchar | t.inet>(arg: t.aggParam<T>): Aggregate<T, "min">
 } = defineFunction("min")
 
@@ -4863,102 +4875,102 @@ export const nameconcatoid: {
 export const nameeq: {
   (arg1: t.param<t.name>, arg2: t.param<t.name>): CallExpression<t.bool, "nameeq">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "nameeq">
-} = defineFunction("nameeq", "bool")
+} = defineFunction("nameeq", {type: "bool"})
 
 export const nameeqtext: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameeqtext">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameeqtext">
-} = defineFunction("nameeqtext", "bool")
+} = defineFunction("nameeqtext", {type: "bool"})
 
 export const namege: {
   (arg1: t.param<t.name>, arg2: t.param<t.name>): CallExpression<t.bool, "namege">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "namege">
-} = defineFunction("namege", "bool")
+} = defineFunction("namege", {type: "bool"})
 
 export const namegetext: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "namegetext">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "namegetext">
-} = defineFunction("namegetext", "bool")
+} = defineFunction("namegetext", {type: "bool"})
 
 export const namegt: {
   (arg1: t.param<t.name>, arg2: t.param<t.name>): CallExpression<t.bool, "namegt">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "namegt">
-} = defineFunction("namegt", "bool")
+} = defineFunction("namegt", {type: "bool"})
 
 export const namegttext: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "namegttext">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "namegttext">
-} = defineFunction("namegttext", "bool")
+} = defineFunction("namegttext", {type: "bool"})
 
 export const nameiclike: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameiclike">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameiclike">
-} = defineFunction("nameiclike", "bool")
+} = defineFunction("nameiclike", {type: "bool"})
 
 export const nameicnlike: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameicnlike">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameicnlike">
-} = defineFunction("nameicnlike", "bool")
+} = defineFunction("nameicnlike", {type: "bool"})
 
 export const nameicregexeq: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameicregexeq">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameicregexeq">
-} = defineFunction("nameicregexeq", "bool")
+} = defineFunction("nameicregexeq", {type: "bool"})
 
 export const nameicregexne: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameicregexne">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameicregexne">
-} = defineFunction("nameicregexne", "bool")
+} = defineFunction("nameicregexne", {type: "bool"})
 
 export const namele: {
   (arg1: t.param<t.name>, arg2: t.param<t.name>): CallExpression<t.bool, "namele">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "namele">
-} = defineFunction("namele", "bool")
+} = defineFunction("namele", {type: "bool"})
 
 export const nameletext: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameletext">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameletext">
-} = defineFunction("nameletext", "bool")
+} = defineFunction("nameletext", {type: "bool"})
 
 export const namelike: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "namelike">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "namelike">
-} = defineFunction("namelike", "bool")
+} = defineFunction("namelike", {type: "bool"})
 
 export const namelt: {
   (arg1: t.param<t.name>, arg2: t.param<t.name>): CallExpression<t.bool, "namelt">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "namelt">
-} = defineFunction("namelt", "bool")
+} = defineFunction("namelt", {type: "bool"})
 
 export const namelttext: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "namelttext">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "namelttext">
-} = defineFunction("namelttext", "bool")
+} = defineFunction("namelttext", {type: "bool"})
 
 export const namene: {
   (arg1: t.param<t.name>, arg2: t.param<t.name>): CallExpression<t.bool, "namene">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "namene">
-} = defineFunction("namene", "bool")
+} = defineFunction("namene", {type: "bool"})
 
 export const namenetext: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "namenetext">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "namenetext">
-} = defineFunction("namenetext", "bool")
+} = defineFunction("namenetext", {type: "bool"})
 
 export const namenlike: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "namenlike">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "namenlike">
-} = defineFunction("namenlike", "bool")
+} = defineFunction("namenlike", {type: "bool"})
 
 export const nameregexeq: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameregexeq">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameregexeq">
-} = defineFunction("nameregexeq", "bool")
+} = defineFunction("nameregexeq", {type: "bool"})
 
 export const nameregexne: {
   (arg1: t.param<t.name>, arg2: t.param<t.text>): CallExpression<t.bool, "nameregexne">
   (arg1: t.param<t.name | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "nameregexne">
-} = defineFunction("nameregexne", "bool")
+} = defineFunction("nameregexne", {type: "bool"})
 
 export const namesend: {
   (arg: t.param<t.name>): CallExpression<t.bytea, "namesend">
@@ -4983,17 +4995,17 @@ export const network_cmp: {
 export const network_eq: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_eq">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_eq">
-} = defineFunction("network_eq", "bool")
+} = defineFunction("network_eq", {type: "bool"})
 
 export const network_ge: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_ge">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_ge">
-} = defineFunction("network_ge", "bool")
+} = defineFunction("network_ge", {type: "bool"})
 
 export const network_gt: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_gt">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_gt">
-} = defineFunction("network_gt", "bool")
+} = defineFunction("network_gt", {type: "bool"})
 
 export const network_larger: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.inet, "network_larger">
@@ -5003,22 +5015,22 @@ export const network_larger: {
 export const network_le: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_le">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_le">
-} = defineFunction("network_le", "bool")
+} = defineFunction("network_le", {type: "bool"})
 
 export const network_lt: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_lt">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_lt">
-} = defineFunction("network_lt", "bool")
+} = defineFunction("network_lt", {type: "bool"})
 
 export const network_ne: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_ne">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_ne">
-} = defineFunction("network_ne", "bool")
+} = defineFunction("network_ne", {type: "bool"})
 
 export const network_overlap: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_overlap">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_overlap">
-} = defineFunction("network_overlap", "bool")
+} = defineFunction("network_overlap", {type: "bool"})
 
 export const network_smaller: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.inet, "network_smaller">
@@ -5028,22 +5040,22 @@ export const network_smaller: {
 export const network_sub: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_sub">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_sub">
-} = defineFunction("network_sub", "bool")
+} = defineFunction("network_sub", {type: "bool"})
 
 export const network_subeq: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_subeq">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_subeq">
-} = defineFunction("network_subeq", "bool")
+} = defineFunction("network_subeq", {type: "bool"})
 
 export const network_sup: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_sup">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_sup">
-} = defineFunction("network_sup", "bool")
+} = defineFunction("network_sup", {type: "bool"})
 
 export const network_supeq: {
   (arg1: t.param<t.inet>, arg2: t.param<t.inet>): CallExpression<t.bool, "network_supeq">
   (arg1: t.param<t.inet | t.null>, arg2: t.param<t.inet | t.null>): CallExpression<t.bool | t.null, "network_supeq">
-} = defineFunction("network_supeq", "bool")
+} = defineFunction("network_supeq", {type: "bool"})
 
 export const nextval: {
   (arg: t.param<t.regclass>): CallExpression<t.int8, "nextval">
@@ -5058,16 +5070,11 @@ export const normalize: {
 export const notlike: {
   (arg1: t.param<t.text | t.name | t.bytea>, arg2: t.param<t.text | t.bytea>): CallExpression<t.bool, "notlike">
   (arg1: t.param<t.text | t.name | t.bytea | t.null>, arg2: t.param<t.text | t.bytea | t.null>): CallExpression<t.bool | t.null, "notlike">
-} = defineFunction("notlike", "bool")
+} = defineFunction("notlike", {type: "bool"})
 
 export const now: {
   (): CallExpression<t.timestamptz, "now">
 } = defineFunction("now")
-
-export const ntile: {
-  (arg: t.param<t.int4>): CallExpression<t.int4, "ntile">
-  (arg: t.param<t.int4 | t.null>): CallExpression<t.int4 | t.null, "ntile">
-} = defineFunction("ntile")
 
 export const num_nonnulls: {
   (...args: t.param<t.any>[]): CallExpression<t.int4, "num_nonnulls">
@@ -5122,7 +5129,7 @@ export const numeric_div_trunc: {
 export const numeric_eq: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.bool, "numeric_eq">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.numeric | t.null>): CallExpression<t.bool | t.null, "numeric_eq">
-} = defineFunction("numeric_eq", "bool")
+} = defineFunction("numeric_eq", {type: "bool"})
 
 export const numeric_exp: {
   (arg: t.param<t.numeric>): CallExpression<t.numeric, "numeric_exp">
@@ -5132,12 +5139,12 @@ export const numeric_exp: {
 export const numeric_ge: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.bool, "numeric_ge">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.numeric | t.null>): CallExpression<t.bool | t.null, "numeric_ge">
-} = defineFunction("numeric_ge", "bool")
+} = defineFunction("numeric_ge", {type: "bool"})
 
 export const numeric_gt: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.bool, "numeric_gt">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.numeric | t.null>): CallExpression<t.bool | t.null, "numeric_gt">
-} = defineFunction("numeric_gt", "bool")
+} = defineFunction("numeric_gt", {type: "bool"})
 
 export const numeric_inc: {
   (arg: t.param<t.numeric>): CallExpression<t.numeric, "numeric_inc">
@@ -5152,7 +5159,7 @@ export const numeric_larger: {
 export const numeric_le: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.bool, "numeric_le">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.numeric | t.null>): CallExpression<t.bool | t.null, "numeric_le">
-} = defineFunction("numeric_le", "bool")
+} = defineFunction("numeric_le", {type: "bool"})
 
 export const numeric_ln: {
   (arg: t.param<t.numeric>): CallExpression<t.numeric, "numeric_ln">
@@ -5167,7 +5174,7 @@ export const numeric_log: {
 export const numeric_lt: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.bool, "numeric_lt">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.numeric | t.null>): CallExpression<t.bool | t.null, "numeric_lt">
-} = defineFunction("numeric_lt", "bool")
+} = defineFunction("numeric_lt", {type: "bool"})
 
 export const numeric_mod: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.numeric, "numeric_mod">
@@ -5182,7 +5189,7 @@ export const numeric_mul: {
 export const numeric_ne: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.bool, "numeric_ne">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.numeric | t.null>): CallExpression<t.bool | t.null, "numeric_ne">
-} = defineFunction("numeric_ne", "bool")
+} = defineFunction("numeric_ne", {type: "bool"})
 
 export const numeric_power: {
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.numeric, "numeric_power">
@@ -5269,17 +5276,17 @@ export const oid: {
 export const oideq: {
   (arg1: t.param<t.oid>, arg2: t.param<t.oid>): CallExpression<t.bool, "oideq">
   (arg1: t.param<t.oid | t.null>, arg2: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "oideq">
-} = defineFunction("oideq", "bool")
+} = defineFunction("oideq", {type: "bool"})
 
 export const oidge: {
   (arg1: t.param<t.oid>, arg2: t.param<t.oid>): CallExpression<t.bool, "oidge">
   (arg1: t.param<t.oid | t.null>, arg2: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "oidge">
-} = defineFunction("oidge", "bool")
+} = defineFunction("oidge", {type: "bool"})
 
 export const oidgt: {
   (arg1: t.param<t.oid>, arg2: t.param<t.oid>): CallExpression<t.bool, "oidgt">
   (arg1: t.param<t.oid | t.null>, arg2: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "oidgt">
-} = defineFunction("oidgt", "bool")
+} = defineFunction("oidgt", {type: "bool"})
 
 export const oidlarger: {
   (arg1: t.param<t.oid>, arg2: t.param<t.oid>): CallExpression<t.oid, "oidlarger">
@@ -5289,17 +5296,17 @@ export const oidlarger: {
 export const oidle: {
   (arg1: t.param<t.oid>, arg2: t.param<t.oid>): CallExpression<t.bool, "oidle">
   (arg1: t.param<t.oid | t.null>, arg2: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "oidle">
-} = defineFunction("oidle", "bool")
+} = defineFunction("oidle", {type: "bool"})
 
 export const oidlt: {
   (arg1: t.param<t.oid>, arg2: t.param<t.oid>): CallExpression<t.bool, "oidlt">
   (arg1: t.param<t.oid | t.null>, arg2: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "oidlt">
-} = defineFunction("oidlt", "bool")
+} = defineFunction("oidlt", {type: "bool"})
 
 export const oidne: {
   (arg1: t.param<t.oid>, arg2: t.param<t.oid>): CallExpression<t.bool, "oidne">
   (arg1: t.param<t.oid | t.null>, arg2: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "oidne">
-} = defineFunction("oidne", "bool")
+} = defineFunction("oidne", {type: "bool"})
 
 export const oidsend: {
   (arg: t.param<t.oid>): CallExpression<t.bytea, "oidsend">
@@ -5313,7 +5320,7 @@ export const oidsmaller: {
 
 export const overlaps: {
   (arg1: t.param<t.timetz | t.timestamptz | t.time | t.timestamp>, arg2: t.param<t.timetz | t.timestamptz | t.time | t.timestamp | t.interval>, arg3: t.param<t.timetz | t.timestamptz | t.time | t.timestamp>, arg4: t.param<t.timetz | t.timestamptz | t.time | t.timestamp | t.interval>): CallExpression<t.bool, "overlaps">
-} = defineFunction("overlaps", "bool")
+} = defineFunction("overlaps", {type: "bool"})
 
 export const overlay: {
   (arg1: t.param<t.bytea>, arg2: t.param<t.bytea>, arg3: t.param<t.int4>, arg4: t.param<t.int4>): CallExpression<t.bytea, "overlay">
@@ -5345,18 +5352,6 @@ export const parse_ident: {
   (str: t.param<t.text | t.null>, strict?: t.param<t.bool | t.null>): CallExpression<t.array<t.text> | t.null, "parse_ident">
 } = defineFunction("parse_ident")
 
-export const percent_rank: {
-  (): CallExpression<t.float8, "percent_rank">
-  (...args: t.aggParam<t.any>[]): Aggregate<t.float8, "percent_rank">
-} = defineFunction("percent_rank")
-
-export const percentile_cont: {
-  (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "percentile_cont">
-  (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.interval>): Aggregate<t.interval, "percentile_cont">
-  (arg1: t.aggParam<t.array<t.float8>>, arg2: t.aggParam<t.float8>): Aggregate<t.array<t.float8>, "percentile_cont">
-  (arg1: t.aggParam<t.array<t.float8>>, arg2: t.aggParam<t.interval>): Aggregate<t.array<t.interval>, "percentile_cont">
-} = defineFunction("percentile_cont")
-
 const pg_advisory_lock: {
   (arg: t.param<t.int8>): CallExpression<t.void, "pg_advisory_lock">
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.void, "pg_advisory_lock">
@@ -5374,7 +5369,7 @@ const pg_advisory_unlock: {
   (arg: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "pg_advisory_unlock">
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "pg_advisory_unlock">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_advisory_unlock">
-} = defineFunction("pg_advisory_unlock", "bool")
+} = defineFunction("pg_advisory_unlock", {type: "bool"})
 export { pg_advisory_unlock as advisory_unlock }
 
 const pg_advisory_unlock_all: {
@@ -5387,7 +5382,7 @@ const pg_advisory_unlock_shared: {
   (arg: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "pg_advisory_unlock_shared">
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "pg_advisory_unlock_shared">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_advisory_unlock_shared">
-} = defineFunction("pg_advisory_unlock_shared", "bool")
+} = defineFunction("pg_advisory_unlock_shared", {type: "bool"})
 export { pg_advisory_unlock_shared as advisory_unlock_shared }
 
 const pg_advisory_xact_lock: {
@@ -5461,7 +5456,7 @@ const pg_cancel_backend: {
    */
   (arg: t.param<t.int4>): CallExpression<t.bool, "pg_cancel_backend">
   (arg: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_cancel_backend">
-} = defineFunction("pg_cancel_backend", "bool")
+} = defineFunction("pg_cancel_backend", {type: "bool"})
 export { pg_cancel_backend as cancel_backend }
 
 /** 
@@ -5529,7 +5524,7 @@ const pg_collation_is_visible: {
    */
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_collation_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_collation_is_visible">
-} = defineFunction("pg_collation_is_visible", "bool")
+} = defineFunction("pg_collation_is_visible", {type: "bool"})
 export { pg_collation_is_visible as collation_is_visible }
 
 /** 
@@ -5551,7 +5546,7 @@ export { pg_column_compression as column_compression }
 const pg_column_is_updatable: {
   (arg1: t.param<t.regclass>, arg2: t.param<t.int2>, arg3: t.param<t.bool>): CallExpression<t.bool, "pg_column_is_updatable">
   (arg1: t.param<t.regclass | t.null>, arg2: t.param<t.int2 | t.null>, arg3: t.param<t.bool | t.null>): CallExpression<t.bool | t.null, "pg_column_is_updatable">
-} = defineFunction("pg_column_is_updatable", "bool")
+} = defineFunction("pg_column_is_updatable", {type: "bool"})
 export { pg_column_is_updatable as column_is_updatable }
 
 /** 
@@ -5588,7 +5583,7 @@ export { pg_conf_load_time as conf_load_time }
 const pg_conversion_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_conversion_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_conversion_is_visible">
-} = defineFunction("pg_conversion_is_visible", "bool")
+} = defineFunction("pg_conversion_is_visible", {type: "bool"})
 export { pg_conversion_is_visible as conversion_is_visible }
 
 /** 
@@ -5715,7 +5710,7 @@ const pg_function_is_visible: {
    */
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_function_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_function_is_visible">
-} = defineFunction("pg_function_is_visible", "bool")
+} = defineFunction("pg_function_is_visible", {type: "bool"})
 export { pg_function_is_visible as function_is_visible }
 
 /** 
@@ -5969,7 +5964,7 @@ const pg_has_role: {
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.name | t.oid | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "pg_has_role">
   (arg1: t.param<t.name | t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "pg_has_role">
   (arg1: t.param<t.name | t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "pg_has_role">
-} = defineFunction("pg_has_role", "bool")
+} = defineFunction("pg_has_role", {type: "bool"})
 export { pg_has_role as has_role }
 
 const pg_import_system_collations: {
@@ -5981,19 +5976,19 @@ export { pg_import_system_collations as import_system_collations }
 const pg_index_column_has_property: {
   (arg1: t.param<t.regclass>, arg2: t.param<t.int4>, arg3: t.param<t.text>): CallExpression<t.bool, "pg_index_column_has_property">
   (arg1: t.param<t.regclass | t.null>, arg2: t.param<t.int4 | t.null>, arg3: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "pg_index_column_has_property">
-} = defineFunction("pg_index_column_has_property", "bool")
+} = defineFunction("pg_index_column_has_property", {type: "bool"})
 export { pg_index_column_has_property as index_column_has_property }
 
 const pg_index_has_property: {
   (arg1: t.param<t.regclass>, arg2: t.param<t.text>): CallExpression<t.bool, "pg_index_has_property">
   (arg1: t.param<t.regclass | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "pg_index_has_property">
-} = defineFunction("pg_index_has_property", "bool")
+} = defineFunction("pg_index_has_property", {type: "bool"})
 export { pg_index_has_property as index_has_property }
 
 const pg_indexam_has_property: {
   (arg1: t.param<t.oid>, arg2: t.param<t.text>): CallExpression<t.bool, "pg_indexam_has_property">
   (arg1: t.param<t.oid | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "pg_indexam_has_property">
-} = defineFunction("pg_indexam_has_property", "bool")
+} = defineFunction("pg_indexam_has_property", {type: "bool"})
 export { pg_indexam_has_property as indexam_has_property }
 
 const pg_indexam_progress_phasename: {
@@ -6020,7 +6015,7 @@ const pg_is_in_backup: {
    * @see https://pgpedia.info/p/pg_is_in_backup.html
    */
   (): CallExpression<t.bool, "pg_is_in_backup">
-} = defineFunction("pg_is_in_backup", "bool")
+} = defineFunction("pg_is_in_backup", {type: "bool"})
 export { pg_is_in_backup as is_in_backup }
 
 /** 
@@ -6035,7 +6030,7 @@ const pg_is_in_recovery: {
    * @see https://pgpedia.info/p/pg_is_in_recovery.html
    */
   (): CallExpression<t.bool, "pg_is_in_recovery">
-} = defineFunction("pg_is_in_recovery", "bool")
+} = defineFunction("pg_is_in_recovery", {type: "bool"})
 export { pg_is_in_recovery as is_in_recovery }
 
 /** 
@@ -6051,7 +6046,7 @@ const pg_is_other_temp_schema: {
    */
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_is_other_temp_schema">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_is_other_temp_schema">
-} = defineFunction("pg_is_other_temp_schema", "bool")
+} = defineFunction("pg_is_other_temp_schema", {type: "bool"})
 export { pg_is_other_temp_schema as is_other_temp_schema }
 
 /** 
@@ -6066,13 +6061,13 @@ const pg_is_wal_replay_paused: {
    * @see https://pgpedia.info/p/pg_is_wal_replay_paused.html
    */
   (): CallExpression<t.bool, "pg_is_wal_replay_paused">
-} = defineFunction("pg_is_wal_replay_paused", "bool")
+} = defineFunction("pg_is_wal_replay_paused", {type: "bool"})
 export { pg_is_wal_replay_paused as is_wal_replay_paused }
 
 const pg_isolation_test_session_is_blocked: {
   (arg1: t.param<t.int4>, arg2: t.param<t.array<t.int4>>): CallExpression<t.bool, "pg_isolation_test_session_is_blocked">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.array<t.int4> | t.null>): CallExpression<t.bool | t.null, "pg_isolation_test_session_is_blocked">
-} = defineFunction("pg_isolation_test_session_is_blocked", "bool")
+} = defineFunction("pg_isolation_test_session_is_blocked", {type: "bool"})
 export { pg_isolation_test_session_is_blocked as isolation_test_session_is_blocked }
 
 /** 
@@ -6087,7 +6082,7 @@ const pg_jit_available: {
    * @see https://pgpedia.info/p/pg_jit_available.html
    */
   (): CallExpression<t.bool, "pg_jit_available">
-} = defineFunction("pg_jit_available", "bool")
+} = defineFunction("pg_jit_available", {type: "bool"})
 export { pg_jit_available as jit_available }
 
 const pg_last_xact_replay_timestamp: {
@@ -6123,7 +6118,7 @@ const pg_log_backend_memory_contexts: {
    */
   (arg: t.param<t.int4>): CallExpression<t.bool, "pg_log_backend_memory_contexts">
   (arg: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_log_backend_memory_contexts">
-} = defineFunction("pg_log_backend_memory_contexts", "bool")
+} = defineFunction("pg_log_backend_memory_contexts", {type: "bool"})
 export { pg_log_backend_memory_contexts as log_backend_memory_contexts }
 
 /** 
@@ -6196,7 +6191,7 @@ export { pg_notify as notify }
 const pg_opclass_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_opclass_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_opclass_is_visible">
-} = defineFunction("pg_opclass_is_visible", "bool")
+} = defineFunction("pg_opclass_is_visible", {type: "bool"})
 export { pg_opclass_is_visible as opclass_is_visible }
 
 /** 
@@ -6212,13 +6207,13 @@ const pg_operator_is_visible: {
    */
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_operator_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_operator_is_visible">
-} = defineFunction("pg_operator_is_visible", "bool")
+} = defineFunction("pg_operator_is_visible", {type: "bool"})
 export { pg_operator_is_visible as operator_is_visible }
 
 const pg_opfamily_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_opfamily_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_opfamily_is_visible">
-} = defineFunction("pg_opfamily_is_visible", "bool")
+} = defineFunction("pg_opfamily_is_visible", {type: "bool"})
 export { pg_opfamily_is_visible as opfamily_is_visible }
 
 const pg_partition_ancestors: {
@@ -6260,7 +6255,7 @@ const pg_promote: {
    */
   (wait?: t.param<t.bool>, wait_seconds?: t.param<t.int4>): CallExpression<t.bool, "pg_promote">
   (wait?: t.param<t.bool | t.null>, wait_seconds?: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_promote">
-} = defineFunction("pg_promote", "bool")
+} = defineFunction("pg_promote", {type: "bool"})
 export { pg_promote as promote }
 
 /** 
@@ -6324,7 +6319,7 @@ export { pg_relation_filepath as relation_filepath }
 const pg_relation_is_publishable: {
   (arg: t.param<t.regclass>): CallExpression<t.bool, "pg_relation_is_publishable">
   (arg: t.param<t.regclass | t.null>): CallExpression<t.bool | t.null, "pg_relation_is_publishable">
-} = defineFunction("pg_relation_is_publishable", "bool")
+} = defineFunction("pg_relation_is_publishable", {type: "bool"})
 export { pg_relation_is_publishable as relation_is_publishable }
 
 const pg_relation_is_updatable: {
@@ -6353,7 +6348,7 @@ const pg_reload_conf: {
    * @see https://pgpedia.info/p/pg_reload_conf.html
    */
   (): CallExpression<t.bool, "pg_reload_conf">
-} = defineFunction("pg_reload_conf", "bool")
+} = defineFunction("pg_reload_conf", {type: "bool"})
 export { pg_reload_conf as reload_conf }
 
 /** 
@@ -6415,7 +6410,7 @@ const pg_replication_origin_session_is_setup: {
    * @see https://pgpedia.info/p/pg_replication_session_origin_is_setup.html
    */
   (): CallExpression<t.bool, "pg_replication_origin_session_is_setup">
-} = defineFunction("pg_replication_origin_session_is_setup", "bool")
+} = defineFunction("pg_replication_origin_session_is_setup", {type: "bool"})
 export { pg_replication_origin_session_is_setup as replication_origin_session_is_setup }
 
 const pg_replication_origin_session_reset: {
@@ -6445,12 +6440,12 @@ const pg_rotate_logfile: {
    * @see https://pgpedia.info/p/pg_rotate_logfile.html
    */
   (): CallExpression<t.bool, "pg_rotate_logfile">
-} = defineFunction("pg_rotate_logfile", "bool")
+} = defineFunction("pg_rotate_logfile", {type: "bool"})
 export { pg_rotate_logfile as rotate_logfile }
 
 const pg_rotate_logfile_old: {
   (): CallExpression<t.bool, "pg_rotate_logfile_old">
-} = defineFunction("pg_rotate_logfile_old", "bool")
+} = defineFunction("pg_rotate_logfile_old", {type: "bool"})
 export { pg_rotate_logfile_old as rotate_logfile_old }
 
 const pg_safe_snapshot_blocking_pids: {
@@ -7293,7 +7288,7 @@ export { pg_stat_reset_slru as stat_reset_slru }
 const pg_statistics_obj_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_statistics_obj_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_statistics_obj_is_visible">
-} = defineFunction("pg_statistics_obj_is_visible", "bool")
+} = defineFunction("pg_statistics_obj_is_visible", {type: "bool"})
 export { pg_statistics_obj_is_visible as statistics_obj_is_visible }
 
 /** 
@@ -7309,7 +7304,7 @@ const pg_table_is_visible: {
    */
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_table_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_table_is_visible">
-} = defineFunction("pg_table_is_visible", "bool")
+} = defineFunction("pg_table_is_visible", {type: "bool"})
 export { pg_table_is_visible as table_is_visible }
 
 const pg_table_size: {
@@ -7378,7 +7373,7 @@ const pg_terminate_backend: {
    */
   (pid: t.param<t.int4>, timeout?: t.param<t.int8>): CallExpression<t.bool, "pg_terminate_backend">
   (pid: t.param<t.int4 | t.null>, timeout?: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "pg_terminate_backend">
-} = defineFunction("pg_terminate_backend", "bool")
+} = defineFunction("pg_terminate_backend", {type: "bool"})
 export { pg_terminate_backend as terminate_backend }
 
 const pg_total_relation_size: {
@@ -7407,7 +7402,7 @@ const pg_try_advisory_lock: {
   (arg: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_lock">
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "pg_try_advisory_lock">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_lock">
-} = defineFunction("pg_try_advisory_lock", "bool")
+} = defineFunction("pg_try_advisory_lock", {type: "bool"})
 export { pg_try_advisory_lock as try_advisory_lock }
 
 const pg_try_advisory_lock_shared: {
@@ -7415,7 +7410,7 @@ const pg_try_advisory_lock_shared: {
   (arg: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_lock_shared">
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "pg_try_advisory_lock_shared">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_lock_shared">
-} = defineFunction("pg_try_advisory_lock_shared", "bool")
+} = defineFunction("pg_try_advisory_lock_shared", {type: "bool"})
 export { pg_try_advisory_lock_shared as try_advisory_lock_shared }
 
 const pg_try_advisory_xact_lock: {
@@ -7423,7 +7418,7 @@ const pg_try_advisory_xact_lock: {
   (arg: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_xact_lock">
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "pg_try_advisory_xact_lock">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_xact_lock">
-} = defineFunction("pg_try_advisory_xact_lock", "bool")
+} = defineFunction("pg_try_advisory_xact_lock", {type: "bool"})
 export { pg_try_advisory_xact_lock as try_advisory_xact_lock }
 
 const pg_try_advisory_xact_lock_shared: {
@@ -7431,31 +7426,31 @@ const pg_try_advisory_xact_lock_shared: {
   (arg: t.param<t.int8 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_xact_lock_shared">
   (arg1: t.param<t.int4>, arg2: t.param<t.int4>): CallExpression<t.bool, "pg_try_advisory_xact_lock_shared">
   (arg1: t.param<t.int4 | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.bool | t.null, "pg_try_advisory_xact_lock_shared">
-} = defineFunction("pg_try_advisory_xact_lock_shared", "bool")
+} = defineFunction("pg_try_advisory_xact_lock_shared", {type: "bool"})
 export { pg_try_advisory_xact_lock_shared as try_advisory_xact_lock_shared }
 
 const pg_ts_config_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_ts_config_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_ts_config_is_visible">
-} = defineFunction("pg_ts_config_is_visible", "bool")
+} = defineFunction("pg_ts_config_is_visible", {type: "bool"})
 export { pg_ts_config_is_visible as ts_config_is_visible }
 
 const pg_ts_dict_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_ts_dict_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_ts_dict_is_visible">
-} = defineFunction("pg_ts_dict_is_visible", "bool")
+} = defineFunction("pg_ts_dict_is_visible", {type: "bool"})
 export { pg_ts_dict_is_visible as ts_dict_is_visible }
 
 const pg_ts_parser_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_ts_parser_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_ts_parser_is_visible">
-} = defineFunction("pg_ts_parser_is_visible", "bool")
+} = defineFunction("pg_ts_parser_is_visible", {type: "bool"})
 export { pg_ts_parser_is_visible as ts_parser_is_visible }
 
 const pg_ts_template_is_visible: {
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_ts_template_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_ts_template_is_visible">
-} = defineFunction("pg_ts_template_is_visible", "bool")
+} = defineFunction("pg_ts_template_is_visible", {type: "bool"})
 export { pg_ts_template_is_visible as ts_template_is_visible }
 
 /** 
@@ -7471,7 +7466,7 @@ const pg_type_is_visible: {
    */
   (arg: t.param<t.oid>): CallExpression<t.bool, "pg_type_is_visible">
   (arg: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "pg_type_is_visible">
-} = defineFunction("pg_type_is_visible", "bool")
+} = defineFunction("pg_type_is_visible", {type: "bool"})
 export { pg_type_is_visible as type_is_visible }
 
 const pg_typeof: {
@@ -7527,7 +7522,7 @@ export const point: {
 export const point_above: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_above">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_above">
-} = defineFunction("point_above", "bool")
+} = defineFunction("point_above", {type: "bool"})
 
 export const point_add: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.point, "point_add">
@@ -7537,7 +7532,7 @@ export const point_add: {
 export const point_below: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_below">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_below">
-} = defineFunction("point_below", "bool")
+} = defineFunction("point_below", {type: "bool"})
 
 export const point_distance: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.float8, "point_distance">
@@ -7552,17 +7547,17 @@ export const point_div: {
 export const point_eq: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_eq">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_eq">
-} = defineFunction("point_eq", "bool")
+} = defineFunction("point_eq", {type: "bool"})
 
 export const point_horiz: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_horiz">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_horiz">
-} = defineFunction("point_horiz", "bool")
+} = defineFunction("point_horiz", {type: "bool"})
 
 export const point_left: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_left">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_left">
-} = defineFunction("point_left", "bool")
+} = defineFunction("point_left", {type: "bool"})
 
 export const point_mul: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.point, "point_mul">
@@ -7572,12 +7567,12 @@ export const point_mul: {
 export const point_ne: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_ne">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_ne">
-} = defineFunction("point_ne", "bool")
+} = defineFunction("point_ne", {type: "bool"})
 
 export const point_right: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_right">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_right">
-} = defineFunction("point_right", "bool")
+} = defineFunction("point_right", {type: "bool"})
 
 export const point_send: {
   (arg: t.param<t.point>): CallExpression<t.bytea, "point_send">
@@ -7592,7 +7587,7 @@ export const point_sub: {
 export const point_vert: {
   (arg1: t.param<t.point>, arg2: t.param<t.point>): CallExpression<t.bool, "point_vert">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.point | t.null>): CallExpression<t.bool | t.null, "point_vert">
-} = defineFunction("point_vert", "bool")
+} = defineFunction("point_vert", {type: "bool"})
 
 export const position: {
   (arg1: t.param<t.text | t.bit | t.bytea>, arg2: t.param<t.text | t.bit | t.bytea>): CallExpression<t.int4, "position">
@@ -7602,7 +7597,7 @@ export const position: {
 export const postgresql_fdw_validator: {
   (arg1: t.param<t.array<t.text>>, arg2: t.param<t.oid>): CallExpression<t.bool, "postgresql_fdw_validator">
   (arg1: t.param<t.array<t.text> | t.null>, arg2: t.param<t.oid | t.null>): CallExpression<t.bool | t.null, "postgresql_fdw_validator">
-} = defineFunction("postgresql_fdw_validator", "bool")
+} = defineFunction("postgresql_fdw_validator", {type: "bool"})
 
 export const pow: {
   (arg1: t.param<t.float8>, arg2: t.param<t.float8>): CallExpression<t.float8, "pow">
@@ -7621,7 +7616,7 @@ export const power: {
 export const pt_contained_circle: {
   (arg1: t.param<t.point>, arg2: t.param<t.circle>): CallExpression<t.bool, "pt_contained_circle">
   (arg1: t.param<t.point | t.null>, arg2: t.param<t.circle | t.null>): CallExpression<t.bool | t.null, "pt_contained_circle">
-} = defineFunction("pt_contained_circle", "bool")
+} = defineFunction("pt_contained_circle", {type: "bool"})
 
 export const query_to_xml: {
   (query: t.param<t.text>, nulls: t.param<t.bool>, tableforest: t.param<t.bool>, targetns: t.param<t.text>): CallExpression<t.xml, "query_to_xml">
@@ -7708,11 +7703,6 @@ export const random: {
    */
   (): CallExpression<t.float8, "random">
 } = defineFunction("random")
-
-export const rank: {
-  (): CallExpression<t.int8, "rank">
-  (...args: t.aggParam<t.any>[]): Aggregate<t.int8, "rank">
-} = defineFunction("rank")
 
 export const regclass: {
   (arg: t.param<t.text>): CallExpression<t.regclass, "regclass">
@@ -7846,38 +7836,47 @@ export const regprocsend: {
 } = defineFunction("regprocsend")
 
 export const regr_avgx: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_avgx">
 } = defineFunction("regr_avgx")
 
 export const regr_avgy: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_avgy">
 } = defineFunction("regr_avgy")
 
 export const regr_count: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.int8, "regr_count">
 } = defineFunction("regr_count")
 
 export const regr_intercept: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_intercept">
 } = defineFunction("regr_intercept")
 
 export const regr_r2: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_r2">
 } = defineFunction("regr_r2")
 
 export const regr_slope: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_slope">
 } = defineFunction("regr_slope")
 
 export const regr_sxx: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_sxx">
 } = defineFunction("regr_sxx")
 
 export const regr_sxy: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_sxy">
 } = defineFunction("regr_sxy")
 
 export const regr_syy: {
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.float8>, arg2: t.aggParam<t.float8>): Aggregate<t.float8, "regr_syy">
 } = defineFunction("regr_syy")
 
@@ -7957,14 +7956,10 @@ export const round: {
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.numeric | t.null, "round">
 } = defineFunction("round")
 
-export const row_number: {
-  (): CallExpression<t.int8, "row_number">
-} = defineFunction("row_number")
-
 export const row_security_active: {
   (arg: t.param<t.oid | t.text>): CallExpression<t.bool, "row_security_active">
   (arg: t.param<t.oid | t.text | t.null>): CallExpression<t.bool | t.null, "row_security_active">
-} = defineFunction("row_security_active", "bool")
+} = defineFunction("row_security_active", {type: "bool"})
 
 /** 
  * A system function for padding the right side of a string
@@ -8004,7 +7999,7 @@ export const rtrim: {
 
 export const satisfies_hash_partition: {
   (arg1: t.param<t.oid>, arg2: t.param<t.int4>, arg3: t.param<t.int4>, arg4: t.param<t.any>): CallExpression<t.bool, "satisfies_hash_partition">
-} = defineFunction("satisfies_hash_partition", "bool")
+} = defineFunction("satisfies_hash_partition", {type: "bool"})
 
 /** 
  * A function returning the scale of the argument
@@ -8251,7 +8246,7 @@ export const starts_with: {
    */
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "starts_with">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "starts_with">
-} = defineFunction("starts_with", "bool")
+} = defineFunction("starts_with", {type: "bool"})
 
 /** 
  * A function returning the point-in-time the current query started
@@ -8268,20 +8263,29 @@ export const statement_timestamp: {
 } = defineFunction("statement_timestamp")
 
 export const stddev: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "stddev">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "stddev">
+  // AGGREGATE FUNCTION
   <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "stddev">
 } = defineFunction("stddev")
 
 export const stddev_pop: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "stddev_pop">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "stddev_pop">
+  // AGGREGATE FUNCTION
   <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "stddev_pop">
 } = defineFunction("stddev_pop")
 
 export const stddev_samp: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "stddev_samp">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "stddev_samp">
+  // AGGREGATE FUNCTION
   <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "stddev_samp">
 } = defineFunction("stddev_samp")
 
@@ -8296,7 +8300,9 @@ export const string_agg: {
    * 
    * @see https://pgpedia.info/s/string_agg.html
    */
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.text>, arg2: t.aggParam<t.text>): Aggregate<t.text, "string_agg">
+  // AGGREGATE FUNCTION
   (arg1: t.aggParam<t.bytea>, arg2: t.aggParam<t.bytea>): Aggregate<t.bytea, "string_agg">
 } = defineFunction("string_agg")
 
@@ -8387,8 +8393,11 @@ export const substring: {
 } = defineFunction("substring")
 
 export const sum: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8>): Aggregate<t.numeric, "sum">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int4 | t.int2>): Aggregate<t.int8, "sum">
+  // AGGREGATE FUNCTION
   <T extends t.float4 | t.float8 | t.money | t.interval | t.numeric>(arg: T): Aggregate<T, "sum">
 } = defineFunction("sum")
 
@@ -8430,12 +8439,12 @@ export const text: {
 export const text_ge: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_ge">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_ge">
-} = defineFunction("text_ge", "bool")
+} = defineFunction("text_ge", {type: "bool"})
 
 export const text_gt: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_gt">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_gt">
-} = defineFunction("text_gt", "bool")
+} = defineFunction("text_gt", {type: "bool"})
 
 export const text_larger: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.text, "text_larger">
@@ -8445,32 +8454,32 @@ export const text_larger: {
 export const text_le: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_le">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_le">
-} = defineFunction("text_le", "bool")
+} = defineFunction("text_le", {type: "bool"})
 
 export const text_lt: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_lt">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_lt">
-} = defineFunction("text_lt", "bool")
+} = defineFunction("text_lt", {type: "bool"})
 
 export const text_pattern_ge: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_pattern_ge">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_pattern_ge">
-} = defineFunction("text_pattern_ge", "bool")
+} = defineFunction("text_pattern_ge", {type: "bool"})
 
 export const text_pattern_gt: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_pattern_gt">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_pattern_gt">
-} = defineFunction("text_pattern_gt", "bool")
+} = defineFunction("text_pattern_gt", {type: "bool"})
 
 export const text_pattern_le: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_pattern_le">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_pattern_le">
-} = defineFunction("text_pattern_le", "bool")
+} = defineFunction("text_pattern_le", {type: "bool"})
 
 export const text_pattern_lt: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "text_pattern_lt">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "text_pattern_lt">
-} = defineFunction("text_pattern_lt", "bool")
+} = defineFunction("text_pattern_lt", {type: "bool"})
 
 export const text_smaller: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.text, "text_smaller">
@@ -8490,42 +8499,42 @@ export const textcat: {
 export const texteq: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "texteq">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "texteq">
-} = defineFunction("texteq", "bool")
+} = defineFunction("texteq", {type: "bool"})
 
 export const texteqname: {
   (arg1: t.param<t.text>, arg2: t.param<t.name>): CallExpression<t.bool, "texteqname">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "texteqname">
-} = defineFunction("texteqname", "bool")
+} = defineFunction("texteqname", {type: "bool"})
 
 export const textgename: {
   (arg1: t.param<t.text>, arg2: t.param<t.name>): CallExpression<t.bool, "textgename">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "textgename">
-} = defineFunction("textgename", "bool")
+} = defineFunction("textgename", {type: "bool"})
 
 export const textgtname: {
   (arg1: t.param<t.text>, arg2: t.param<t.name>): CallExpression<t.bool, "textgtname">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "textgtname">
-} = defineFunction("textgtname", "bool")
+} = defineFunction("textgtname", {type: "bool"})
 
 export const texticlike: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "texticlike">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "texticlike">
-} = defineFunction("texticlike", "bool")
+} = defineFunction("texticlike", {type: "bool"})
 
 export const texticnlike: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "texticnlike">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "texticnlike">
-} = defineFunction("texticnlike", "bool")
+} = defineFunction("texticnlike", {type: "bool"})
 
 export const texticregexeq: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "texticregexeq">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "texticregexeq">
-} = defineFunction("texticregexeq", "bool")
+} = defineFunction("texticregexeq", {type: "bool"})
 
 export const texticregexne: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "texticregexne">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "texticregexne">
-} = defineFunction("texticregexne", "bool")
+} = defineFunction("texticregexne", {type: "bool"})
 
 export const textlen: {
   (arg: t.param<t.text>): CallExpression<t.int4, "textlen">
@@ -8535,42 +8544,42 @@ export const textlen: {
 export const textlename: {
   (arg1: t.param<t.text>, arg2: t.param<t.name>): CallExpression<t.bool, "textlename">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "textlename">
-} = defineFunction("textlename", "bool")
+} = defineFunction("textlename", {type: "bool"})
 
 export const textlike: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "textlike">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "textlike">
-} = defineFunction("textlike", "bool")
+} = defineFunction("textlike", {type: "bool"})
 
 export const textltname: {
   (arg1: t.param<t.text>, arg2: t.param<t.name>): CallExpression<t.bool, "textltname">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "textltname">
-} = defineFunction("textltname", "bool")
+} = defineFunction("textltname", {type: "bool"})
 
 export const textne: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "textne">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "textne">
-} = defineFunction("textne", "bool")
+} = defineFunction("textne", {type: "bool"})
 
 export const textnename: {
   (arg1: t.param<t.text>, arg2: t.param<t.name>): CallExpression<t.bool, "textnename">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.name | t.null>): CallExpression<t.bool | t.null, "textnename">
-} = defineFunction("textnename", "bool")
+} = defineFunction("textnename", {type: "bool"})
 
 export const textnlike: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "textnlike">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "textnlike">
-} = defineFunction("textnlike", "bool")
+} = defineFunction("textnlike", {type: "bool"})
 
 export const textregexeq: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "textregexeq">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "textregexeq">
-} = defineFunction("textregexeq", "bool")
+} = defineFunction("textregexeq", {type: "bool"})
 
 export const textregexne: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "textregexne">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "textregexne">
-} = defineFunction("textregexne", "bool")
+} = defineFunction("textregexne", {type: "bool"})
 
 export const textsend: {
   (arg: t.param<t.text>): CallExpression<t.bytea, "textsend">
@@ -8592,17 +8601,17 @@ export const time_cmp: {
 export const time_eq: {
   (arg1: t.param<t.time>, arg2: t.param<t.time>): CallExpression<t.bool, "time_eq">
   (arg1: t.param<t.time | t.null>, arg2: t.param<t.time | t.null>): CallExpression<t.bool | t.null, "time_eq">
-} = defineFunction("time_eq", "bool")
+} = defineFunction("time_eq", {type: "bool"})
 
 export const time_ge: {
   (arg1: t.param<t.time>, arg2: t.param<t.time>): CallExpression<t.bool, "time_ge">
   (arg1: t.param<t.time | t.null>, arg2: t.param<t.time | t.null>): CallExpression<t.bool | t.null, "time_ge">
-} = defineFunction("time_ge", "bool")
+} = defineFunction("time_ge", {type: "bool"})
 
 export const time_gt: {
   (arg1: t.param<t.time>, arg2: t.param<t.time>): CallExpression<t.bool, "time_gt">
   (arg1: t.param<t.time | t.null>, arg2: t.param<t.time | t.null>): CallExpression<t.bool | t.null, "time_gt">
-} = defineFunction("time_gt", "bool")
+} = defineFunction("time_gt", {type: "bool"})
 
 export const time_hash: {
   (arg: t.param<t.time>): CallExpression<t.int4, "time_hash">
@@ -8622,12 +8631,12 @@ export const time_larger: {
 export const time_le: {
   (arg1: t.param<t.time>, arg2: t.param<t.time>): CallExpression<t.bool, "time_le">
   (arg1: t.param<t.time | t.null>, arg2: t.param<t.time | t.null>): CallExpression<t.bool | t.null, "time_le">
-} = defineFunction("time_le", "bool")
+} = defineFunction("time_le", {type: "bool"})
 
 export const time_lt: {
   (arg1: t.param<t.time>, arg2: t.param<t.time>): CallExpression<t.bool, "time_lt">
   (arg1: t.param<t.time | t.null>, arg2: t.param<t.time | t.null>): CallExpression<t.bool | t.null, "time_lt">
-} = defineFunction("time_lt", "bool")
+} = defineFunction("time_lt", {type: "bool"})
 
 export const time_mi_interval: {
   (arg1: t.param<t.time>, arg2: t.param<t.interval>): CallExpression<t.time, "time_mi_interval">
@@ -8642,7 +8651,7 @@ export const time_mi_time: {
 export const time_ne: {
   (arg1: t.param<t.time>, arg2: t.param<t.time>): CallExpression<t.bool, "time_ne">
   (arg1: t.param<t.time | t.null>, arg2: t.param<t.time | t.null>): CallExpression<t.bool | t.null, "time_ne">
-} = defineFunction("time_ne", "bool")
+} = defineFunction("time_ne", {type: "bool"})
 
 export const time_pl_interval: {
   (arg1: t.param<t.time>, arg2: t.param<t.interval>): CallExpression<t.time, "time_pl_interval">
@@ -8693,47 +8702,47 @@ export const timestamp_cmp_timestamptz: {
 export const timestamp_eq: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamp_eq">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamp_eq">
-} = defineFunction("timestamp_eq", "bool")
+} = defineFunction("timestamp_eq", {type: "bool"})
 
 export const timestamp_eq_date: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamp_eq_date">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamp_eq_date">
-} = defineFunction("timestamp_eq_date", "bool")
+} = defineFunction("timestamp_eq_date", {type: "bool"})
 
 export const timestamp_eq_timestamptz: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamp_eq_timestamptz">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamp_eq_timestamptz">
-} = defineFunction("timestamp_eq_timestamptz", "bool")
+} = defineFunction("timestamp_eq_timestamptz", {type: "bool"})
 
 export const timestamp_ge: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamp_ge">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamp_ge">
-} = defineFunction("timestamp_ge", "bool")
+} = defineFunction("timestamp_ge", {type: "bool"})
 
 export const timestamp_ge_date: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamp_ge_date">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamp_ge_date">
-} = defineFunction("timestamp_ge_date", "bool")
+} = defineFunction("timestamp_ge_date", {type: "bool"})
 
 export const timestamp_ge_timestamptz: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamp_ge_timestamptz">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamp_ge_timestamptz">
-} = defineFunction("timestamp_ge_timestamptz", "bool")
+} = defineFunction("timestamp_ge_timestamptz", {type: "bool"})
 
 export const timestamp_gt: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamp_gt">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamp_gt">
-} = defineFunction("timestamp_gt", "bool")
+} = defineFunction("timestamp_gt", {type: "bool"})
 
 export const timestamp_gt_date: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamp_gt_date">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamp_gt_date">
-} = defineFunction("timestamp_gt_date", "bool")
+} = defineFunction("timestamp_gt_date", {type: "bool"})
 
 export const timestamp_gt_timestamptz: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamp_gt_timestamptz">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamp_gt_timestamptz">
-} = defineFunction("timestamp_gt_timestamptz", "bool")
+} = defineFunction("timestamp_gt_timestamptz", {type: "bool"})
 
 export const timestamp_hash: {
   (arg: t.param<t.timestamp>): CallExpression<t.int4, "timestamp_hash">
@@ -8753,32 +8762,32 @@ export const timestamp_larger: {
 export const timestamp_le: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamp_le">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamp_le">
-} = defineFunction("timestamp_le", "bool")
+} = defineFunction("timestamp_le", {type: "bool"})
 
 export const timestamp_le_date: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamp_le_date">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamp_le_date">
-} = defineFunction("timestamp_le_date", "bool")
+} = defineFunction("timestamp_le_date", {type: "bool"})
 
 export const timestamp_le_timestamptz: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamp_le_timestamptz">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamp_le_timestamptz">
-} = defineFunction("timestamp_le_timestamptz", "bool")
+} = defineFunction("timestamp_le_timestamptz", {type: "bool"})
 
 export const timestamp_lt: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamp_lt">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamp_lt">
-} = defineFunction("timestamp_lt", "bool")
+} = defineFunction("timestamp_lt", {type: "bool"})
 
 export const timestamp_lt_date: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamp_lt_date">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamp_lt_date">
-} = defineFunction("timestamp_lt_date", "bool")
+} = defineFunction("timestamp_lt_date", {type: "bool"})
 
 export const timestamp_lt_timestamptz: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamp_lt_timestamptz">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamp_lt_timestamptz">
-} = defineFunction("timestamp_lt_timestamptz", "bool")
+} = defineFunction("timestamp_lt_timestamptz", {type: "bool"})
 
 export const timestamp_mi: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.interval, "timestamp_mi">
@@ -8793,17 +8802,17 @@ export const timestamp_mi_interval: {
 export const timestamp_ne: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamp_ne">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamp_ne">
-} = defineFunction("timestamp_ne", "bool")
+} = defineFunction("timestamp_ne", {type: "bool"})
 
 export const timestamp_ne_date: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamp_ne_date">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamp_ne_date">
-} = defineFunction("timestamp_ne_date", "bool")
+} = defineFunction("timestamp_ne_date", {type: "bool"})
 
 export const timestamp_ne_timestamptz: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamp_ne_timestamptz">
   (arg1: t.param<t.timestamp | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamp_ne_timestamptz">
-} = defineFunction("timestamp_ne_timestamptz", "bool")
+} = defineFunction("timestamp_ne_timestamptz", {type: "bool"})
 
 export const timestamp_pl_interval: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.interval>): CallExpression<t.timestamp, "timestamp_pl_interval">
@@ -8845,47 +8854,47 @@ export const timestamptz_cmp_timestamp: {
 export const timestamptz_eq: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamptz_eq">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamptz_eq">
-} = defineFunction("timestamptz_eq", "bool")
+} = defineFunction("timestamptz_eq", {type: "bool"})
 
 export const timestamptz_eq_date: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamptz_eq_date">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamptz_eq_date">
-} = defineFunction("timestamptz_eq_date", "bool")
+} = defineFunction("timestamptz_eq_date", {type: "bool"})
 
 export const timestamptz_eq_timestamp: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamptz_eq_timestamp">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamptz_eq_timestamp">
-} = defineFunction("timestamptz_eq_timestamp", "bool")
+} = defineFunction("timestamptz_eq_timestamp", {type: "bool"})
 
 export const timestamptz_ge: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamptz_ge">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamptz_ge">
-} = defineFunction("timestamptz_ge", "bool")
+} = defineFunction("timestamptz_ge", {type: "bool"})
 
 export const timestamptz_ge_date: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamptz_ge_date">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamptz_ge_date">
-} = defineFunction("timestamptz_ge_date", "bool")
+} = defineFunction("timestamptz_ge_date", {type: "bool"})
 
 export const timestamptz_ge_timestamp: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamptz_ge_timestamp">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamptz_ge_timestamp">
-} = defineFunction("timestamptz_ge_timestamp", "bool")
+} = defineFunction("timestamptz_ge_timestamp", {type: "bool"})
 
 export const timestamptz_gt: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamptz_gt">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamptz_gt">
-} = defineFunction("timestamptz_gt", "bool")
+} = defineFunction("timestamptz_gt", {type: "bool"})
 
 export const timestamptz_gt_date: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamptz_gt_date">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamptz_gt_date">
-} = defineFunction("timestamptz_gt_date", "bool")
+} = defineFunction("timestamptz_gt_date", {type: "bool"})
 
 export const timestamptz_gt_timestamp: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamptz_gt_timestamp">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamptz_gt_timestamp">
-} = defineFunction("timestamptz_gt_timestamp", "bool")
+} = defineFunction("timestamptz_gt_timestamp", {type: "bool"})
 
 export const timestamptz_larger: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.timestamptz, "timestamptz_larger">
@@ -8895,32 +8904,32 @@ export const timestamptz_larger: {
 export const timestamptz_le: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamptz_le">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamptz_le">
-} = defineFunction("timestamptz_le", "bool")
+} = defineFunction("timestamptz_le", {type: "bool"})
 
 export const timestamptz_le_date: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamptz_le_date">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamptz_le_date">
-} = defineFunction("timestamptz_le_date", "bool")
+} = defineFunction("timestamptz_le_date", {type: "bool"})
 
 export const timestamptz_le_timestamp: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamptz_le_timestamp">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamptz_le_timestamp">
-} = defineFunction("timestamptz_le_timestamp", "bool")
+} = defineFunction("timestamptz_le_timestamp", {type: "bool"})
 
 export const timestamptz_lt: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamptz_lt">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamptz_lt">
-} = defineFunction("timestamptz_lt", "bool")
+} = defineFunction("timestamptz_lt", {type: "bool"})
 
 export const timestamptz_lt_date: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamptz_lt_date">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamptz_lt_date">
-} = defineFunction("timestamptz_lt_date", "bool")
+} = defineFunction("timestamptz_lt_date", {type: "bool"})
 
 export const timestamptz_lt_timestamp: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamptz_lt_timestamp">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamptz_lt_timestamp">
-} = defineFunction("timestamptz_lt_timestamp", "bool")
+} = defineFunction("timestamptz_lt_timestamp", {type: "bool"})
 
 export const timestamptz_mi: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.interval, "timestamptz_mi">
@@ -8935,17 +8944,17 @@ export const timestamptz_mi_interval: {
 export const timestamptz_ne: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamptz>): CallExpression<t.bool, "timestamptz_ne">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamptz | t.null>): CallExpression<t.bool | t.null, "timestamptz_ne">
-} = defineFunction("timestamptz_ne", "bool")
+} = defineFunction("timestamptz_ne", {type: "bool"})
 
 export const timestamptz_ne_date: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.date>): CallExpression<t.bool, "timestamptz_ne_date">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.date | t.null>): CallExpression<t.bool | t.null, "timestamptz_ne_date">
-} = defineFunction("timestamptz_ne_date", "bool")
+} = defineFunction("timestamptz_ne_date", {type: "bool"})
 
 export const timestamptz_ne_timestamp: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.timestamp>): CallExpression<t.bool, "timestamptz_ne_timestamp">
   (arg1: t.param<t.timestamptz | t.null>, arg2: t.param<t.timestamp | t.null>): CallExpression<t.bool | t.null, "timestamptz_ne_timestamp">
-} = defineFunction("timestamptz_ne_timestamp", "bool")
+} = defineFunction("timestamptz_ne_timestamp", {type: "bool"})
 
 export const timestamptz_pl_interval: {
   (arg1: t.param<t.timestamptz>, arg2: t.param<t.interval>): CallExpression<t.timestamptz, "timestamptz_pl_interval">
@@ -8977,17 +8986,17 @@ export const timetz_cmp: {
 export const timetz_eq: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.timetz>): CallExpression<t.bool, "timetz_eq">
   (arg1: t.param<t.timetz | t.null>, arg2: t.param<t.timetz | t.null>): CallExpression<t.bool | t.null, "timetz_eq">
-} = defineFunction("timetz_eq", "bool")
+} = defineFunction("timetz_eq", {type: "bool"})
 
 export const timetz_ge: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.timetz>): CallExpression<t.bool, "timetz_ge">
   (arg1: t.param<t.timetz | t.null>, arg2: t.param<t.timetz | t.null>): CallExpression<t.bool | t.null, "timetz_ge">
-} = defineFunction("timetz_ge", "bool")
+} = defineFunction("timetz_ge", {type: "bool"})
 
 export const timetz_gt: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.timetz>): CallExpression<t.bool, "timetz_gt">
   (arg1: t.param<t.timetz | t.null>, arg2: t.param<t.timetz | t.null>): CallExpression<t.bool | t.null, "timetz_gt">
-} = defineFunction("timetz_gt", "bool")
+} = defineFunction("timetz_gt", {type: "bool"})
 
 export const timetz_hash: {
   (arg: t.param<t.timetz>): CallExpression<t.int4, "timetz_hash">
@@ -9007,12 +9016,12 @@ export const timetz_larger: {
 export const timetz_le: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.timetz>): CallExpression<t.bool, "timetz_le">
   (arg1: t.param<t.timetz | t.null>, arg2: t.param<t.timetz | t.null>): CallExpression<t.bool | t.null, "timetz_le">
-} = defineFunction("timetz_le", "bool")
+} = defineFunction("timetz_le", {type: "bool"})
 
 export const timetz_lt: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.timetz>): CallExpression<t.bool, "timetz_lt">
   (arg1: t.param<t.timetz | t.null>, arg2: t.param<t.timetz | t.null>): CallExpression<t.bool | t.null, "timetz_lt">
-} = defineFunction("timetz_lt", "bool")
+} = defineFunction("timetz_lt", {type: "bool"})
 
 export const timetz_mi_interval: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.interval>): CallExpression<t.timetz, "timetz_mi_interval">
@@ -9022,7 +9031,7 @@ export const timetz_mi_interval: {
 export const timetz_ne: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.timetz>): CallExpression<t.bool, "timetz_ne">
   (arg1: t.param<t.timetz | t.null>, arg2: t.param<t.timetz | t.null>): CallExpression<t.bool | t.null, "timetz_ne">
-} = defineFunction("timetz_ne", "bool")
+} = defineFunction("timetz_ne", {type: "bool"})
 
 export const timetz_pl_interval: {
   (arg1: t.param<t.timetz>, arg2: t.param<t.interval>): CallExpression<t.timetz, "timetz_pl_interval">
@@ -9302,7 +9311,7 @@ export const ts_lexize: {
 export const ts_match_tt: {
   (arg1: t.param<t.text>, arg2: t.param<t.text>): CallExpression<t.bool, "ts_match_tt">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "ts_match_tt">
-} = defineFunction("ts_match_tt", "bool")
+} = defineFunction("ts_match_tt", {type: "bool"})
 
 export const tsrange: {
   (arg1: t.param<t.timestamp>, arg2: t.param<t.timestamp>): CallExpression<t.tsrange, "tsrange">
@@ -9337,32 +9346,32 @@ export const tsvector_concat: {
 export const tsvector_eq: {
   (arg1: t.param<t.tsvector>, arg2: t.param<t.tsvector>): CallExpression<t.bool, "tsvector_eq">
   (arg1: t.param<t.tsvector | t.null>, arg2: t.param<t.tsvector | t.null>): CallExpression<t.bool | t.null, "tsvector_eq">
-} = defineFunction("tsvector_eq", "bool")
+} = defineFunction("tsvector_eq", {type: "bool"})
 
 export const tsvector_ge: {
   (arg1: t.param<t.tsvector>, arg2: t.param<t.tsvector>): CallExpression<t.bool, "tsvector_ge">
   (arg1: t.param<t.tsvector | t.null>, arg2: t.param<t.tsvector | t.null>): CallExpression<t.bool | t.null, "tsvector_ge">
-} = defineFunction("tsvector_ge", "bool")
+} = defineFunction("tsvector_ge", {type: "bool"})
 
 export const tsvector_gt: {
   (arg1: t.param<t.tsvector>, arg2: t.param<t.tsvector>): CallExpression<t.bool, "tsvector_gt">
   (arg1: t.param<t.tsvector | t.null>, arg2: t.param<t.tsvector | t.null>): CallExpression<t.bool | t.null, "tsvector_gt">
-} = defineFunction("tsvector_gt", "bool")
+} = defineFunction("tsvector_gt", {type: "bool"})
 
 export const tsvector_le: {
   (arg1: t.param<t.tsvector>, arg2: t.param<t.tsvector>): CallExpression<t.bool, "tsvector_le">
   (arg1: t.param<t.tsvector | t.null>, arg2: t.param<t.tsvector | t.null>): CallExpression<t.bool | t.null, "tsvector_le">
-} = defineFunction("tsvector_le", "bool")
+} = defineFunction("tsvector_le", {type: "bool"})
 
 export const tsvector_lt: {
   (arg1: t.param<t.tsvector>, arg2: t.param<t.tsvector>): CallExpression<t.bool, "tsvector_lt">
   (arg1: t.param<t.tsvector | t.null>, arg2: t.param<t.tsvector | t.null>): CallExpression<t.bool | t.null, "tsvector_lt">
-} = defineFunction("tsvector_lt", "bool")
+} = defineFunction("tsvector_lt", {type: "bool"})
 
 export const tsvector_ne: {
   (arg1: t.param<t.tsvector>, arg2: t.param<t.tsvector>): CallExpression<t.bool, "tsvector_ne">
   (arg1: t.param<t.tsvector | t.null>, arg2: t.param<t.tsvector | t.null>): CallExpression<t.bool | t.null, "tsvector_ne">
-} = defineFunction("tsvector_ne", "bool")
+} = defineFunction("tsvector_ne", {type: "bool"})
 
 /** 
  * A function converting a tsvector to lexemes
@@ -9479,17 +9488,17 @@ export const uuid_cmp: {
 export const uuid_eq: {
   (arg1: t.param<t.uuid>, arg2: t.param<t.uuid>): CallExpression<t.bool, "uuid_eq">
   (arg1: t.param<t.uuid | t.null>, arg2: t.param<t.uuid | t.null>): CallExpression<t.bool | t.null, "uuid_eq">
-} = defineFunction("uuid_eq", "bool")
+} = defineFunction("uuid_eq", {type: "bool"})
 
 export const uuid_ge: {
   (arg1: t.param<t.uuid>, arg2: t.param<t.uuid>): CallExpression<t.bool, "uuid_ge">
   (arg1: t.param<t.uuid | t.null>, arg2: t.param<t.uuid | t.null>): CallExpression<t.bool | t.null, "uuid_ge">
-} = defineFunction("uuid_ge", "bool")
+} = defineFunction("uuid_ge", {type: "bool"})
 
 export const uuid_gt: {
   (arg1: t.param<t.uuid>, arg2: t.param<t.uuid>): CallExpression<t.bool, "uuid_gt">
   (arg1: t.param<t.uuid | t.null>, arg2: t.param<t.uuid | t.null>): CallExpression<t.bool | t.null, "uuid_gt">
-} = defineFunction("uuid_gt", "bool")
+} = defineFunction("uuid_gt", {type: "bool"})
 
 export const uuid_hash: {
   (arg: t.param<t.uuid>): CallExpression<t.int4, "uuid_hash">
@@ -9504,17 +9513,17 @@ export const uuid_hash_extended: {
 export const uuid_le: {
   (arg1: t.param<t.uuid>, arg2: t.param<t.uuid>): CallExpression<t.bool, "uuid_le">
   (arg1: t.param<t.uuid | t.null>, arg2: t.param<t.uuid | t.null>): CallExpression<t.bool | t.null, "uuid_le">
-} = defineFunction("uuid_le", "bool")
+} = defineFunction("uuid_le", {type: "bool"})
 
 export const uuid_lt: {
   (arg1: t.param<t.uuid>, arg2: t.param<t.uuid>): CallExpression<t.bool, "uuid_lt">
   (arg1: t.param<t.uuid | t.null>, arg2: t.param<t.uuid | t.null>): CallExpression<t.bool | t.null, "uuid_lt">
-} = defineFunction("uuid_lt", "bool")
+} = defineFunction("uuid_lt", {type: "bool"})
 
 export const uuid_ne: {
   (arg1: t.param<t.uuid>, arg2: t.param<t.uuid>): CallExpression<t.bool, "uuid_ne">
   (arg1: t.param<t.uuid | t.null>, arg2: t.param<t.uuid | t.null>): CallExpression<t.bool | t.null, "uuid_ne">
-} = defineFunction("uuid_ne", "bool")
+} = defineFunction("uuid_ne", {type: "bool"})
 
 export const uuid_send: {
   (arg: t.param<t.uuid>): CallExpression<t.bytea, "uuid_send">
@@ -9522,14 +9531,20 @@ export const uuid_send: {
 } = defineFunction("uuid_send")
 
 export const var_pop: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "var_pop">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "var_pop">
+  // AGGREGATE FUNCTION
   <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "var_pop">
 } = defineFunction("var_pop")
 
 export const var_samp: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "var_samp">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "var_samp">
+  // AGGREGATE FUNCTION
   <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "var_samp">
 } = defineFunction("var_samp")
 
@@ -9551,32 +9566,32 @@ export const varbitcmp: {
 export const varbiteq: {
   (arg1: t.param<t.varbit>, arg2: t.param<t.varbit>): CallExpression<t.bool, "varbiteq">
   (arg1: t.param<t.varbit | t.null>, arg2: t.param<t.varbit | t.null>): CallExpression<t.bool | t.null, "varbiteq">
-} = defineFunction("varbiteq", "bool")
+} = defineFunction("varbiteq", {type: "bool"})
 
 export const varbitge: {
   (arg1: t.param<t.varbit>, arg2: t.param<t.varbit>): CallExpression<t.bool, "varbitge">
   (arg1: t.param<t.varbit | t.null>, arg2: t.param<t.varbit | t.null>): CallExpression<t.bool | t.null, "varbitge">
-} = defineFunction("varbitge", "bool")
+} = defineFunction("varbitge", {type: "bool"})
 
 export const varbitgt: {
   (arg1: t.param<t.varbit>, arg2: t.param<t.varbit>): CallExpression<t.bool, "varbitgt">
   (arg1: t.param<t.varbit | t.null>, arg2: t.param<t.varbit | t.null>): CallExpression<t.bool | t.null, "varbitgt">
-} = defineFunction("varbitgt", "bool")
+} = defineFunction("varbitgt", {type: "bool"})
 
 export const varbitle: {
   (arg1: t.param<t.varbit>, arg2: t.param<t.varbit>): CallExpression<t.bool, "varbitle">
   (arg1: t.param<t.varbit | t.null>, arg2: t.param<t.varbit | t.null>): CallExpression<t.bool | t.null, "varbitle">
-} = defineFunction("varbitle", "bool")
+} = defineFunction("varbitle", {type: "bool"})
 
 export const varbitlt: {
   (arg1: t.param<t.varbit>, arg2: t.param<t.varbit>): CallExpression<t.bool, "varbitlt">
   (arg1: t.param<t.varbit | t.null>, arg2: t.param<t.varbit | t.null>): CallExpression<t.bool | t.null, "varbitlt">
-} = defineFunction("varbitlt", "bool")
+} = defineFunction("varbitlt", {type: "bool"})
 
 export const varbitne: {
   (arg1: t.param<t.varbit>, arg2: t.param<t.varbit>): CallExpression<t.bool, "varbitne">
   (arg1: t.param<t.varbit | t.null>, arg2: t.param<t.varbit | t.null>): CallExpression<t.bool | t.null, "varbitne">
-} = defineFunction("varbitne", "bool")
+} = defineFunction("varbitne", {type: "bool"})
 
 export const varchar: {
   (arg1: t.param<t.varchar>, arg2: t.param<t.int4>, arg3: t.param<t.bool>): CallExpression<t.varchar, "varchar">
@@ -9591,8 +9606,11 @@ export const varcharsend: {
 } = defineFunction("varcharsend")
 
 export const variance: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "variance">
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "variance">
+  // AGGREGATE FUNCTION
   <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "variance">
 } = defineFunction("variance")
 
@@ -9640,17 +9658,17 @@ export const xml: {
 export const xml_is_well_formed: {
   (arg: t.param<t.text>): CallExpression<t.bool, "xml_is_well_formed">
   (arg: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "xml_is_well_formed">
-} = defineFunction("xml_is_well_formed", "bool")
+} = defineFunction("xml_is_well_formed", {type: "bool"})
 
 export const xml_is_well_formed_content: {
   (arg: t.param<t.text>): CallExpression<t.bool, "xml_is_well_formed_content">
   (arg: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "xml_is_well_formed_content">
-} = defineFunction("xml_is_well_formed_content", "bool")
+} = defineFunction("xml_is_well_formed_content", {type: "bool"})
 
 export const xml_is_well_formed_document: {
   (arg: t.param<t.text>): CallExpression<t.bool, "xml_is_well_formed_document">
   (arg: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "xml_is_well_formed_document">
-} = defineFunction("xml_is_well_formed_document", "bool")
+} = defineFunction("xml_is_well_formed_document", {type: "bool"})
 
 export const xml_send: {
   (arg: t.param<t.xml>): CallExpression<t.bytea, "xml_send">
@@ -9658,6 +9676,7 @@ export const xml_send: {
 } = defineFunction("xml_send")
 
 export const xmlagg: {
+  // AGGREGATE FUNCTION
   (arg: t.aggParam<t.xml>): Aggregate<t.xml, "xmlagg">
 } = defineFunction("xmlagg")
 
@@ -9683,12 +9702,12 @@ export const xmlconcat2: {
 export const xmlexists: {
   (arg1: t.param<t.text>, arg2: t.param<t.xml>): CallExpression<t.bool, "xmlexists">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.xml | t.null>): CallExpression<t.bool | t.null, "xmlexists">
-} = defineFunction("xmlexists", "bool")
+} = defineFunction("xmlexists", {type: "bool"})
 
 export const xmlvalidate: {
   (arg1: t.param<t.xml>, arg2: t.param<t.text>): CallExpression<t.bool, "xmlvalidate">
   (arg1: t.param<t.xml | t.null>, arg2: t.param<t.text | t.null>): CallExpression<t.bool | t.null, "xmlvalidate">
-} = defineFunction("xmlvalidate", "bool")
+} = defineFunction("xmlvalidate", {type: "bool"})
 
 export const xpath: {
   (arg1: t.param<t.text>, arg2: t.param<t.xml>, arg3: t.param<t.array<t.text>>): CallExpression<t.array<t.xml>, "xpath">
@@ -9702,4 +9721,4 @@ export const xpath_exists: {
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.xml | t.null>, arg3: t.param<t.array<t.text> | t.null>): CallExpression<t.bool | t.null, "xpath_exists">
   (arg1: t.param<t.text>, arg2: t.param<t.xml>): CallExpression<t.bool, "xpath_exists">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.xml | t.null>): CallExpression<t.bool | t.null, "xpath_exists">
-} = defineFunction("xpath_exists", "bool")
+} = defineFunction("xpath_exists", {type: "bool"})
