@@ -1,9 +1,7 @@
 import { defineBuildConfig } from 'unbuild'
 
-const pkg = require('./package.json')
-
 export default defineBuildConfig({
-  entries: ['src/tusken', 'src/config'],
+  entries: ['./tusken', './config'],
   externals: ['pg'],
   declaration: true,
   rollup: {
