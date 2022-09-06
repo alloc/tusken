@@ -1,7 +1,7 @@
 import type { Any } from '@alloc/types'
 import { Expression } from './expression'
 import { CallExpression } from './function'
-import { Selectable } from './query/select'
+import { Selectable } from './query/abstract/select'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
 import { tokenizeColumn } from './tokenize'
