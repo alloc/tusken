@@ -38,6 +38,7 @@
     "@types/node": "^18.7.9",
     "@types/pg": "^8.6.5",
     "pg": "^8.8.0",
+    "pg-mem": "^2.6.3",
     "pg-query-stream": "^4.2.4",
     "postgres-interval": "^4.0.0",
     "postgres-range": "^1.1.3",
