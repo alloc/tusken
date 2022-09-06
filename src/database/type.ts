@@ -26,7 +26,9 @@ export type Value<T> = T extends Type<any, infer V> ? V : T
 /** Convert a Postgres object to a JavaScript object */
 export type Values<T extends object> = {
   [P in keyof T]: Value<T[P]>
-}
+} extends infer Values
+  ? Values
+  : never
 
 /** Allow both the Postgres type and its JavaScript type */
 export type Input<T> = T extends Type<any, infer Value> ? Value | T : T
