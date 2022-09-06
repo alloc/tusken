@@ -1,3 +1,4 @@
+import { ClientResult } from '../database'
 import { Query } from '../query'
 import { kPrimaryKey } from '../symbols'
 import { TableRef, toTableName } from '../table'
@@ -49,4 +50,10 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
   returning(arg: any) {
     throw Error('not implemented')
   }
+
+  protected resolve(result: ClientResult) {
+    return result.rowCount
+  }
 }
+
+export interface Put<T> extends PromiseLike<number> {}

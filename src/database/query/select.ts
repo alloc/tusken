@@ -1,72 +1,13 @@
 import { Any, Intersect } from '@alloc/types'
-import { BoolExpression } from '../expression'
-import { JoinProps } from '../join'
-import { Query } from '../query'
-import { Selection, SelectionSource } from '../selection'
 import { QueryStreamConfig } from '../stream'
 import { kDatabaseQueryStream } from '../symbols'
-import { toTableName } from '../table'
-import { TokenArray } from '../token'
-import {
-  tokenizeExpression,
-  tokenizeSelected,
-  tokenizeWhere,
-} from '../tokenize'
 import { SetType, Values } from '../type'
-import { Where, where } from './where'
-
-export interface SelectProps {
-  from: Selectable
-  joins?: JoinProps[]
-  where?: BoolExpression
-  limit?: number
-  offset?: number
-}
-
-const kSelectFrom = Symbol()
-
-/** Object types compatible with `db.select` */
-export type Selectable = SelectionSource | Selection
+import { AbstractSelect, Selectable } from './abstract/select'
+import { Where } from './where'
 
 export class Select<From extends Selectable[] = any> //
-  extends Query<SelectProps, 'select'>
+  extends AbstractSelect<From, 'select'>
 {
-  protected declare [kSelectFrom]: From
-  protected tokens(props: SelectProps, ctx: Query.Context) {
-    ctx.select = props
-
-    const selected = [props.from]
-    const joined = props.joins?.map(join => {
-      selected.push(join.from)
-      return [
-        'INNER JOIN',
-        { id: toTableName(join.from) },
-        'ON',
-        tokenizeExpression(join.where, ctx),
-      ]
-    })
-
-    const tokens: TokenArray = [
-      'SELECT',
-      tokenizeSelected(selected, ctx),
-      'FROM',
-      { id: toTableName(props.from) },
-    ]
-    if (joined) {
-      tokens.push(joined)
-    }
-    if (props.where) {
-      tokens.push(tokenizeWhere(props.where, ctx))
-    }
-    if (props.limit) {
-      tokens.push('LIMIT', { number: props.limit })
-    }
-    if (props.offset) {
-      tokens.push('OFFSET', { number: props.offset })
-    }
-    return tokens
-  }
-
   /**
    * Resolve with a single row at the given offset.
    * - Negative offset is treated as zero.
@@ -81,28 +22,12 @@ export class Select<From extends Selectable[] = any> //
     return this.limit(1)
   }
 
-  innerJoin<Joined extends Selectable>(
-    from: Joined,
-    on: Where<[...From, Joined]>
-  ): Select<[...From, Joined]> {
-    const join = { type: 'inner', from } as JoinProps
-    this.props.joins ||= []
-    this.props.joins.push(join)
-    join.where = where(this.props, on)
-    return this as any
-  }
-
   limit(n: number) {
     this.props.limit = n
     return this
   }
 
-  where(filter: Where<From>) {
-    this.props.where = where(this.props, filter)
-    return this
-  }
-
-  stream(config?: QueryStreamConfig | null): NodeJS.ReadableStream {
+  stream(config?: QueryStreamConfig | null) {
     const db = this.context.db!
     const QueryStream = db[kDatabaseQueryStream]
     if (!QueryStream)
@@ -112,11 +37,21 @@ export class Select<From extends Selectable[] = any> //
 
     const query = this.render()
     const cursor = new QueryStream(query, undefined, config || undefined)
-    return db.client.query(cursor as any) as any
+    return db.client.query<SelectResult<From>>(cursor)
   }
 }
 
-export interface Select<From> extends SetType<SelectedRow<From[number]>> {}
+export interface Select<From>
+  extends SetType<SelectResult<From>>,
+    PromiseLike<SelectResults<From>> {
+  innerJoin<Joined extends Selectable>(
+    from: Joined,
+    on: Where<[...From, Joined]>
+  ): Select<[...From, Joined]>
+}
+
+type SelectResult<From extends Selectable[]> = SelectedRow<From[number]>
+type SelectResults<From extends Selectable[]> = SelectResult<From>[]
 
 /** Note that `T` must be a union, not an array type. */
 export type SelectedRow<T> = unknown &

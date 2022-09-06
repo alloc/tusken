@@ -1,18 +1,10 @@
 import type { ClientResult, Database } from './database'
-import type { Count } from './query/count'
-import type { Delete } from './query/delete'
-import type { Put } from './query/put'
-import type { Select, SelectProps } from './query/select'
+import type { SelectProps } from './query/select'
 import { renderTokens, TokenArray } from './token'
-import type { Type } from './type'
 
 export type ValidQuery<T = any, Command extends string = any> = unknown &
   Query<any, Command> &
   PromiseLike<T>
-
-export type QueryResult<T extends Query> = T extends Type<any, infer Result>
-  ? Result
-  : any
 
 const kQueryCommand = Symbol()
 
@@ -60,30 +52,6 @@ export abstract class Query<
     })
   }
 
-  then<TResult1 = QueryResult<this>, TResult2 = never>(
-    onfulfilled?:
-      | ((value: QueryResult<this>) => TResult1 | PromiseLike<TResult1>)
-      | undefined
-      | null,
-    onrejected?:
-      | ((reason: any) => TResult2 | PromiseLike<TResult2>)
-      | undefined
-      | null
-  ): PromiseLike<TResult1 | TResult2> {
-    const { db } = this.context
-    if (!db) {
-      throw Error('Query not associated with a database')
-    }
-    return db.client
-      .query(this.render())
-      .then(
-        this.resolve ||
-          (result =>
-            this.context.single ? result.rows[0] || null : result.rows)
-      )
-      .then(onfulfilled as any, onrejected)
-  }
-
   /**
    * Modify the query promise before the caller receives it.
    */
@@ -114,6 +82,28 @@ export abstract class Query<
   }
 }
 
+// Using defineProperty for Query#then lets subclasses easily
+// define their promise type without any TypeScript gymnastics.
+// And of course, they still inherit this default implementation.
+// As a bonus, any Query subclass that doesn't extend the PromiseLike
+// interface will not be awaitable, thus avoiding incomplete queries.
+Object.defineProperty(Query.prototype, 'then', {
+  value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
+    const { db } = this.context
+    if (!db) {
+      throw Error('Query not associated with a database')
+    }
+    return db.client
+      .query(this.render())
+      .then(
+        this.resolve ||
+          (result =>
+            this.context.single ? result.rows[0] || null : result.rows)
+      )
+      .then(onfulfilled, onrejected)
+  },
+})
+
 export namespace Query {
   export interface Context {
     db: Database | null
@@ -129,10 +119,3 @@ export type Node<T extends Query = any, Type extends string = any> = {
   readonly query: T
   readonly props: T extends Query<infer Props> ? Props : never
 }
-
-export type AnyNodeType = AnyNode extends { type: infer Type } ? Type : never
-export type AnyNode =
-  | Node<Count, 'count'>
-  | Node<Put, 'put'>
-  | Node<Select, 'select'>
-  | Node<Delete, 'delete'>

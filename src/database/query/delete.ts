@@ -5,7 +5,6 @@ import { kTableName } from '../symbols'
 import { TableRef } from '../table'
 import { TokenArray } from '../token'
 import { tokenizeWhere } from '../tokenize'
-import { Type } from '../type'
 import { where, Where } from './where'
 
 type Props = {
@@ -43,4 +42,4 @@ export class Delete<From extends TableRef = any> extends Query<
   }
 }
 
-export interface Delete<From> extends Type<any, number> {}
+export interface Delete<From> extends PromiseLike<number> {}
