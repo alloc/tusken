@@ -1,5 +1,6 @@
 import { isObject } from '../utils/isObject'
 import { Query, ValidQuery } from './query'
+import { Count } from './query/count'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select, Selectable, SelectedRow } from './query/select'
@@ -29,6 +30,14 @@ export class Database {
     this.client = config.client
   }
 
+  count<From extends TableRef>(from: From): ValidQuery<number> {
+    return this.query({
+      type: 'count',
+      query: new Count(this),
+      props: { from },
+    })
+  }
+
   delete<From extends TableRef>(from: From): Delete<From>
   delete<From extends TableRef>(
     from: From,
@@ -53,11 +62,9 @@ export class Database {
    */
   find<T extends Selectable>(
     from: T,
-    compose: Where<[T]>
+    filter: Where<[T]>
   ): ValidQuery<SelectedRow<T> | null> {
-    const query = this.select(from).where(compose).limit(1)
-    query['resolve'] = res => res.rows[0] || null
-    return query as any
+    return this.select(from).where(filter).at(0) as any
   }
 
   /**

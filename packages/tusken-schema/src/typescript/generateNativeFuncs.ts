@@ -1,5 +1,4 @@
 import endent from 'endent'
-import type { ExpressionTypeName } from 'tusken'
 import type { NativeFunc } from '../extract/extractFuncs'
 
 export function generateNativeFuncs(
@@ -91,6 +90,10 @@ export function generateNativeFuncs(
             fn.strict && fn.argTypes.length > 0 && !hasVoidReturn
           const hasNullableOverload = isNullable && !!fn.returnType
 
+          if (fn.kind == 'a') {
+            signature.push('// AGGREGATE FUNCTION')
+          }
+
           if (!hasNullableOverload || !fn.returnSet) {
             if (!fn.returnType) {
               if (isNullable) {
@@ -141,9 +144,14 @@ export function generateNativeFuncs(
           )
         }
 
-        const exprType: ExpressionTypeName | undefined = returnBool
-          ? 'bool'
-          : undefined
+        const fnConfig: string[] = []
+        if (returnBool) {
+          fnConfig.push('type: "bool"')
+        }
+        if (name == 'count') {
+          // Treat pg.count() like "SELECT COUNT(*)"
+          fnConfig.push('args: args => args.length ? args : ["*"]')
+        }
 
         return (
           summary +
@@ -151,7 +159,7 @@ export function generateNativeFuncs(
             ${constPrefix} ${name}: {
               ${summary + signature.join('\n')}
             } = define${returnSet ? 'Set' : ''}Function("${name}"${
-            exprType ? `, "${exprType}"` : ``
+            fnConfig.length ? `, {${fnConfig.join(', ')}}` : ``
           })${exportAlias}
           `
         )

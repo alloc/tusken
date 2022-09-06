@@ -1,5 +1,6 @@
 import type { ColumnRef } from './column'
 import type { BoolExpression, Expression, SetExpression } from './expression'
+import { CallExpression } from './function'
 import type { Selection } from './selection'
 import { kColumnFrom, kExprProps, kSelectionFrom, kTableName } from './symbols'
 import type { TableRef } from './table'
@@ -21,6 +22,11 @@ export abstract class Type<
 
 /** Convert a Postgres type to a JavaScript type */
 export type Value<T> = T extends Type<any, infer V> ? V : T
+
+/** Convert a Postgres object to a JavaScript object */
+export type Values<T extends object> = {
+  [P in keyof T]: Value<T[P]>
+}
 
 /** Allow both the Postgres type and its JavaScript type */
 export type Input<T> = T extends Type<any, infer Value> ? Value | T : T
@@ -76,4 +82,12 @@ export function isBoolExpression(val: any): val is BoolExpression {
 
 export function isSetExpression(val: any): val is SetExpression {
   return isExpression(val) && val[kExprProps].type == 'setof'
+}
+
+export function isCallExpression(
+  val: any,
+  callee?: string
+): val is CallExpression {
+  const props = isExpression(val) && val[kExprProps]
+  return props ? !callee || props.callee == callee : false
 }

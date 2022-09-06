@@ -21,20 +21,19 @@ export async function extractNativeFuncs(client: Client, types: NativeTypes) {
   )
 
   // TODO: need special implementations for these functions
-  const ignoredFuncs = [
-    'first_value',
-    'lag',
-    'last_value',
-    'lead',
-    'mode',
-    'nth_value',
-    'percentile_disc',
+  const hypotheticalSetFuncs = [
+    'cume_dist',
+    'dense_rank',
+    'percent_rank',
+    'rank',
   ]
+  const orderedSetFuncs = ['mode', 'percentile_cont', 'percentile_disc']
+  const ignoredFuncs = [...hypotheticalSetFuncs, ...orderedSetFuncs]
 
   const elementTypes = ['anyelement', 'anycompatible']
 
   return nativeFuncs.filter(fn => {
-    if (ignoredFuncs.includes(fn.name)) {
+    if (fn.kind == 'w' || ignoredFuncs.includes(fn.name)) {
       return
     }
 
