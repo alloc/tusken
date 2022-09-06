@@ -5,32 +5,42 @@ import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select, Selectable, SelectedRow } from './query/select'
 import { Where } from './query/where'
-import { QueryStream } from './stream'
+import { QueryStream, QueryStreamCursor } from './stream'
 import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
 
 export type ClientResult = { rows: any[]; rowCount?: number }
 export type Client = {
-  query: (query: string) => Promise<ClientResult>
+  query: {
+    (query: string): Promise<ClientResult>
+    <T>(cursor: QueryStreamCursor): QueryStream<T>
+  }
   end: () => Promise<void>
 }
 
 export class Database {
   protected [kDatabaseReserved]: string[]
-  protected [kDatabaseQueryStream]?: typeof QueryStream
+  protected [kDatabaseQueryStream]?: typeof QueryStreamCursor
   client: Client
 
   constructor(config: {
     client: Client
     reserved: string[]
-    QueryStream?: typeof QueryStream
+    QueryStream?: typeof QueryStreamCursor
   }) {
     this[kDatabaseReserved] = config.reserved
     this[kDatabaseQueryStream] = config.QueryStream
     this.client = config.client
   }
 
-  count<From extends TableRef>(from: From): ValidQuery<number> {
+  /**
+   * Count the number of rows in a selection. You can use the
+   * `where` and `innerJoin` methods to be more specific.
+   *
+   * You need to use `pg.count` instead if you want to check
+   * a specific column for `NULL` before counting a row.
+   */
+  count<From extends TableRef>(from: From) {
     return this.query({
       type: 'count',
       query: new Count(this),
