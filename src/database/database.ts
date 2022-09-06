@@ -1,9 +1,10 @@
 import { isObject } from '../utils/isObject'
 import { Query, ValidQuery } from './query'
+import { Selectable } from './query/abstract/select'
 import { Count } from './query/count'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
-import { Select, Selectable, SelectedRow } from './query/select'
+import { Select, SelectedRow } from './query/select'
 import { Where } from './query/where'
 import { QueryStream, QueryStreamCursor } from './stream'
 import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
@@ -86,7 +87,9 @@ export class Database {
     from: T,
     pk: PrimaryKey<T>
   ): ValidQuery<SelectedRow<T> | null> {
-    return this.find<any>(from, from => from[kPrimaryKey].eq(pk))
+    return this.find(from as Extract<T, TableRef>, from =>
+      from[kPrimaryKey].eq(pk)
+    )
   }
 
   /** https://www.postgresql.org/docs/current/sql-insert.html */

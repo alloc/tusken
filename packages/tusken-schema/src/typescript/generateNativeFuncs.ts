@@ -90,10 +90,6 @@ export function generateNativeFuncs(
             fn.strict && fn.argTypes.length > 0 && !hasVoidReturn
           const hasNullableOverload = isNullable && !!fn.returnType
 
-          if (fn.kind == 'a') {
-            signature.push('// AGGREGATE FUNCTION')
-          }
-
           if (!hasNullableOverload || !fn.returnSet) {
             if (!fn.returnType) {
               if (isNullable) {
@@ -147,10 +143,6 @@ export function generateNativeFuncs(
         const fnConfig: string[] = []
         if (returnBool) {
           fnConfig.push('type: "bool"')
-        }
-        if (name == 'count') {
-          // Treat pg.count() like "SELECT COUNT(*)"
-          fnConfig.push('args: args => args.length ? args : ["*"]')
         }
 
         return (
