@@ -28,7 +28,7 @@ importers:
 
   packages/tusken-cli:
     specifiers:
-      '@tusken/schema': ^0.1.0
+      '@tusken/schema': 1.0.0-alpha.2
       '@types/node': ^18.7.9
       '@types/pg': ^8.6.5
       cac: ^6.0.0
@@ -38,7 +38,7 @@ importers:
       misty: ^1.6.10
       pg: ^8.8.0
       tsup: ^6.2.2
-      tusken: workspace:^0.1.0
+      tusken: 1.0.0-alpha.2
       typescript: ^4.7.4
     dependencies:
       '@tusken/schema': link:../tusken-schema
@@ -67,7 +67,7 @@ importers:
       pg: ^8.8.0
       strict-event-emitter-types: ^2.0.0
       sucrase: ^3.25.0
-      tusken: workspace:^0.1.0
+      tusken: 1.0.0-alpha.2
       typescript: ^4.7.4
       unbuild: ^0.8.9
       vitest: ^0.22.1
