@@ -47,7 +47,8 @@
     "unbuild": "^0.8.9"
   },
   "dependencies": {
-    "@alloc/types": "^2.2.1"
+    "@alloc/types": "^2.2.1",
+    "@types/pg": "^8.6.5"
   },
   "peerDependencies": {
     "pg": ">=8.0.0",
