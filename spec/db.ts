@@ -1,10 +1,21 @@
+import fs from 'fs'
+import path from 'path'
 import * as pgMem from 'pg-mem'
-import db from './generated/test'
-
-export { default as db, pg, t } from './generated/test/index'
+import type { Database } from 'tusken'
 
 export const memDb = pgMem.newDb()
-db.client = {
-  query: text => Promise.resolve(memDb.public.query(text)),
-  async end() {},
+
+const db: Database = (await import('./generated/test/index.js')).default as any
+const { Client } = memDb.adapters.createPg()
+
+db.client = new Client()
+await db.client.query(loadSchema(), [])
+
+export { pg, t } from './generated/test'
+export { db }
+
+function loadSchema() {
+  const file = path.resolve(__dirname, './generated/test/schema.sql')
+  const schema = fs.readFileSync(file, 'utf8').split(';\n')
+  return schema.filter(stmt => !stmt.includes('OWNER TO')).join(';\n')
 }

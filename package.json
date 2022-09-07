@@ -6,7 +6,8 @@
   "scripts": {
     "build": "pnpm -r --no-bail build",
     "dev": "pnpm -r --no-bail --parallel dev",
-    "release": "dotenv -- multi-semantic-release --deps.release inherit"
+    "release": "dotenv -- multi-semantic-release --deps.release inherit",
+    "test": "vitest --watch"
   },
   "prettier": "@alloc/prettier-config",
   "devDependencies": {
@@ -16,8 +17,11 @@
     "conventional-changelog-conventionalcommits": "^5.0.0",
     "dotenv-cli": "^6.0.0",
     "multi-semantic-release": "^3.0.0",
+    "pg": "^8.8.0",
     "pg-mem": "^2.6.3",
+    "pg-query-stream": "^4.2.4",
     "prettier": "^2.7.1",
+    "tusken": "workspace:*",
     "typescript": "^4.7.4",
     "vitest": "^0.22.1"
   }
