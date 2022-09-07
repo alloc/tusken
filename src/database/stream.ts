@@ -8,13 +8,12 @@ export interface QueryStreamConfig {
   types?: any
 }
 
-export declare class QueryStreamCursor {
+export declare class QueryStream<T> {
   constructor(text: string, values?: any[], config?: QueryStreamConfig)
 }
 
-export interface QueryStreamCursor extends Submittable {}
-
 export interface QueryStream<T>
-  extends Omit<NodeJS.ReadableStream, typeof Symbol.asyncIterator> {
+  extends Submittable,
+    Omit<NodeJS.ReadableStream, typeof Symbol.asyncIterator> {
   [Symbol.asyncIterator](): AsyncIterableIterator<T>
 }

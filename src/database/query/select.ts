@@ -39,8 +39,14 @@ export class Select<From extends Selectable[] = any> //
       )
 
     const query = this.render()
-    const cursor = new QueryStream(query, values, config)
-    return db.client.query<SelectResult<From>>(cursor)
+    const queryStream = new QueryStream<any>(query, values, config)
+    return db.client.query<SelectResult<From>>(queryStream)
+  }
+
+  [Symbol.asyncIterator]() {
+    const stream = this.stream()
+    stream.once('readable', () => stream.resume())
+    return stream[Symbol.asyncIterator]()
   }
 }
 
