@@ -7,42 +7,46 @@ import { tokenize } from '../tokenize'
 
 type Props<T extends TableRef> = {
   table: T
-  row: Record<string, any>
+  data: Record<string, any> | readonly Record<string, any>[]
   pk?: any
 }
 
 export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
   protected tokens(props: Props<T>, ctx: Query.Context) {
-    let { table, row, pk } = props
-    const columns = Object.keys(row)
-    const values = Object.values(row)
-    if (pk) {
-      columns.unshift(table[kPrimaryKey])
-      values.unshift(pk)
-    } else {
-      pk = row[table[kPrimaryKey]]
+    let { table, data, pk } = props
+
+    const [columns, rows] = tokenizeRows(data, ctx)
+    if (!rows.length) {
+      throw Error('no rows to insert')
     }
+
+    const pkColumn = table[kPrimaryKey]
+    if (pk) {
+      columns.unshift(pkColumn)
+      rows[0].tuple.unshift(tokenize(pk, ctx))
+    }
+
     const insertion: TokenArray = [
       'INSERT INTO',
       { id: toTableName(table) },
       { tuple: columns },
       'VALUES',
-      { tuple: values.map(value => tokenize(value, ctx)) },
+      { list: rows },
     ]
-    if (pk) {
+
+    if (pk || columns.includes(pkColumn)) {
       insertion.push(
         'ON CONFLICT',
         { tuple: [table[kPrimaryKey]] },
         'DO UPDATE SET',
         {
-          list: Object.keys(row).map(k => [
-            { id: k },
-            '=',
-            { id: ['excluded', k] },
-          ]),
+          list: columns
+            .filter(column => column !== pkColumn)
+            .map(k => [{ id: k }, '=', { id: ['excluded', k] }]),
         }
       )
     }
+
     return insertion
   }
 
@@ -56,3 +60,28 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
 }
 
 export interface Put<T> extends PromiseLike<number> {}
+
+function tokenizeRows(data: Props<any>['data'], ctx: Query.Context) {
+  let columns!: string[]
+  const rows: { tuple: TokenArray }[] = []
+  for (const row of Array.isArray(data) ? data : [data]) {
+    const values: TokenArray = []
+    if (columns) {
+      const newColumns = new Set(columns.concat(Object.keys(row)))
+      for (const column of newColumns) {
+        values.push(tokenize(row[column], ctx))
+      }
+      if (newColumns.size > columns.length) {
+        columns = [...newColumns]
+      }
+    } else {
+      for (const column of (columns = Object.keys(row))) {
+        values.push(tokenize(row[column], ctx))
+      }
+    }
+    rows.push({
+      tuple: values,
+    })
+  }
+  return [columns, rows] as const
+}

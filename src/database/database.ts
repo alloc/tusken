@@ -1,4 +1,3 @@
-import { isObject } from '../utils/isObject'
 import { Query, ValidQuery } from './query'
 import { Count } from './query/count'
 import { Delete } from './query/delete'
@@ -106,7 +105,10 @@ export class Database {
   /**
    * Insert a row into the table.
    */
-  put<T extends TableRef>(table: T, row: RowInsertion<T>): Put<T>
+  put<T extends TableRef>(
+    table: T,
+    row: RowInsertion<T> | readonly RowInsertion<T>[]
+  ): Put<T>
 
   /**
    * Insert, update, or delete a row by its primary key.
@@ -117,17 +119,17 @@ export class Database {
     row: RowUpdate<T> | null
   ): Put<T>
 
-  put(table: TableRef, pk: any, row?: any) {
-    if (isObject(pk)) {
-      row = pk
+  put(table: TableRef, pk: any, data?: any) {
+    if (arguments.length == 2) {
+      data = pk
       pk = undefined
-    } else if (row === null) {
+    } else if (data === null) {
       return this.delete(table, pk)
     }
     return this.query({
       type: 'put',
       query: new Put(this),
-      props: { table, row, pk },
+      props: { table, data, pk },
     })
   }
 
