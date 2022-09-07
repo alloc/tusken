@@ -60,8 +60,14 @@ export interface Select<From>
   ): Select<[...From, Joined]>
 }
 
-type SelectResult<From extends Selectable[]> = SelectedRow<From[number]>
-type SelectResults<From extends Selectable[]> = SelectResult<From>[]
+type SelectResult<From extends Selectable[]> = SelectedRow<
+  From[number]
+> extends infer Result
+  ? Extract<Result, object>
+  : never
+
+type SelectResults<From extends Selectable[]> =
+  SelectResult<From>[] extends infer Result ? Extract<Result, object[]> : never
 
 /** Note that `T` must be a union, not an array type. */
 export type SelectedRow<T> = unknown &

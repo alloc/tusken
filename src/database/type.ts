@@ -1,3 +1,4 @@
+import { Intersect, Remap } from '@alloc/types'
 import type { ColumnRef } from './column'
 import type { BoolExpression, Expression, SetExpression } from './expression'
 import { CallExpression } from './function'
@@ -24,10 +25,18 @@ export abstract class Type<
 export type Value<T> = T extends Type<any, infer V> ? V : T
 
 /** Convert a Postgres object to a JavaScript object */
-export type Values<T extends object> = {
-  [P in keyof T]: Value<T[P]>
-} extends infer Values
-  ? Values
+export type Values<T extends object> = Intersect<
+  keyof T extends infer Column
+    ? Column extends keyof T
+      ? T[Column] extends Type<any, infer Value>
+        ? undefined extends Value
+          ? { [P in Column]?: Value }
+          : { [P in Column]: Value }
+        : never
+      : never
+    : never
+> extends infer Values
+  ? Remap<Values>
   : never
 
 /** Allow both the Postgres type and its JavaScript type */
