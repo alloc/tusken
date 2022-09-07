@@ -35,12 +35,11 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
         { tuple: [table[kPrimaryKey]] },
         'DO UPDATE SET',
         {
-          join: Object.keys(row).map(k => [
+          list: Object.keys(row).map(k => [
             { id: k },
             '=',
             { id: ['excluded', k] },
           ]),
-          with: ', ',
         }
       )
     }

@@ -18,41 +18,26 @@ import {
 /**
  * Safely coerce a user-defined value to a SQL token.
  */
-export function tokenize(val: any, ctx: Query.Context): Token | TokenArray {
-  if (val == null || typeof val !== 'object') {
-    if (typeof val == 'number') {
-      return String(val)
+export function tokenize(value: any, ctx: Query.Context): Token | TokenArray {
+  if (value == null || typeof value !== 'object') {
+    if (typeof value == 'number') {
+      return String(value)
     }
-    return { literal: val }
+    return { literal: value }
   }
-  if (Array.isArray(val)) {
-    return tokenizeArray(val, ctx)
+  if (!Array.isArray(value) && !Buffer.isBuffer(value)) {
+    if (isExpression(value)) {
+      return tokenizeExpression(value, ctx)
+    }
+    if (value instanceof Query) {
+      return { query: value }
+    }
+    if (value instanceof CheckBuilder) {
+      return tokenize(value['left'], ctx)
+    }
   }
-  if (isExpression(val)) {
-    return tokenizeExpression(val, ctx)
-  }
-  if (val instanceof Query) {
-    // Expressions inherit a query context, but subqueries don't.
-    const isExpr = val instanceof Expression
-    const tokens = val.tokenize(isExpr ? ctx : undefined)
-    return isExpr ? tokens : ['(', tokens, ')']
-  }
-  if (val instanceof CheckBuilder) {
-    return tokenize(val['left'], ctx)
-  }
-  throw Error('Value could not be tokenized: ' + val)
-}
-
-export function tokenizeArray(val: any[], ctx: Query.Context) {
-  const { inArray } = ctx
-  ctx.inArray = true
-  const tokens: TokenArray = [
-    inArray ? '[' : 'ARRAY[',
-    val.map(elem => tokenize(elem, ctx)),
-    ']',
-  ]
-  ctx.inArray = inArray
-  return tokens
+  // Let node-postgres handle the serialization.
+  return { value }
 }
 
 export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
@@ -66,7 +51,7 @@ export function tokenizeSelectedColumns(
   const args = selection[kSelectionArgs]
   if (Array.isArray(args)) {
     return {
-      join: args.map(arg => {
+      list: args.map(arg => {
         if (typeof arg == 'string') {
           return { id: arg }
         }
@@ -75,7 +60,6 @@ export function tokenizeSelectedColumns(
         }
         return tokenizeAliasMapping(arg, ctx)
       }),
-      with: ', ',
     }
   }
   if (isExpression(args)) {
@@ -104,14 +88,7 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
   // This allows for overriding of operator precedence.
   if (isBoolExpression(left)) {
     const expr = tokenizeExpression(left, ctx)
-    tokens.push(
-      isCallExpression(left)
-        ? expr
-        : {
-            join: ['(', expr, ')'],
-            with: '',
-          }
-    )
+    tokens.push(isCallExpression(left) ? expr : { concat: ['(', expr, ')'] })
   }
   // Some checks have a check as their left side. (eg AND, OR)
   else if (left instanceof Check) {
@@ -147,7 +124,7 @@ export function tokenizeSelected(
   return selections.every(isTableRef)
     ? '*'
     : {
-        join: selections.map(selection => {
+        list: selections.map(selection => {
           if (isTableRef(selection)) {
             return {
               id: [selection[kTableName], '*'],
@@ -158,7 +135,6 @@ export function tokenizeSelected(
           }
           return tokenizeExpression(selection, ctx)
         }),
-        with: ', ',
       }
 }
 

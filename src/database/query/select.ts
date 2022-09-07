@@ -29,8 +29,9 @@ export class Select<From extends Selectable[] = any> //
     return this
   }
 
-  stream(config?: QueryStreamConfig | null) {
-    const db = this.context.db!
+  stream(config?: QueryStreamConfig) {
+    const { db, values } = this.context
+
     const QueryStream = db[kDatabaseQueryStream]
     if (!QueryStream)
       throw Error(
@@ -38,7 +39,7 @@ export class Select<From extends Selectable[] = any> //
       )
 
     const query = this.render()
-    const cursor = new QueryStream(query, undefined, config || undefined)
+    const cursor = new QueryStream(query, values, config)
     return db.client.query<SelectResult<From>>(cursor)
   }
 }

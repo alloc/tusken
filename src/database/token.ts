@@ -1,38 +1,41 @@
 import { Exclusive } from '@alloc/types'
-import type { Database } from './database'
 import { Query } from './query'
 import { kDatabaseReserved } from './symbols'
 
-/** Format like %I */
-export type Identifier = { id: any }
+/** Coerce into a string, buffer, or null */
+type Value = { value: any }
 
-/** Format like %L */
-export type Literal = { literal: any }
+/** Format with `%I` like sprintf */
+type Identifier = { id: any }
 
-/** Format like %s */
-export type Stringify = { string: any }
+/** Format with `%L` like sprintf */
+type Literal = { literal: any }
 
 /** Coerce into a number, throw if `NaN` */
-export type Numeric = { number: any }
+type Numeric = { number: any }
 
-/** Join token list with a character */
-export type StringJoin = { join: TokenArray; with: string }
+/** Join tokens with an empty string */
+type Concat = { concat: TokenArray }
 
-/** Join token list with commas and wrap with parentheses */
-export type Tuple = { tuple: TokenArray }
+/** A comma-separated list */
+type List = { list: TokenArray }
 
-export type Call = { callee: string; args?: TokenArray }
+/** A comma-separated list with parentheses around it */
+type Tuple = { tuple: TokenArray }
 
-export type SubQuery = { query: Query }
+type Call = { callee: string; args?: TokenArray }
+
+type SubQuery = { query: Query }
 
 export type Token =
   | string
   | Exclusive<
+      | Value
       | Identifier
       | Literal
-      | Stringify
       | Numeric
-      | StringJoin
+      | Concat
+      | List
       | Tuple
       | Call
       | SubQuery
@@ -43,37 +46,6 @@ export type TokenProducer<Props extends object | null = any> = (
   props: Props,
   ctx: Query.Context
 ) => TokenArray
-
-export function renderToken(token: Token, ctx: Query.Context): string {
-  return typeof token == 'string'
-    ? token
-    : 'id' in token
-    ? Array.isArray(token.id)
-      ? token.id.map(mapToIdent, ctx.db).join('.')
-      : toIdentifier(token.id, ctx.db!)
-    : 'literal' in token
-    ? toLiteral(token.literal)
-    : 'string' in token
-    ? toString(token.string)
-    : 'number' in token
-    ? toNumber(token.number)
-    : token.join
-    ? token.join
-        .map(t =>
-          Array.isArray(t)
-            ? renderTokens(t, ctx).join(' ')
-            : renderToken(t, ctx)
-        )
-        .join(token.with)
-    : token.callee
-    ? token.callee +
-      (token.args ? `(${renderTokens(token.args, ctx).join(', ')})` : ``)
-    : `(${
-        token.query
-          ? token.query.render()
-          : renderTokens(token.tuple!, ctx).join(', ')
-      })`
-}
 
 export function renderTokens(
   tokens: TokenArray,
@@ -93,8 +65,47 @@ export function renderTokens(
   return sql
 }
 
-function mapToIdent(this: Database, val: any) {
-  return toIdentifier(val, this)
+function renderToken(token: Token, ctx: Query.Context): string {
+  return typeof token == 'string'
+    ? token
+    : 'value' in token
+    ? '$' + ctx.values.push(token.value)
+    : 'id' in token
+    ? Array.isArray(token.id)
+      ? token.id.map(mapStringToIdentifier, ctx).join('.')
+      : toIdentifier(token.id, ctx)
+    : 'callee' in token
+    ? toIdentifier(token.callee, ctx) +
+      (token.args ? `(${renderTokens(token.args, ctx).join(', ')})` : ``)
+    : 'literal' in token
+    ? toLiteral(token.literal)
+    : 'number' in token
+    ? toNumber(token.number)
+    : token.query
+    ? `(${token.query.render()})`
+    : renderList(token, ctx)
+}
+
+function renderList(
+  token: Exclusive<List | Concat | Tuple>,
+  ctx: Query.Context
+): string {
+  const tokens = (token.list || token.concat || token.tuple).map(
+    mapTokensToSql,
+    ctx
+  )
+  const sql = tokens.join(token.concat ? '' : ', ')
+  return token.tuple ? `(${sql})` : sql
+}
+
+function mapTokensToSql(this: Query.Context, arg: Token | TokenArray) {
+  return Array.isArray(arg)
+    ? renderTokens(arg, this).join(' ')
+    : renderToken(arg, this)
+}
+
+function mapStringToIdentifier(this: Query.Context, arg: any) {
+  return toIdentifier(arg, this)
 }
 
 // https://github.com/segmentio/pg-escape/blob/780350b461f4f2ab50ca8b5aafcbb57433835f6b/index.js
@@ -115,15 +126,13 @@ function toLiteral(val: any): string {
   )
 }
 
-function toIdentifier(val: any, db: Database): string {
-  val = String(val).replace(/"/g, '""')
-  return /[A-Z\s]/.test(val) || db[kDatabaseReserved].includes(val)
-    ? '"' + val + '"'
-    : val
-}
+const capitalOrSpace = /[A-Z\s]/
 
-function toString(val: any) {
-  return val == null ? '' : String(val)
+function toIdentifier(val: any, { db }: Query.Context): string {
+  val = String(val).replace(/"/g, '""')
+  return capitalOrSpace.test(val) || db[kDatabaseReserved].includes(val)
+    ? `"${val}"`
+    : val
 }
 
 function toNumber(val: any) {

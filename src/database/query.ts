@@ -19,7 +19,7 @@ export abstract class Query<
     return this.context.nodes[this.position].props as any
   }
 
-  constructor(parent?: Query | Database | null) {
+  constructor(parent: Query | Database) {
     if (parent instanceof Query) {
       // Assume our node will be added next.
       this.position = parent.context.nodes.length
@@ -27,8 +27,9 @@ export abstract class Query<
     } else {
       this.position = 0
       this.context = {
-        db: parent || null,
+        db: parent,
         nodes: [],
+        values: [],
       }
     }
   }
@@ -89,12 +90,10 @@ export abstract class Query<
 // interface will not be awaitable, thus avoiding incomplete queries.
 Object.defineProperty(Query.prototype, 'then', {
   value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
-    const { db } = this.context
-    if (!db) {
-      throw Error('Query not associated with a database')
-    }
+    const { db, values } = this.context
+    const query = this.render()
     return db.client
-      .query(this.render())
+      .query(query, values)
       .then(
         this.resolve ||
           (result =>
@@ -106,8 +105,10 @@ Object.defineProperty(Query.prototype, 'then', {
 
 export namespace Query {
   export interface Context {
-    db: Database | null
+    db: Database
     nodes: Node<Query>[]
+    /** Not populated until the query is rendered. */
+    values: any[]
     single?: boolean
     select?: SelectProps
     inArray?: boolean

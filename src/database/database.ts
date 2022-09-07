@@ -12,7 +12,7 @@ import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
 export type ClientResult = { rows: any[]; rowCount?: number }
 export type Client = {
   query: {
-    (query: string): Promise<ClientResult>
+    (query: string, values: any[]): Promise<ClientResult>
     <T>(cursor: QueryStreamCursor): QueryStream<T>
   }
   end: () => Promise<void>
