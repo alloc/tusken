@@ -34,7 +34,13 @@ export type RowType<T> = T extends Selection<any, infer From>
 
 type RowInput<T extends TableRef> = RowType<T> extends infer Row
   ? Row extends object
-    ? { [Column in keyof Row]: ColumnInput<ColumnType<Row, Column>> }
+    ? {
+        [Column in keyof Row]: ColumnType<Row, Column> extends infer T
+          ? T extends Type<'json' | 'jsonb'>
+            ? any
+            : ColumnInput<T>
+          : never
+      }
     : never
   : never
 
