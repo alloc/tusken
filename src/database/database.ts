@@ -18,16 +18,18 @@ export type Client = {
   end: () => Promise<void>
 }
 
+export interface DatabaseConfig {
+  client: Client
+  reserved: string[]
+  QueryStream?: typeof QueryStream
+}
+
 export class Database {
   protected [kDatabaseReserved]: string[]
   protected [kDatabaseQueryStream]?: typeof QueryStream
   client: Client
 
-  constructor(config: {
-    client: Client
-    reserved: string[]
-    QueryStream?: typeof QueryStream
-  }) {
+  constructor(config: DatabaseConfig) {
     this[kDatabaseReserved] = config.reserved
     this[kDatabaseQueryStream] = config.QueryStream
     this.client = config.client
