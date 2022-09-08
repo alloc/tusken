@@ -34,7 +34,11 @@ export function loadConfig(configPath?: string, database?: string) {
     const load = jiti(__filename, { interopDefault: true, esmResolve: true })
     config = load(path.resolve(configPath))
     if (config) {
-      config.connection = { ...defaultConnection, ...config.connection }
+      // The connectionString option is overridden by the other options,
+      // so we need to omit the defaultConnection in that case.
+      if (!config.connection?.connectionString) {
+        config.connection = { ...defaultConnection, ...config.connection }
+      }
       cwd = path.dirname(configPath)
     }
   }
@@ -47,9 +51,6 @@ export function loadConfig(configPath?: string, database?: string) {
 
   if (database) {
     config.connection.database = database
-  } else if (!config.connection.database) {
-    console.error('The --database option is required')
-    process.exit(1)
   }
 
   config.schemaDir = config.schemaDir
