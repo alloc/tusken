@@ -1,3 +1,4 @@
+import { Client, ConnectFn, ConnectOptions } from './connection'
 import { Query, ValidQuery } from './query'
 import { Count } from './query/count'
 import { Delete } from './query/delete'
@@ -8,17 +9,9 @@ import { QueryStream } from './stream'
 import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
 import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
 
-export type ClientResult = { rows: any[]; rowCount?: number }
-export type Client = {
-  query: {
-    (query: string, values: any[]): Promise<ClientResult>
-    <T>(stream: QueryStream<T>): QueryStream<T>
-  }
-  end: () => Promise<void>
-}
-
 export interface DatabaseConfig {
   client: Client
+  connect: ConnectFn
   reserved: string[]
   QueryStream?: typeof QueryStream
 }
@@ -26,12 +19,18 @@ export interface DatabaseConfig {
 export class Database {
   protected [kDatabaseReserved]: string[]
   protected [kDatabaseQueryStream]?: typeof QueryStream
+  readonly connect: (opts: ConnectOptions) => Database
   client: Client
 
   constructor(config: DatabaseConfig) {
     this[kDatabaseReserved] = config.reserved
     this[kDatabaseQueryStream] = config.QueryStream
     this.client = config.client
+    this.connect = opts =>
+      new Database({
+        ...config,
+        client: config.connect(opts),
+      })
   }
 
   /**

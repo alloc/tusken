@@ -1,6 +1,5 @@
-import { ClientResult } from '../database'
 import { BoolExpression } from '../expression'
-import { Query } from '../query'
+import { Query, QueryResult } from '../query'
 import { kTableName } from '../symbols'
 import { TableRef } from '../table'
 import { TokenArray } from '../token'
@@ -37,7 +36,7 @@ export class Delete<From extends TableRef = any> extends Query<
     throw Error('not implemented')
   }
 
-  protected resolve(result: ClientResult) {
+  protected resolve(result: QueryResult) {
     return result.rowCount
   }
 }

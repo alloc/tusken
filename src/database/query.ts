@@ -1,4 +1,4 @@
-import type { ClientResult, Database } from './database'
+import type { Database } from './database'
 import type { SelectProps } from './query/select'
 import { renderTokens, TokenArray } from './token'
 
@@ -7,6 +7,8 @@ export type ValidQuery<T = any, Command extends string = any> = unknown &
   PromiseLike<T>
 
 const kQueryCommand = Symbol()
+
+export type QueryResult = { rows: Record<string, any>[]; rowCount?: number }
 
 export abstract class Query<
   Props extends object | null = any,
@@ -56,7 +58,7 @@ export abstract class Query<
   /**
    * Modify the query promise before the caller receives it.
    */
-  protected resolve?(result: ClientResult): any
+  protected resolve?(result: QueryResult): any
 
   /**
    * Modify the context before tokens are generated. The `context` phase

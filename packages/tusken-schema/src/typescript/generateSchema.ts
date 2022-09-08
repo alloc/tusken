@@ -84,24 +84,25 @@ export function generateTypeSchema(
       .join(', ')}]`,
   ]
 
+  let configArgument: string
   if (configPath) {
     configPath = path.relative(outDir, configPath).replace(/\.ts$/, '')
     header.push(`import config from '${configPath}'`)
-    databaseProps.push(endent`
-      client: process.env.NODE_ENV == 'test'
-        ? null! // Set "db.client" in your test setup file.
-        : new Pool({
-            ...config.connection,
-            ...config.pool,
-          })
-    `)
+    configArgument = endent`
+      { ...config.connection, ...config.pool }
+    `
   } else {
-    databaseProps.push(endent`
-      client: process.env.NODE_ENV == 'test' 
-        ? null! // Set "db.client" in your test setup file.
-        : new Pool(${dataToEsm(config, '')})
-    `)
+    configArgument = dataToEsm(config, '')
   }
+
+  databaseProps.push(endent`
+    connect: opts => new Pool({ ...opts${
+      configPath ? ', ...config.pool ' : ''
+    }}),
+    client: process.env.NODE_ENV == 'test'
+      ? null! // Set "db.client" in your test setup file.
+      : new Pool(${configArgument})
+  `)
 
   if (isQueryStreamInstalled(outDir)) {
     header.push('import QueryStream from "pg-query-stream"')

@@ -1,5 +1,4 @@
-import { ClientResult } from '../database'
-import { Query } from '../query'
+import { Query, QueryResult } from '../query'
 import { kPrimaryKey } from '../symbols'
 import { TableRef, toTableName } from '../table'
 import { Token, TokenArray } from '../token'
@@ -66,7 +65,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
     throw Error('not implemented')
   }
 
-  protected resolve(result: ClientResult) {
+  protected resolve(result: QueryResult) {
     return result.rowCount
   }
 }

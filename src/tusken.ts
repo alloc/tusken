@@ -1,4 +1,5 @@
 export * from './database/column'
+export * from './database/connection'
 export * from './database/database'
 export * from './database/expression'
 export * from './database/function'
