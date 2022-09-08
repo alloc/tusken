@@ -22,16 +22,20 @@ export abstract class Type<
 }
 
 /** Convert a Postgres type to a JavaScript type */
-export type Value<T> = T extends Type<any, infer V> ? V : T
+export type Value<T> = T extends any
+  ? T extends Type<any, infer V>
+    ? V
+    : T
+  : never
 
-/** Convert a Postgres object to a JavaScript object */
+/** Convert a Postgres row to a JavaScript object */
 export type Values<T extends object> = Intersect<
   keyof T extends infer Column
     ? Column extends keyof T
-      ? T[Column] extends Type<any, infer Value>
-        ? undefined extends Value
-          ? { [P in Column]?: Value }
-          : { [P in Column]: Value }
+      ? Value<T[Column]> extends infer ColumnValue
+        ? undefined extends ColumnValue
+          ? { [P in Column]?: ColumnValue }
+          : { [P in Column]: ColumnValue }
         : never
       : never
     : never
