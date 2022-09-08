@@ -154,12 +154,6 @@ await db.select(t.author).innerJoin(
 
 This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but they will be at some point (contributors welcome).
 
-- `Database#putBatch` method
-  - like `.batch` but for batching rows (of the same table) into one `INSERT` query until flushed or the size limit is reached
-- transactions
-- query streams
-  - the CLI will detect if `pg-query-stream` is installed
-- `ANY` and `SOME` operators
 - math operators
 - enum types
 - domain types
@@ -167,6 +161,8 @@ This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but 
 - more geometry types
 - array-based primary key
 - multiple primary keys in one row
+- `ANY` and `SOME` operators
+- transactions
 - explicit [locking](https://www.postgresql.org/docs/current/explicit-locking.html)
 - views & [materialized views](https://www.postgresql.org/docs/14/rules-materializedviews.html)
 - table [inheritance](https://www.postgresql.org/docs/current/tutorial-inheritance.html)
