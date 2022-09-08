@@ -84,13 +84,21 @@ async function dumpSqlSchema(conn: ClientConfig) {
   const password =
     typeof conn.password == 'function' ? await conn.password() : conn.password
 
-  const env = {
+  const env: any = {
     ...process.env,
     PGPASSWORD: password,
   }
 
+  let database = conn.connectionString
+  if (!database) {
+    database = conn.database
+    env.PGUSER = conn.user
+    env.PGHOST = conn.host
+    env.PGPORT = conn.port
+  }
+
   const { stdout, stderr } = await promisify(exec)(
-    `pg_dump -h ${conn.host} -p ${conn.port} -U "${conn.user}" "${conn.database}" --schema-only -E utf8`,
+    `pg_dump "${database}" --schema-only -E utf8`,
     { encoding: 'utf8', env }
   )
 
