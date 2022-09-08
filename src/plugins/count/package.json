@@ -1,0 +1,9 @@
+{
+  "name": "@tusken/plugin-count",
+  "version": "1.0.0-alpha.3",
+  "main": "plugin.ts",
+  "dependencies": {
+    "@tusken/plugin": "workspace:1.0.0-alpha.3",
+    "@tusken/core": "workspace:1.0.0-alpha.3"
+  }
+}

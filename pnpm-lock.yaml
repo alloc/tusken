@@ -61,6 +61,16 @@ importers:
       tusken: link:../../src
       typescript: 4.8.2
 
+  packages/tusken-plugin:
+    specifiers:
+      tusken: 1.0.0-alpha.3
+      typescript: ^4.7.4
+      unbuild: ^0.8.9
+    devDependencies:
+      tusken: link:../../src
+      typescript: 4.8.2
+      unbuild: 0.8.9
+
   packages/tusken-schema:
     specifiers:
       '@types/cheerio': ^0.22.31
@@ -110,6 +120,17 @@ importers:
       postgres-interval: 4.0.0
       postgres-range: 1.1.3
       unbuild: 0.8.9
+
+  src/core:
+    specifiers: {}
+
+  src/plugins/count:
+    specifiers:
+      '@tusken/core': workspace:1.0.0-alpha.3
+      '@tusken/plugin': workspace:1.0.0-alpha.3
+    dependencies:
+      '@tusken/core': link:../../core
+      '@tusken/plugin': link:../../../packages/tusken-plugin
 
 packages:
 

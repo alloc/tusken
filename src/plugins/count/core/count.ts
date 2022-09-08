@@ -1,7 +1,11 @@
-import { ClientResult } from '../database'
-import { Query } from '../query'
-import { AbstractSelect, Selectable, SelectProps } from './abstract/select'
-import { Where } from './where'
+import {
+  AbstractSelect,
+  ClientResult,
+  Query,
+  Selectable,
+  SelectProps,
+  Where,
+} from '@tusken/core'
 
 export class Count<From extends Selectable[]> //
   extends AbstractSelect<From, 'count'>

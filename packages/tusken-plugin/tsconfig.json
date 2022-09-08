@@ -1,0 +1,3 @@
+{
+  "extends": "../tusken-schema/tsconfig.json"
+}

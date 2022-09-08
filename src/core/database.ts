@@ -1,5 +1,4 @@
 import { Query, ValidQuery } from './query'
-import { Count } from './query/count'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select, Selectable, SelectedRow } from './query/select'
@@ -32,21 +31,6 @@ export class Database {
     this[kDatabaseReserved] = config.reserved
     this[kDatabaseQueryStream] = config.QueryStream
     this.client = config.client
-  }
-
-  /**
-   * Count the number of rows in a selection. You can use the
-   * `where` and `innerJoin` methods to be more specific.
-   *
-   * You need to use `pg.count` instead if you want to check
-   * a specific column for `NULL` before counting a row.
-   */
-  count<From extends TableRef>(from: From) {
-    return this.query({
-      type: 'count',
-      query: new Count(this),
-      props: { from },
-    })
   }
 
   delete<From extends TableRef>(from: From): Delete<From>
