@@ -1,7 +1,5 @@
 import { defineBuildConfig } from 'unbuild'
 
-const pkg = require('./package.json')
-
 export default defineBuildConfig({
   entries: ['src/index'],
   externals: ['pg'],
