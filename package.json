@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm -r --no-bail build",
     "dev": "pnpm -r --no-bail --parallel dev",
-    "release": "dotenv -- multi-semantic-release --deps.release inherit",
+    "release": "pnpm -r build && dotenv -- multi-semantic-release --deps.release inherit",
     "test": "vitest --watch"
   },
   "prettier": "@alloc/prettier-config",
