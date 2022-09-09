@@ -1,6 +1,8 @@
 import endent from 'endent'
 import type { NativeFunc } from '../extract/extractFuncs'
 
+const __PURE__ = '/*#__PURE__*/'
+
 export function generateNativeFuncs(
   nativeFuncs: NativeFunc[],
   docs: Record<string, string>
@@ -135,7 +137,7 @@ export function generateNativeFuncs(
             endent`
               ${constPrefix} ${name}: ${renderOutput(
               fn
-            )} = defineFunction("${name}", "var")()${exportAlias}
+            )} = ${__PURE__} defineFunction("${name}", "var")()${exportAlias}
             `
           )
         }
@@ -150,7 +152,7 @@ export function generateNativeFuncs(
           endent`
             ${constPrefix} ${name}: {
               ${summary + signature.join('\n')}
-            } = define${returnSet ? 'Set' : ''}Function("${name}"${
+            } = ${__PURE__} define${returnSet ? 'Set' : ''}Function("${name}"${
             fnConfig.length ? `, {${fnConfig.join(', ')}}` : ``
           })${exportAlias}
           `
