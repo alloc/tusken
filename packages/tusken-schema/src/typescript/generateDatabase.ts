@@ -11,7 +11,7 @@ import { reservedWords } from './reservedWords'
 const quoted = (s: string) => `"${s}"`
 const toExport = (stmt: string) => `export ${stmt}`
 
-export function generateTypeSchema(
+export function generateDatabase(
   schema: Schema,
   nativeTypes: GeneratedLines,
   outDir: string,

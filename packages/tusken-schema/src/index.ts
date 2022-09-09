@@ -7,9 +7,9 @@ import { StrictEventEmitter } from 'strict-event-emitter-types'
 import { promisify } from 'util'
 import { ClientConfig } from './config'
 import { extractTypes } from './extract'
+import { generateDatabase } from './typescript/generateDatabase'
 import { generateNativeFuncs } from './typescript/generateNativeFuncs'
 import { generateNativeTypes } from './typescript/generateNativeTypes'
-import { generateTypeSchema } from './typescript/generateSchema'
 
 type Events = {
   extractStart: () => void
@@ -47,7 +47,7 @@ export function generate(
 
       generator.emit('generateStart')
 
-      const files = generateTypeSchema(
+      const files = generateDatabase(
         extracted.public,
         generateNativeTypes(nativeTypes, nativeCasts, tuskenId),
         outDir,
