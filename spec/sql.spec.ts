@@ -71,6 +71,84 @@ describe('db.select', () => {
       )
     })
   })
+
+  describe('.orderBy', () => {
+    test('with single column ref', () => {
+      expect(
+        db
+          .select(t.user)
+          .orderBy(user => user.name)
+          .render()
+      ).toMatchInlineSnapshot('"SELECT * FROM \\"user\\" ORDER BY name"')
+    })
+    test('inner join with single column ref', () => {
+      expect(
+        db
+          .select(t.user)
+          .innerJoin(t.like, ({ user, like }) => user.id.equalTo(like.author))
+          .orderBy(({ user }) => user.name)
+          .render()
+      ).toMatchInlineSnapshot(
+        '"SELECT * FROM \\"user\\" INNER JOIN \\"like\\" ON \\"user\\".id = \\"like\\".author ORDER BY \\"user\\".name"'
+      )
+    })
+    test('descending sort', () => {
+      expect(
+        db
+          .select(t.user)
+          .orderBy(user => [{ desc: user.name }])
+          .render()
+      ).toMatchInlineSnapshot('"SELECT * FROM \\"user\\" ORDER BY name DESC"')
+    })
+    test('descending sort, nulls last', () => {
+      expect(
+        db
+          .select(t.user)
+          .orderBy(user => [{ desc: user.name, nulls: 'last' }])
+          .render()
+      ).toMatchInlineSnapshot(
+        '"SELECT * FROM \\"user\\" ORDER BY name DESC NULLS LAST"'
+      )
+    })
+    test('ascending sort, nulls first', () => {
+      expect(
+        db
+          .select(t.user)
+          .orderBy(user => ({ asc: user.name, nulls: 'first' }))
+          .render()
+      ).toMatchInlineSnapshot(
+        '"SELECT * FROM \\"user\\" ORDER BY name NULLS FIRST"'
+      )
+    })
+    test('with multiple column refs', () => {
+      expect(
+        db
+          .select(t.user)
+          .orderBy(user => [{ desc: user.joinedAt }, { asc: user.id }])
+          .render()
+      ).toMatchInlineSnapshot(
+        '"SELECT * FROM \\"user\\" ORDER BY \\"joinedAt\\" DESC, id"'
+      )
+    })
+    test('with function call', () => {
+      expect(
+        db
+          .select(t.user)
+          .orderBy(user => pg.upper(user.name))
+          .render()
+      ).toMatchInlineSnapshot('"SELECT * FROM \\"user\\" ORDER BY upper(name)"')
+    })
+    test('with selection ref', () => {
+      expect(
+        db
+          .select(t.user(user => pg.upper(user.name)))
+          .orderBy('upper')
+          .render()
+      ).toMatchInlineSnapshot(
+        '"SELECT upper(name) FROM \\"user\\" ORDER BY upper"'
+      )
+    })
+  })
 })
 
 describe('db.put', () => {
@@ -103,7 +181,9 @@ describe('db.put', () => {
     // What if a column exists but is undefined?
     expect(
       db.put(t.user, [{ name: 'robin', bio: undefined }]).render()
-    ).toMatchInlineSnapshot('"INSERT INTO \\"user\\" (name, bio) VALUES (\'robin\', DEFAULT)"')
+    ).toMatchInlineSnapshot(
+      '"INSERT INTO \\"user\\" (name, bio) VALUES (\'robin\', DEFAULT)"'
+    )
 
     // What if an earlier row is missing a column?
     expect(

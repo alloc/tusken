@@ -1,3 +1,4 @@
+import { toArray } from '../../utils/toArray'
 import { Query, QueryResult } from '../query'
 import { kPrimaryKey } from '../symbols'
 import { TableRef, toTableName } from '../table'
@@ -80,7 +81,7 @@ function tokenizeRows(data: Props<any>['data'], ctx: Query.Context) {
   const nulls = new Set<string>()
 
   let columns!: string[]
-  for (const row of Array.isArray(data) ? data : [data]) {
+  for (const row of toArray(data)) {
     const values: TokenArray = []
     if (columns) {
       const newColumns = new Set(columns.concat(Object.keys(row)))

@@ -12,18 +12,22 @@ export function makeSelector<T extends SelectionSource>(
         const column = makeColumnRef(from, onlyColumn())
         return new Selection(select(column), from)
       }) as T)
-    : (((selector: any): any => {
-        const pkColumn: string = (type as any)[kPrimaryKey]
-        const columns: any = new Proxy(type, {
-          get: (_, column: string | typeof kPrimaryKey) =>
-            column == kPrimaryKey
-              ? pkColumn !== ''
-                ? makeColumnRef(from, pkColumn)
-                : undefined
-              : makeColumnRef(from, column),
-        })
-        return new Selection(selector(columns), from)
+    : (((select: any): any => {
+        const columns = makeColumnRefs(from)
+        return new Selection(select(columns), from)
       }) as T)
 
   return Object.setPrototypeOf(from, type)
+}
+
+export function makeColumnRefs(from: SelectionSource): any {
+  const pkColumn: string = (from as any)[kPrimaryKey]
+  return new Proxy(from, {
+    get: (_, column: string | typeof kPrimaryKey) =>
+      column == kPrimaryKey
+        ? pkColumn !== ''
+          ? makeColumnRef(from, pkColumn)
+          : undefined
+        : makeColumnRef(from, column),
+  })
 }

@@ -61,11 +61,11 @@ type WhereRefsObject<From extends Selectable[]> =
     ? Source extends Selection<any, infer From>
       ? WhereRefsObject<[From]>
       : Source extends Selectable
-      ? { [P in SourceIdent<Source>]: WhereRef<Source> }
+      ? { [P in SourceRefId<Source>]: WhereRef<Source> }
       : never
     : never
 
-type SourceIdent<Source> = Source extends SetRef<any, infer Alias>
+export type SourceRefId<Source> = Source extends SetRef<any, infer Alias>
   ? Alias
   : Source extends CallExpression<any, infer Callee>
   ? Callee

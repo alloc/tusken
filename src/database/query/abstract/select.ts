@@ -6,9 +6,11 @@ import { toTableName } from '../../table'
 import { TokenArray } from '../../token'
 import {
   tokenizeExpression,
+  tokenizeOrderBy,
   tokenizeSelected,
   tokenizeWhere,
 } from '../../tokenize'
+import { SortSelection } from '../orderBy'
 import { Where, where } from '../where'
 
 const kSelectFrom = Symbol()
@@ -19,6 +21,7 @@ export interface SelectProps {
   where?: BoolExpression
   limit?: number
   offset?: number
+  orderBy?: SortSelection
 }
 
 /** Object types compatible with `SELECT` command */
@@ -60,6 +63,9 @@ export abstract class AbstractSelect<
     }
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))
+    }
+    if (props.orderBy) {
+      tokens.push(tokenizeOrderBy(props.orderBy, ctx))
     }
     if (props.limit) {
       tokens.push('LIMIT', { number: props.limit })

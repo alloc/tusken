@@ -3,6 +3,7 @@ import { QueryStreamConfig } from '../stream'
 import { kDatabaseQueryStream } from '../symbols'
 import { SetType, Values } from '../type'
 import { AbstractSelect, Selectable, SelectProps } from './abstract/select'
+import { orderBy, SortSelection, SortSelector } from './orderBy'
 import { Where } from './where'
 
 export type { Selectable, SelectProps }
@@ -26,6 +27,11 @@ export class Select<From extends Selectable[] = any> //
 
   limit(n: number) {
     this.props.limit = n
+    return this
+  }
+
+  orderBy(selector: SortSelection<From> | SortSelector<From>) {
+    this.props.orderBy = orderBy(this.props, selector)
     return this
   }
 

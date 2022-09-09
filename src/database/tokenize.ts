@@ -1,7 +1,9 @@
 import { callProp } from '../utils/callProp'
+import { toArray } from '../utils/toArray'
 import { Check, CheckBuilder } from './check'
 import { BoolExpression, Expression } from './expression'
 import { Query } from './query'
+import { SortExpression, SortSelection } from './query/orderBy'
 import { Selectable } from './query/select'
 import type { AliasMapping, Selection } from './selection'
 import { kExprProps, kExprTokens, kSelectionArgs, kTableName } from './symbols'
@@ -9,7 +11,6 @@ import type { Token, TokenArray } from './token'
 import {
   isBoolExpression,
   isCallExpression,
-  isColumnRef,
   isExpression,
   isSelection,
   isTableRef,
@@ -55,7 +56,7 @@ export function tokenizeSelectedColumns(
         if (typeof arg == 'string') {
           return { id: arg }
         }
-        if (isColumnRef(arg)) {
+        if (isExpression(arg)) {
           return tokenizeExpression(arg, ctx)
         }
         return tokenizeAliasMapping(arg, ctx)
@@ -140,4 +141,26 @@ export function tokenizeSelected(
 
 export function tokenizeWhere(where: BoolExpression, ctx: Query.Context) {
   return ['WHERE', tokenizeExpression(where, ctx)]
+}
+
+export function tokenizeOrderBy(orderBy: SortSelection, ctx: Query.Context) {
+  const tokens: TokenArray = []
+  const tokenizeColumn = (selected: SortExpression) =>
+    typeof selected == 'string'
+      ? { id: selected }
+      : tokenizeExpression(selected, ctx)
+
+  for (const selected of toArray(orderBy)) {
+    if (typeof selected == 'string' || isExpression(selected)) {
+      tokens.push(tokenizeColumn(selected))
+    } else {
+      const { asc, desc, nulls } = selected
+      tokens.push([
+        tokenizeColumn(asc || desc!),
+        desc ? 'DESC' : '',
+        nulls == (asc ? 'first' : 'last') ? 'NULLS ' + nulls.toUpperCase() : '',
+      ])
+    }
+  }
+  return ['ORDER BY', { list: tokens }]
 }

@@ -32,20 +32,22 @@ export type AliasMapping = {
 export type RawSelection =
   | string[]
   | SetRef
-  | ColumnRef
-  | CallExpression
-  | AliasMapping
-  | (ColumnRef | AliasMapping)[]
+  | RawColumnSelection
+  | RawColumnSelection[]
+
+type RawColumnSelection = ColumnRef | CallExpression | AliasMapping
 
 /** Coerce a `RawSelection` into an object type. */
-export type ResolveSelection<T extends RawSelection> = Intersect<
-  | ResolveColumnRefs<T>
-  | (T extends CallExpression<infer ReturnType, infer Callee>
-      ? { [P in Callee]: ReturnType }
-      : T extends (infer E)[]
-      ? ResolveAliasMapping<E> | ResolveColumnRefs<E>
-      : ResolveAliasMapping<T>)
-> extends infer Resolved
+export type ResolveSelection<T extends RawSelection> = T extends (infer U)[]
+  ? ResolveSelection<Extract<U, RawColumnSelection>>
+  : Intersect<
+      | ResolveColumnRefs<T>
+      | (T extends CallExpression<infer ReturnType, infer Callee>
+          ? { [P in Callee]: ReturnType }
+          : T extends (infer E)[]
+          ? ResolveAliasMapping<E> | ResolveColumnRefs<E>
+          : ResolveAliasMapping<T>)
+    > extends infer Resolved
   ? Pick<Resolved, keyof Resolved>
   : never
 
