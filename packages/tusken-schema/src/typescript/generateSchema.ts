@@ -5,6 +5,7 @@ import path from 'path'
 import { ClientConfig } from '../config'
 import { dataToEsm } from '../utils/dataToEsm'
 import { mergeImports, serializeImports } from '../utils/imports'
+import { __PURE__ } from '../utils/syntax'
 import { GeneratedLines } from './generateNativeTypes'
 import { reservedWords } from './reservedWords'
 
@@ -61,7 +62,7 @@ export function generateTypeSchema(
           ${renderColumns(table.columns)}
         }, "${table.name}", ${pkColumn}, ${
         optionColumns.map(quoted).join(' | ') || '""'
-      }> = makeTableRef("${table.name}", [${allColumns
+      }> = ${__PURE__} makeTableRef("${table.name}", [${allColumns
         .map(quoted)
         .join(', ')}], ${pkColumn})
       `

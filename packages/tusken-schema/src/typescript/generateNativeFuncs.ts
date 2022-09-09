@@ -1,7 +1,6 @@
 import endent from 'endent'
 import type { NativeFunc } from '../extract/extractFuncs'
-
-const __PURE__ = '/*#__PURE__*/'
+import { __PURE__ } from '../utils/syntax'
 
 export function generateNativeFuncs(
   nativeFuncs: NativeFunc[],
