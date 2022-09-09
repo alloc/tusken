@@ -3,7 +3,7 @@ import { cac } from 'cac'
 import { execSync } from 'child_process'
 import chokidar from 'chokidar'
 import fs from 'fs'
-import { blue, gray, green } from 'kleur/colors'
+import { blue, cyan, gray, green } from 'kleur/colors'
 import { clear, success } from 'misty'
 import { MistyTask, startTask } from 'misty/task'
 import path from 'path'
@@ -34,9 +34,11 @@ export default async function () {
           options.database
         )
 
+        const { database } = config.connection
+
         isRestart && console.log(green('Reloaded the config!'))
         let generator = generate(
-          path.join(config.schemaDir, config.connection.database),
+          path.join(config.schemaDir, database),
           { ...config.connection, ...config.pool },
           configPath
         )
@@ -50,6 +52,17 @@ export default async function () {
           })
           .on('generateEnd', () => {
             task.finish('Schema was updated.')
+
+            const schemaDir = path.relative(process.cwd(), config.schemaDir)
+            console.log(
+              gray('\nExplore the generated code.') +
+                '\n  ' +
+                'Functions: ' +
+                blue(path.join(schemaDir, database, 'functions.ts')) +
+                '\n  ' +
+                '    Types: ' +
+                cyan(path.join(schemaDir, database, 'types.ts'))
+            )
           })
 
         if (options.watch) {
