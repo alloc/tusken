@@ -1,11 +1,13 @@
+import { getClientEnv } from '@tusken/schema'
 import { cac } from 'cac'
+import { execSync } from 'child_process'
 import chokidar from 'chokidar'
 import fs from 'fs'
-import { gray, green } from 'kleur/colors'
+import { blue, gray, green } from 'kleur/colors'
 import { clear, success } from 'misty'
 import { MistyTask, startTask } from 'misty/task'
 import path from 'path'
-import { Client, QueryResult } from 'pg'
+import { Client } from 'pg'
 import { loadConfig } from './config'
 import { debounce } from './debounce'
 import { defer, Deferred } from './defer'
@@ -147,46 +149,61 @@ export default async function () {
           process.exit(1)
         }
 
+        const task = startTask(
+          () => `Importing: ${blue(path.relative(process.cwd(), file))}`
+        )
         const header = (await firstLine(file))
           .split(',')
           .map(column => `"${column}"`)
 
         const tableName = options.table || path.basename(file, '.csv')
         const copyDest = options.noConflicts ? tableName : `${tableName}_tmp`
-        const query = [
-          `copy "${copyDest}"(${header.join(', ')}) from '${path.resolve(
-            file
-          )}' with (format csv, header)`,
-        ]
+        const copyCommand =
+          `\\copy "${copyDest}"` +
+          ` (${header.join(', ')})` +
+          ` from '${path.resolve(file)}' with (format csv, header)`
+
+        let preQuery: string | undefined
+        let postQuery: string | undefined
         if (!options.noConflicts) {
-          query.unshift(
-            `create table "${copyDest}" as table "${tableName}" with no data`
-          )
-          query.push(
+          preQuery = `create table if not exists "${copyDest}" as table "${tableName}" with no data`
+          postQuery =
             `insert into "${tableName}" select * from "${copyDest}" on conflict (${
               header[0]
             }) do update set ${header
               .map(column => `${column} = excluded.${column}`)
-              .join(', ')}`,
-            `drop table "${copyDest}"`
-          )
+              .join(', ')};\n` + `drop table "${copyDest}"`
         }
 
         try {
-          const result: QueryResult<any> | QueryResult<any>[] =
-            (await client.query(query.join(';\n'))) as any
+          if (preQuery) {
+            await client.query(preQuery)
+          }
 
-          const copyResult = Array.isArray(result)
-            ? result.find(result => result.command == 'COPY')!
-            : result
+          // Use the \copy command of psql to support remote databases.
+          const env = await getClientEnv(config.connection, client.password)
+          const result = execSync(
+            `psql "${env.PGDATABASE}" -c '${copyCommand}'`,
+            { env }
+          )
 
-          affectedCount += copyResult.rowCount
+          if (postQuery) {
+            await client.query(postQuery)
+          }
+
+          const parsedCopyResult = result.toString('utf8').match(/^COPY (\d+)/)
+          if (parsedCopyResult) {
+            const numCopied = +parsedCopyResult[1]
+            affectedCount += numCopied
+          }
         } catch (e: any) {
           if (!e.detail) {
             throw e
           }
           console.error(e.table + ': ' + e.detail)
           process.exit(1)
+        } finally {
+          task.finish()
         }
       }
       await client.end()

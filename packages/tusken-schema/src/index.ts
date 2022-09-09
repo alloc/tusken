@@ -81,29 +81,30 @@ export function generate(
 }
 
 async function dumpSqlSchema(conn: ClientConfig) {
-  const password =
-    typeof conn.password == 'function' ? await conn.password() : conn.password
-
-  const env: any = {
-    ...process.env,
-    PGPASSWORD: password,
-  }
-
-  let database = conn.connectionString
-  if (!database) {
-    database = conn.database
-    env.PGUSER = conn.user
-    env.PGHOST = conn.host
-    env.PGPORT = conn.port
-  }
-
+  const env = await getClientEnv(conn)
   const { stdout, stderr } = await promisify(exec)(
-    `pg_dump "${database}" --schema-only -E utf8`,
+    `pg_dump --schema-only -E utf8`,
     { encoding: 'utf8', env }
   )
-
   if (stderr) {
     console.error(stderr)
   }
   return stdout.replace(/^(--.*?|)\n/gm, '')
+}
+
+export async function getClientEnv(conn: ClientConfig, password?: string) {
+  password ??=
+    typeof conn.password == 'function' ? await conn.password() : conn.password
+  const env: any = {
+    ...process.env,
+    PGPASSWORD: password,
+    PGDATABASE: conn.connectionString,
+  }
+  if (!env.PGDATABASE) {
+    env.PGDATABASE = conn.database
+    env.PGUSER = conn.user
+    env.PGHOST = conn.host
+    env.PGPORT = conn.port
+  }
+  return env
 }
