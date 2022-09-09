@@ -6,8 +6,8 @@ import escalade from './escalade/sync'
 const defaultConnection = {
   host: process.env.PGHOST || 'localhost',
   port: +(process.env.PGPORT || 5432),
-  user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD || ' ',
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE || process.env.USER!,
 }
 
