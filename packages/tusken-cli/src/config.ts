@@ -53,13 +53,9 @@ export function loadConfig(configPath?: string, database?: string) {
     config.connection.database = database
   }
 
-  config.schemaDir = config.schemaDir
-    ? path.resolve(cwd, config.schemaDir)
-    : path.resolve('./src/generated')
-
-  config.dataDir = config.dataDir
-    ? path.resolve(cwd, config.dataDir)
-    : path.resolve('./postgres')
+  // Only needed if no config file exists.
+  config.dataDir ??= path.resolve('postgres')
+  config.schemaDir ??= path.resolve('src/generated')
 
   config.tuskenId = path.join(
     path.relative(

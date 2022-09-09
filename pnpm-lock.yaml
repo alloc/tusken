@@ -7,6 +7,7 @@ importers:
       '@alloc/prettier-config': ^1.0.0
       '@tusken/cli': workspace:*
       '@types/pg': ^8.6.5
+      callsites: ^3.1.0
       conventional-changelog-conventionalcommits: ^5.0.0
       dotenv-cli: ^6.0.0
       multi-semantic-release: ^3.0.0
@@ -17,6 +18,8 @@ importers:
       tusken: workspace:*
       typescript: ^4.7.4
       vitest: ^0.22.1
+    dependencies:
+      callsites: 3.1.0
     devDependencies:
       '@alloc/prettier-config': 1.0.0
       '@tusken/cli': link:packages/tusken-cli
@@ -1165,7 +1168,6 @@ packages:
   /callsites/3.1.0:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
-    dev: true
 
   /camelcase-keys/6.2.2:
     resolution: {integrity: sha512-YrwaA0vEKazPBkn0ipTiMpSajYDSe+KjQfrjhcBMxJt/znbvlHd8Pw/Vamaz5EB4Wfhs3SUR3Z9mwRu/P3s3Yg==}
