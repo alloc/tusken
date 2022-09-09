@@ -137,7 +137,7 @@ export function generateNativeFuncs(
             endent`
               ${constPrefix} ${name}: ${renderOutput(
               fn
-            )} = ${__PURE__} defineFunction("${name}", "var")()${exportAlias}
+            )} = ${__PURE__} defineFunction("${name}", {type:"var"})()${exportAlias}
             `
           )
         }
