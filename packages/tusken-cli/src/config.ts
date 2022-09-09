@@ -8,7 +8,7 @@ const defaultConnection = {
   port: +(process.env.PGPORT || 5432),
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE || process.env.USER!,
+  database: process.env.PGDATABASE || 'main',
 }
 
 export type LoadedConfig = Config & {
