@@ -32,7 +32,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
     const insertion: TokenArray = [
       'INSERT INTO',
       mayConflict && nulls.size ? [target, 'this'] : target,
-      { tuple: columns },
+      { tuple: columns.map(id => ({ id })) },
       'VALUES',
       { list: rows },
     ]
@@ -40,7 +40,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
     if (mayConflict) {
       insertion.push(
         'ON CONFLICT',
-        { tuple: [table[kPrimaryKey]] },
+        { tuple: [{ id: table[kPrimaryKey] }] },
         'DO UPDATE SET',
         {
           list: columns
