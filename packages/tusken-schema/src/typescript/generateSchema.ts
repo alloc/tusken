@@ -40,13 +40,16 @@ export function generateTypeSchema(
     const allColumns: string[] = []
     const optionColumns: string[] = []
 
+    const isOptional = (col: TableColumn) =>
+      col.isNullable || col.generated != 'NEVER' || col.defaultValue != null
+
     for (const col of table.columns) {
       schemaColumns.add(col.name)
       allColumns.push(col.name)
       if (col.isPrimaryKey) {
         pkColumn = col.name
       }
-      if (col.generated != 'NEVER' || col.defaultValue != null) {
+      if (isOptional(col)) {
         optionColumns.push(col.name)
       }
     }
