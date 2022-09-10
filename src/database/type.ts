@@ -1,24 +1,71 @@
 import { Intersect, Remap } from '@alloc/types'
 import type { ColumnRef } from './column'
-import type { BoolExpression, Expression, SetExpression } from './expression'
-import { CallExpression } from './function'
+import type { BoolExpression, Expression } from './expression'
+import type { CallExpression } from './function'
 import type { Selection } from './selection'
-import { kColumnFrom, kExprProps, kSelectionFrom, kTableName } from './symbols'
+import {
+  kColumnFrom,
+  kExprProps,
+  kSelectionFrom,
+  kTableName,
+  kTypeArrayId,
+  kTypeId,
+  kTypeName,
+  kTypeTokenizer,
+} from './symbols'
 import type { TableRef } from './table'
+import type { Token, TokenArray } from './token'
 
-const kTypeName = Symbol()
-const kRuntimeType = Symbol()
+const kJsonType = Symbol()
 const kDownCasts = Symbol()
+const kRuntimeType = Symbol()
 
 /** Postgres data type */
 export abstract class Type<
   TypeName extends string = any,
-  RuntimeType = any,
+  JsonType = any,
   DownCasts = any
 > {
   protected declare [kTypeName]: TypeName
-  protected declare [kRuntimeType]: RuntimeType
+  protected declare [kJsonType]: JsonType
   protected declare [kDownCasts]: DownCasts
+  protected declare [kRuntimeType]: RuntimeType
+}
+
+/**
+ * Runtime types are plain objects with hidden properties
+ * that describe the type of an expression.
+ */
+export declare class RuntimeType<T extends Type = any> {
+  protected [kTypeId]: number
+  protected [kTypeArrayId]: number | undefined
+  protected [kTypeName]: string
+  protected [kTypeTokenizer]: ValueTokenizer | undefined
+  /** Exists for type inference */
+  protected declare compilerType: T
+}
+
+export type ValueTokenizer = (value: any) => Token | TokenArray | undefined
+
+export const defineType = <T extends Type>(
+  id: number,
+  name: string,
+  arrayId?: number,
+  tokenizer?: ValueTokenizer
+): RuntimeType<T> =>
+  ({
+    [kTypeId]: id,
+    [kTypeArrayId]: arrayId,
+    [kTypeName]: name,
+    [kTypeTokenizer]: tokenizer,
+  } as any)
+
+/**
+ * Expressions use this to set their runtime type metadata
+ * without subclassing the `Type` class.
+ */
+export function setType(self: Expression, type: RuntimeType) {
+  self[kRuntimeType] = type
 }
 
 /** Convert a Postgres type to a JavaScript type */
@@ -49,32 +96,6 @@ export type Input<T> = T extends Type<any, infer Value> ? Value | T : T
 export abstract class SetType<T extends object = any> //
   extends Type<`setof<record>`, T[], T[]> {}
 
-export type Json = string | number | boolean | null | JsonObject | JsonArray
-
-export interface JsonObject {
-  [property: string]: Json | undefined
-}
-
-export interface JsonArray extends Array<Json> {}
-
-export type toTypeName<T extends Type> = T extends Type<infer U>
-  ? string extends U
-    ? any
-    : U
-  : never
-
-export type toRuntimeType<T extends Type> = T extends Type<any, infer U>
-  ? unknown extends U
-    ? any
-    : U
-  : never
-
-export type toDownCasts<T extends Type> = T extends Type<any, any, infer U>
-  ? unknown extends U
-    ? any
-    : U
-  : never
-
 export function isTableRef(val: any): val is TableRef {
   return kTableName in val
 }
@@ -92,11 +113,8 @@ export function isExpression(val: any): val is Expression {
 }
 
 export function isBoolExpression(val: any): val is BoolExpression {
-  return isExpression(val) && val[kExprProps].type == 'bool'
-}
-
-export function isSetExpression(val: any): val is SetExpression {
-  return isExpression(val) && val[kExprProps].type == 'setof'
+  const exprType = isExpression(val) && val[kExprProps].type
+  return exprType?.[kTypeName] == 'bool'
 }
 
 export function isCallExpression(
@@ -105,4 +123,8 @@ export function isCallExpression(
 ): val is CallExpression {
   const props = isExpression(val) && val[kExprProps]
   return props ? !callee || props.callee == callee : false
+}
+
+export function isArrayType(val: any): val is Type {
+  return kTypeName in val && val[kTypeName].endsWith('[]')
 }

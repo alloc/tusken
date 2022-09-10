@@ -4,7 +4,7 @@ import { CallExpression } from './function'
 import { RawSelection, ResolveSelection, Selection } from './selection'
 import { makeSelector } from './selector'
 import { kSetAlias } from './symbols'
-import { SetType, Type } from './type'
+import { defineType, SetType, Type } from './type'
 
 /** A function that returns a set of rows. */
 export function defineSetFunction(callee: string): any {
@@ -29,13 +29,15 @@ type SetSelector<T extends Type, Callee extends string> = {
   ): Selection<ResolveSelection<Selected>, SetRef<T, Callee>>
 }
 
+const SET_TYPE = defineType(0, 'setof<record>')
+
 class SetRefExpression<
   T extends Type = any,
   Callee extends string = any
 > extends CallExpression<SetType<{ [P in Callee]: T }>, Callee> {
   protected [kSetAlias]: string
   constructor(callee: Callee, args: any[]) {
-    super(callee, args, { type: 'setof' })
+    super(callee, args, SET_TYPE)
     this[kSetAlias] = callee
   }
 

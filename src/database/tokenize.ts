@@ -1,3 +1,4 @@
+import { RuntimeType } from 'tusken'
 import { callProp } from '../utils/callProp'
 import { toArray } from '../utils/toArray'
 import { Check, CheckBuilder } from './check'
@@ -6,7 +7,13 @@ import { Query } from './query'
 import { SortExpression, SortSelection } from './query/orderBy'
 import { Selectable } from './query/select'
 import type { AliasMapping, Selection } from './selection'
-import { kExprProps, kExprTokens, kSelectionArgs, kTableName } from './symbols'
+import {
+  kExprProps,
+  kExprTokens,
+  kSelectionArgs,
+  kTableName,
+  kTypeTokenizer,
+} from './symbols'
 import type { Token, TokenArray } from './token'
 import {
   isBoolExpression,
@@ -39,6 +46,15 @@ export function tokenize(value: any, ctx: Query.Context): Token | TokenArray {
   }
   // Let node-postgres handle the serialization.
   return { value }
+}
+
+export function tokenizeTyped(
+  value: any,
+  type: RuntimeType,
+  ctx: Query.Context
+): Token | TokenArray {
+  const tokens = type[kTypeTokenizer]?.(value)
+  return tokens ?? tokenize(value, ctx)
 }
 
 export function tokenizeExpression(expr: Expression, ctx: Query.Context) {

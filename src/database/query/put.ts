@@ -1,9 +1,10 @@
 import { toArray } from '../../utils/toArray'
 import { Query, QueryResult } from '../query'
 import { kPrimaryKey } from '../symbols'
-import { TableRef, toTableName } from '../table'
+import { getColumnType, TableRef, toTableName } from '../table'
 import { Token, TokenArray } from '../token'
-import { tokenize } from '../tokenize'
+import { tokenizeTyped } from '../tokenize'
+import { RuntimeType } from '../type'
 
 type Props<T extends TableRef> = {
   table: T
@@ -15,7 +16,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
   protected tokens(props: Props<T>, ctx: Query.Context) {
     let { table, data, pk } = props
 
-    const [columns, rows, nulls] = tokenizeRows(data, ctx)
+    const [columns, rows, nulls] = tokenizeRows(data, table, ctx)
     if (!rows.length) {
       throw Error('no rows to insert')
     }
@@ -25,7 +26,9 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
 
     if (pk !== undefined) {
       columns.unshift(pkColumn)
-      rows[0].tuple.unshift(tokenize(pk, ctx))
+      rows[0].tuple.unshift(
+        tokenizeTyped(pk, getColumnType(table, pkColumn), ctx)
+      )
     }
 
     const target = { id: toTableName(table) }
@@ -73,7 +76,11 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
 
 export interface Put<T> extends PromiseLike<number> {}
 
-function tokenizeRows(data: Props<any>['data'], ctx: Query.Context) {
+function tokenizeRows(
+  data: Props<any>['data'],
+  table: TableRef,
+  ctx: Query.Context
+) {
   const rows: { tuple: TokenArray }[] = []
 
   // This tracks which columns may have a NULL value
@@ -87,7 +94,8 @@ function tokenizeRows(data: Props<any>['data'], ctx: Query.Context) {
       const newColumns = new Set(columns.concat(Object.keys(row)))
       for (const column of newColumns) {
         if (column in row) {
-          tokenizeColumnValue(values, row[column], ctx)
+          const type = getColumnType(table, column)
+          tokenizeColumnValue(values, row[column], type, ctx)
         } else {
           // Use NULL to indicate this column should be left alone.
           values.push('NULL')
@@ -107,7 +115,8 @@ function tokenizeRows(data: Props<any>['data'], ctx: Query.Context) {
       }
     } else {
       for (const column of (columns = Object.keys(row))) {
-        tokenizeColumnValue(values, row[column], ctx)
+        const type = getColumnType(table, column)
+        tokenizeColumnValue(values, row[column], type, ctx)
       }
     }
     rows.push({
@@ -121,9 +130,10 @@ function tokenizeRows(data: Props<any>['data'], ctx: Query.Context) {
 function tokenizeColumnValue(
   values: TokenArray,
   value: any,
+  type: RuntimeType,
   ctx: Query.Context
-) {
+): void {
   // For null and undefined values, use DEFAULT instead of NULL
   // so that NULL can have another meaning (see further down).
-  values.push(value == null ? 'DEFAULT' : tokenize(value, ctx))
+  values.push(value == null ? 'DEFAULT' : tokenizeTyped(value, type, ctx))
 }

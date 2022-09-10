@@ -53,15 +53,29 @@ export default async function () {
           .on('generateEnd', () => {
             task.finish('Schema was updated.')
 
-            const schemaDir = path.relative(process.cwd(), config.schemaDir)
+            let schemaDir = path.join(
+              path.relative(process.cwd(), config.schemaDir),
+              database + '/'
+            )
+            if (!schemaDir.startsWith('..')) {
+              schemaDir = './' + schemaDir
+            }
+
+            const grayArrow = gray(' → ')
             console.log(
               gray('\nExplore the generated code.') +
                 '\n  ' +
-                'Functions: ' +
-                blue(path.join(schemaDir, database, 'functions.ts')) +
+                '   Tables' +
+                grayArrow +
+                green(schemaDir + 'tables.ts') +
                 '\n  ' +
-                '    Types: ' +
-                cyan(path.join(schemaDir, database, 'types.ts'))
+                'Functions' +
+                grayArrow +
+                blue(schemaDir + 'functions.ts') +
+                '\n  ' +
+                '    Types' +
+                grayArrow +
+                cyan(schemaDir + 'primitives.ts')
             )
           })
 

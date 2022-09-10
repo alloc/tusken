@@ -2,6 +2,7 @@ import endent from 'endent'
 import { NativeCast } from '../extract/extractCasts'
 import { NativeTypes } from '../extract/extractTypes'
 import { ImportDescriptorMap } from '../utils/imports'
+import { __PURE__ } from '../utils/syntax'
 import nativeTypeMap from './nativeTypeMap'
 
 const toExport = (stmt: string) => `export ${stmt}`
@@ -63,20 +64,25 @@ export function generateNativeTypes(
         : never)
   `
 
+  const JSON_TYPES = ['json', 'jsonb']
+
   const types: string[] = []
+  const runtimeTypes: string[] = []
   for (const [nativeType, mappedType] of nativeTypeMap) {
     types.push(
       `type ${nativeType} = Type<"${nativeType}", ${mappedType}, ColumnCast<"${nativeType}">>`
     )
+    const { id, arrayId } = nativeTypes.byName[nativeType]
+    const runtimeArgs = [`${id}, "${nativeType}", ${arrayId}`]
+    if (JSON_TYPES.includes(nativeType)) {
+      runtimeArgs.push('tokenizeJson')
+    }
+    runtimeTypes.push(
+      `const ${nativeType} = ${__PURE__} defineType<${nativeType}>(${runtimeArgs.join(
+        ', '
+      )})`
+    )
   }
-
-  const arrayTypes = [
-    'type array<Element extends Type> = Element extends Type<infer Native, infer T, infer ColumnT>' +
-      '  ? Type<`${Native}[]`, T[], ColumnT[]>' +
-      '  : never',
-    'type array2d<Element extends Type> = array<array<Element>>',
-    'type array3d<Element extends Type> = array<array2d<Element>>',
-  ]
 
   // These pseudo types are conflicting with TypeScript reserved keywords.
   const pseudoConflicts = {
@@ -103,13 +109,24 @@ export function generateNativeTypes(
 
   return {
     imports: {
-      [tuskenId]: ['Input', 'Interval', 'Json', 'Range', 'Type'],
+      [tuskenId]: [
+        'defineType',
+        'tokenizeJson',
+        'Input',
+        'Interval',
+        'Json',
+        'Range',
+        'Type',
+      ],
+      [tuskenId + '/array']: ['array', 'array2d', 'array3d'],
     },
     lines: [
-      '\n// Primitive types',
+      '// Primitive types',
       ...types.map(toExport),
+      '',
+      ...runtimeTypes.map(toExport),
       '\n// Array types',
-      ...arrayTypes.map(toExport),
+      'export { array, array2d, array3d }',
       '\n// Pseudo types',
       ...pseudoTypes.map(toExport),
       toExport(

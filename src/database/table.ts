@@ -11,7 +11,14 @@ import {
   kTableColumns,
   kTableName,
 } from './symbols'
-import { Input, isSelection, isTableRef, SetType, Type } from './type'
+import {
+  Input,
+  isSelection,
+  isTableRef,
+  RuntimeType,
+  SetType,
+  Type,
+} from './type'
 
 export type PrimaryKey<T> = RowType<T> extends infer Values
   ? Input<Values[PrimaryKeyOf<T> & keyof Values]>
@@ -82,10 +89,10 @@ export function makeTableRef<
   NullableColumn extends string = any
 >(
   name: TableName,
-  columns: string[],
-  pkColumn: PrimaryKey
+  pkColumn: PrimaryKey,
+  columns: Record<string, RuntimeType>
 ): TableRef<T, TableName, PrimaryKey, NullableColumn> {
-  const type = new TableType(name, columns, pkColumn)
+  const type = new TableType(name, pkColumn, columns)
   return makeSelector(type)
 }
 
@@ -97,22 +104,28 @@ class TableType<
 > {
   /** The unique table name */
   protected [kTableName]: TableName
-  /** The column names that exist in this table. */
-  protected [kTableColumns]: string[]
   /** The primary key of this table. */
   protected [kPrimaryKey]: PrimaryKey
+  /** The column names that exist in this table. */
+  protected [kTableColumns]: Record<string, RuntimeType>
   /** Exists for type inference. */
   protected declare [kNullableColumns]: NullableColumn[]
 
-  constructor(name: TableName, columns: string[], pkColumn: PrimaryKey) {
+  constructor(
+    name: TableName,
+    pkColumn: PrimaryKey,
+    columns: Record<string, RuntimeType>
+  ) {
     this[kTableName] = name
-    this[kTableColumns] = columns
     this[kPrimaryKey] = pkColumn
+    this[kTableColumns] = columns
   }
 
   omit(...omitted: string[]): Selection {
     return new Selection(
-      this[kTableColumns].filter(name => !omitted.includes(name as any)),
+      Object.keys(this[kTableColumns]).filter(
+        name => !omitted.includes(name as any)
+      ),
       this as any
     )
   }
@@ -135,4 +148,8 @@ export function toTableName(arg: Selectable): string | undefined
 export function toTableName(arg: Selectable) {
   const tableRef = toTableRef(arg)
   return tableRef ? tableRef[kTableName] : undefined
+}
+
+export function getColumnType(table: TableRef, column: string) {
+  return table[kTableColumns][column]
 }

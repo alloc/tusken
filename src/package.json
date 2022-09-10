@@ -20,6 +20,11 @@
       "import": "./dist/tusken.mjs",
       "default": "./dist/tusken.cjs"
     },
+    "./array": {
+      "types": "./dist/array.d.ts",
+      "import": "./dist/array.mjs",
+      "default": "./dist/array.cjs"
+    },
     "./config": {
       "types": "./dist/config.d.ts",
       "import": "./dist/config.mjs",
