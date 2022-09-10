@@ -63,7 +63,7 @@ export function generateTypeSchema(
         }, "${table.name}", ${pkColumn}, ${
         optionColumns.map(quoted).join(' | ') || '""'
       }> = ${__PURE__} makeTableRef("${table.name}", ${pkColumn}, {
-          ${renderColumns(table.columns).join(',\n')}
+          ${renderColumns(table.columns).join(',\n')},
         })
       `
     )
