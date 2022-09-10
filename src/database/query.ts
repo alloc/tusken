@@ -36,25 +36,6 @@ export abstract class Query<
     }
   }
 
-  /** Render a SQL string. */
-  render(): string {
-    const tokens = this.tokenize()
-    const rendered = renderTokens(tokens, this.context)
-    return rendered.join(' ')
-  }
-
-  /** Convert the tree of query nodes into SQL tokens. */
-  tokenize(ctx = this.context): TokenArray {
-    // Always get the nodes from "this.context"
-    const { nodes } = this.context
-    nodes.forEach(({ query, props }) => {
-      query.inject?.(props, ctx)
-    })
-    return nodes.map(({ query, props }) => {
-      return query.tokens(props, ctx)
-    })
-  }
-
   /**
    * Modify the query promise before the caller receives it.
    */
@@ -93,7 +74,7 @@ export abstract class Query<
 Object.defineProperty(Query.prototype, 'then', {
   value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
     const { db, values } = this.context
-    const query = this.render()
+    const query = renderQuery(this.context)
     return db.client
       .query(query, values)
       .then(
@@ -121,4 +102,44 @@ export type Node<T extends Query = any, Type extends string = any> = {
   readonly type: Type
   readonly query: T
   readonly props: T extends Query<infer Props> ? Props : never
+}
+
+// @ts-ignore
+type QueryInternal = Pick<Query, 'context' | 'inject' | 'tokens'>
+
+/** Render a SQL string. */
+function renderQuery(ctx: Query.Context): string {
+  const tokens = tokenizeQuery(ctx)
+  const rendered = renderTokens(tokens, ctx)
+  return rendered.join(' ')
+}
+
+/** Convert the tree of query nodes into SQL tokens. */
+function tokenizeQuery(ctx: Query.Context): TokenArray {
+  ctx.nodes.forEach(({ query, props }) => {
+    withQuery(query).inject?.(props, ctx)
+  })
+  return ctx.nodes.map(({ query, props }) => {
+    return withQuery(query).tokens(props, ctx)
+  })
+}
+
+/** TypeScript helper for accessing private members */
+function withQuery(query: Query): QueryInternal {
+  return query as any
+}
+
+/** Inspect the context, tokens, and SQL of a query */
+export function inspectQuery(q: any) {
+  const ctx = { ...q.context }
+  ctx.nodes = [...ctx.nodes]
+  ctx.values = []
+
+  const tokens = tokenizeQuery(ctx)
+  const rendered = renderTokens(tokens, ctx)
+  return {
+    sql: rendered.join(' '),
+    tokens,
+    context: ctx,
+  }
 }
