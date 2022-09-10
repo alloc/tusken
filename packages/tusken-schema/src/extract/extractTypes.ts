@@ -10,6 +10,7 @@ export type NativeType = {
 }
 
 export type NativeTypes = NativeType[] & {
+  byName: Record<string, NativeType>
   byId: Record<number, NativeType>
   any: string[]
 }
@@ -35,6 +36,7 @@ export async function extractNativeTypes(client: Client) {
 
   const nativeTypes = response.rows as NativeTypes
 
+  nativeTypes.byName = toTable(nativeTypes, t => t.name)
   nativeTypes.byId = toTable(nativeTypes, t => t.id)
 
   for (const type of nativeTypes) {

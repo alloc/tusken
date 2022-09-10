@@ -1,24 +1,7 @@
 const SPACE = ' '
 
 export type ImportDescriptorMap = {
-  [source: string]: string[]
-}
-
-export function mergeImports(...importArgs: ImportDescriptorMap[]) {
-  const imports: ImportDescriptorMap = {}
-  for (const source of importArgs) {
-    for (const name in source) {
-      if (imports[name]) {
-        imports[name] = imports[name].concat(source[name])
-      } else {
-        imports[name] = source[name]
-      }
-    }
-  }
-  for (const source in imports) {
-    imports[source] = Array.from(new Set(imports[source])).sort()
-  }
-  return imports
+  [source: string]: string | string[]
 }
 
 export function serializeImports(imports: ImportDescriptorMap | string[]) {

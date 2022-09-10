@@ -64,19 +64,16 @@ export function generateNativeTypes(
   `
 
   const types: string[] = []
+  const runtimeTypes: string[] = []
   for (const [nativeType, mappedType] of nativeTypeMap) {
     types.push(
       `type ${nativeType} = Type<"${nativeType}", ${mappedType}, ColumnCast<"${nativeType}">>`
     )
+    const { id, arrayId } = nativeTypes.byName[nativeType]
+    runtimeTypes.push(
+      `const ${nativeType} = defineType<${nativeType}>(${id}, "${nativeType}", ${arrayId})`
+    )
   }
-
-  const arrayTypes = [
-    'type array<Element extends Type> = Element extends Type<infer Native, infer T, infer ColumnT>' +
-      '  ? Type<`${Native}[]`, T[], ColumnT[]>' +
-      '  : never',
-    'type array2d<Element extends Type> = array<array<Element>>',
-    'type array3d<Element extends Type> = array<array2d<Element>>',
-  ]
 
   // These pseudo types are conflicting with TypeScript reserved keywords.
   const pseudoConflicts = {
@@ -103,13 +100,24 @@ export function generateNativeTypes(
 
   return {
     imports: {
-      [tuskenId]: ['Input', 'Interval', 'Json', 'Range', 'Type'],
+      [tuskenId]: [
+        'defineType',
+        'injectBoolType',
+        'Input',
+        'Interval',
+        'Json',
+        'Range',
+        'Type',
+      ],
+      [tuskenId + '/array']: ['array', 'array2d', 'array3d'],
     },
     lines: [
       '\n// Primitive types',
       ...types.map(toExport),
+      ...runtimeTypes.map(toExport),
+      'injectBoolType(bool)',
       '\n// Array types',
-      ...arrayTypes.map(toExport),
+      'export { array, array2d, array3d }',
       '\n// Pseudo types',
       ...pseudoTypes.map(toExport),
       toExport(

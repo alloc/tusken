@@ -4,7 +4,7 @@ import { Module } from 'module'
 import path from 'path'
 import { ClientConfig } from '../config'
 import { dataToEsm } from '../utils/dataToEsm'
-import { mergeImports, serializeImports } from '../utils/imports'
+import { serializeImports } from '../utils/imports'
 import { __PURE__ } from '../utils/syntax'
 import { GeneratedLines } from './generateNativeTypes'
 import { reservedWords } from './reservedWords'
@@ -25,7 +25,10 @@ export function generateTypeSchema(
   const schemaTables = new Set<string>()
 
   const userTypes: GeneratedLines & { refs: string[] } = {
-    imports: { [tuskenId]: [] },
+    imports: {
+      [tuskenId]: ['makeTableRef', 'RowType', 'TableRef', 'Values'],
+      './primitives': '* as t',
+    },
     lines: [],
     refs: [],
   }
@@ -50,21 +53,15 @@ export function generateTypeSchema(
 
     pkColumn = pkColumn ? quoted(pkColumn) : '""'
 
-    userTypes.imports[tuskenId].push(
-      'makeTableRef',
-      'RowType',
-      'TableRef',
-      'Values'
-    )
     userTypes.refs.push(
       endent`
         const ${table.name}: TableRef<{
-          ${renderColumns(table.columns)}
+          ${renderColumns(table.columns).join('\n')}
         }, "${table.name}", ${pkColumn}, ${
         optionColumns.map(quoted).join(' | ') || '""'
-      }> = ${__PURE__} makeTableRef("${table.name}", [${allColumns
-        .map(quoted)
-        .join(', ')}], ${pkColumn})
+      }> = ${__PURE__} makeTableRef("${table.name}", ${pkColumn}, {
+          ${renderColumns(table.columns).join(',\n')}
+        })
       `
     )
     userTypes.lines.push(
@@ -121,30 +118,42 @@ export function generateTypeSchema(
     export * as pg from './functions'
   `
 
-  const typesFile = endent`
-    ${serializeImports(mergeImports(userTypes.imports, nativeTypes.imports))}
+  const primitivesFile = endent`
+    ${serializeImports(nativeTypes.imports).join('\n')}
+
+    ${nativeTypes.lines.join('\n')}
+  `
+
+  const tablesFile = endent`
+    ${serializeImports(userTypes.imports).join('\n')}
 
     ${userTypes.refs.map(toExport).join('\n\n')}
 
+    // Materialized row types
     ${userTypes.lines.map(toExport).join('\n')}
-    ${nativeTypes.lines.join('\n')}
+  `
+
+  const typesFile = endent`
+    export * from './tables'
+    export * from './primitives'
   `
 
   return [
     { name: 'index.ts', content: indexFile },
     { name: 'types.ts', content: typesFile },
+    { name: 'primitives.ts', content: primitivesFile },
+    { name: 'tables.ts', content: tablesFile },
   ]
 }
 
 function renderColumns(columns: TableColumn[]) {
-  return columns
-    .map(col => {
-      const typeName = col.informationSchemaValue.udt_name
-      return `${col.name}${col.isNullable ? '?' : ''}: ${typeName}${
-        col.isArray ? '[]' : ''
-      }`
-    })
-    .join('\n')
+  return columns.map(col => {
+    let type = 't.' + col.informationSchemaValue.udt_name
+    if (col.isArray) {
+      type = `t.array(${type})`
+    }
+    return `${col.name}: ${type}`
+  })
 }
 
 function isQueryStreamInstalled(outDir: string) {

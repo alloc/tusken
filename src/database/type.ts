@@ -1,24 +1,69 @@
 import { Intersect, Remap } from '@alloc/types'
 import type { ColumnRef } from './column'
-import type { BoolExpression, Expression, SetExpression } from './expression'
+import type { BoolExpression, Expression } from './expression'
 import { CallExpression } from './function'
 import type { Selection } from './selection'
-import { kColumnFrom, kExprProps, kSelectionFrom, kTableName } from './symbols'
+import {
+  kColumnFrom,
+  kExprProps,
+  kSelectionFrom,
+  kTableName,
+  kTypeArrayId,
+  kTypeId,
+  kTypeName,
+} from './symbols'
 import type { TableRef } from './table'
 
-const kTypeName = Symbol()
-const kRuntimeType = Symbol()
+const kJsonType = Symbol()
 const kDownCasts = Symbol()
+const kRuntimeType = Symbol()
 
 /** Postgres data type */
 export abstract class Type<
   TypeName extends string = any,
-  RuntimeType = any,
+  JsonType = any,
   DownCasts = any
 > {
   protected declare [kTypeName]: TypeName
-  protected declare [kRuntimeType]: RuntimeType
+  protected declare [kJsonType]: JsonType
   protected declare [kDownCasts]: DownCasts
+  protected declare [kRuntimeType]: RuntimeType
+}
+
+/**
+ * Runtime types are plain objects with hidden properties
+ * that describe the type of an expression.
+ */
+export declare class RuntimeType<T extends Type = any> {
+  protected [kTypeId]: number
+  protected [kTypeArrayId]: number | undefined
+  protected [kTypeName]: string
+  protected declare type: T
+}
+
+export const defineType = <T extends Type>(
+  id: number,
+  name: string,
+  arrayId?: number
+): RuntimeType<T> =>
+  ({
+    [kTypeId]: id,
+    [kTypeArrayId]: arrayId,
+    [kTypeName]: name,
+  } as any)
+
+/**
+ * Expressions use this to set their runtime type metadata
+ * without subclassing the `Type` class.
+ */
+export function setType(self: Type, type: RuntimeType) {
+  self[kRuntimeType] = type
+}
+
+export let boolType: RuntimeType<Type<'bool', boolean>>
+
+export function injectBoolType(type: RuntimeType) {
+  boolType = type
 }
 
 /** Convert a Postgres type to a JavaScript type */
@@ -57,24 +102,6 @@ export interface JsonObject {
 
 export interface JsonArray extends Array<Json> {}
 
-export type toTypeName<T extends Type> = T extends Type<infer U>
-  ? string extends U
-    ? any
-    : U
-  : never
-
-export type toRuntimeType<T extends Type> = T extends Type<any, infer U>
-  ? unknown extends U
-    ? any
-    : U
-  : never
-
-export type toDownCasts<T extends Type> = T extends Type<any, any, infer U>
-  ? unknown extends U
-    ? any
-    : U
-  : never
-
 export function isTableRef(val: any): val is TableRef {
   return kTableName in val
 }
@@ -92,11 +119,7 @@ export function isExpression(val: any): val is Expression {
 }
 
 export function isBoolExpression(val: any): val is BoolExpression {
-  return isExpression(val) && val[kExprProps].type == 'bool'
-}
-
-export function isSetExpression(val: any): val is SetExpression {
-  return isExpression(val) && val[kExprProps].type == 'setof'
+  return isExpression(val) && val[kExprProps].type == boolType
 }
 
 export function isCallExpression(
@@ -105,4 +128,8 @@ export function isCallExpression(
 ): val is CallExpression {
   const props = isExpression(val) && val[kExprProps]
   return props ? !callee || props.callee == callee : false
+}
+
+export function isArrayType(val: any): val is Type {
+  return kTypeName in val && val[kTypeName].endsWith('[]')
 }

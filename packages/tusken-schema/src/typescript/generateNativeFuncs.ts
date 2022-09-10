@@ -127,33 +127,38 @@ export function generateNativeFuncs(
           ? `\nexport { ${name} as ${name.slice(3)} }`
           : ``
 
-        const constPrefix = exportAlias ? 'const' : 'export const'
-
-        if (varFuncs.includes(name)) {
-          const [fn] = overloads[0]
-          return (
-            summary +
-            endent`
-              ${constPrefix} ${name}: ${renderOutput(
-              fn
-            )} = ${__PURE__} defineFunction("${name}", {type:"var"})()${exportAlias}
-            `
-          )
-        }
-
-        const fnConfig: string[] = []
+        const defineArgs: string[] = [`"${name}"`]
         if (returnBool) {
-          fnConfig.push('type: "bool"')
+          defineArgs.push('t.bool')
         }
 
+        const isVarFunc = varFuncs.includes(name)
+
+        let constType: string
+        if (isVarFunc) {
+          const [fn] = overloads[0]
+          defineArgs[1] ||= 'undefined'
+          defineArgs[2] = 'true'
+          constType = renderOutput(fn)
+        } else {
+          constType = endent`{
+            ${summary + signature.join('\n')}
+          }`
+        }
+
+        let assignedValue =
+          `define${returnSet ? 'Set' : ''}Function` +
+          `(${defineArgs.join(', ')})`
+
+        if (isVarFunc) {
+          assignedValue += '()'
+        }
+
+        const constPrefix = exportAlias ? 'const' : 'export const'
         return (
           summary +
           endent`
-            ${constPrefix} ${name}: {
-              ${summary + signature.join('\n')}
-            } = ${__PURE__} define${returnSet ? 'Set' : ''}Function("${name}"${
-            fnConfig.length ? `, {${fnConfig.join(', ')}}` : ``
-          })${exportAlias}
+            ${constPrefix} ${name}: ${constType} = ${__PURE__} ${assignedValue}${exportAlias}
           `
         )
       })

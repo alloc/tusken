@@ -1,25 +1,13 @@
 import { Any } from '@alloc/types'
 import { kExprProps, kExprTokens } from './symbols'
 import type { TokenProducer } from './token'
-import type {
-  SetType,
-  toDownCasts,
-  toRuntimeType,
-  toTypeName,
-  Type,
-} from './type'
+import type { RuntimeType, SetType, Type } from './type'
 import { t } from './type-builtin'
 
 const emptyProps: any = Object.freeze({})
 
-/**
- * This list is non-exhaustive. \
- * Only types needed at runtime are listed.
- */
-export type ExpressionTypeName = 'bool' | 'setof' | 'var'
-
 export type ExpressionProps = {
-  type?: ExpressionTypeName
+  type?: RuntimeType
 }
 
 export class Expression<
@@ -41,7 +29,11 @@ export class Expression<
 }
 
 export interface Expression<T>
-  extends Type<toTypeName<T>, toRuntimeType<T>, toDownCasts<T>> {}
+  extends Type<
+    T extends Type<infer U> ? (string extends U ? any : U) : never,
+    T extends Type<any, infer U> ? (unknown extends U ? any : U) : never,
+    T extends Type<any, any, infer U> ? (unknown extends U ? any : U) : never
+  > {}
 
 export type BoolExpression = Expression<t.bool>
 export type SetExpression<T extends object = any> = Expression<SetType<T>>
