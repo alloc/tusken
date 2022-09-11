@@ -91,16 +91,6 @@ export class Database {
     )
   }
 
-  /** https://www.postgresql.org/docs/current/sql-insert.html */
-  insert<T extends TableRef>(table: T): never {
-    throw Error('not implemented')
-  }
-
-  /** https://www.postgresql.org/docs/current/sql-merge.html */
-  mergeInto<T extends TableRef>(table: T): never {
-    throw Error('not implemented')
-  }
-
   /**
    * Insert a row into the table.
    */
@@ -138,11 +128,6 @@ export class Database {
       query: new Select<[T]>(this),
       props: { from },
     })
-  }
-
-  /** https://www.postgresql.org/docs/current/sql-update.html */
-  update<T extends TableRef>(table: T): never {
-    throw Error('not implemented')
   }
 
   protected query<T extends Query>(node: {

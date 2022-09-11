@@ -65,10 +65,6 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
     return insertion
   }
 
-  returning(arg: any) {
-    throw Error('not implemented')
-  }
-
   protected resolve(result: QueryResult) {
     return result.rowCount
   }

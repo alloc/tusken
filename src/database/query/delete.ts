@@ -28,14 +28,6 @@ export class Delete<From extends TableRef = any> extends Query<
     return this
   }
 
-  using(): never {
-    throw Error('not implemented')
-  }
-
-  returning(): never {
-    throw Error('not implemented')
-  }
-
   protected resolve(result: QueryResult) {
     return result.rowCount
   }
