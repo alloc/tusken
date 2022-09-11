@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import * as pgMem from 'pg-mem'
-import type { Database } from 'tusken'
+import { Database, inspectQuery, Query } from 'tusken'
 
 export const memDb = pgMem.newDb()
 
@@ -19,3 +19,13 @@ function loadSchema() {
   const schema = fs.readFileSync(file, 'utf8').split(';\n')
   return schema.filter(stmt => !stmt.includes('OWNER TO')).join(';\n')
 }
+
+expect.addSnapshotSerializer({
+  test: val => val instanceof Query,
+  print: val => inspectQuery(val).sql,
+})
+
+expect.addSnapshotSerializer({
+  test: val => Array.isArray(val) && val.length == 1 && val[0] instanceof Query,
+  print: (val, print) => print(inspectQuery(val).tokens),
+})

@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       'tusken/config': resolve('src/config.ts'),
+      'tusken/array': resolve('src/database/array.ts'),
       tusken: resolve('src/tusken.ts'),
     },
   },
