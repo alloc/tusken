@@ -90,11 +90,27 @@ export namespace Query {
   export interface Context {
     db: Database
     nodes: Node<Query>[]
-    /** Not populated until the query is rendered. */
+    /**
+     * Any values that cannot be stringified without the
+     * help of node-postgres (aka `pg`).
+     *
+     * Empty until the query is rendered.
+     */
     values: any[]
-    single?: boolean
+    /**
+     * Exists when a `SELECT` command starts this query.
+     *
+     * If tokenizing a column expression, this property is
+     * used to detect when joins are present, which means
+     * explicit table names must be included.
+     */
     select?: SelectProps
-    inArray?: boolean
+    /**
+     * Equals true when the query promise should resolve
+     * with a single result, even if multiple rows are returned
+     * from the query.
+     */
+    single?: boolean
   }
 }
 
