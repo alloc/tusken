@@ -1,9 +1,9 @@
 import { BoolExpression } from '../expression'
+import { TokenArray } from '../internal/token'
+import { tokenizeWhere } from '../internal/tokenize'
 import { Query, QueryResult } from '../query'
 import { kTableName } from '../symbols'
 import { TableRef } from '../table'
-import { TokenArray } from '../token'
-import { tokenizeWhere } from '../tokenize'
 import { where, Where } from './where'
 
 type Props = {

@@ -1,15 +1,15 @@
 import { BoolExpression } from '../../expression'
-import { JoinProps } from '../../join'
-import { Query } from '../../query'
-import { Selection, SelectionSource } from '../../selection'
-import { toTableName } from '../../table'
-import { TokenArray } from '../../token'
+import { TokenArray } from '../../internal/token'
 import {
   tokenizeExpression,
   tokenizeOrderBy,
   tokenizeSelected,
   tokenizeWhere,
-} from '../../tokenize'
+} from '../../internal/tokenize'
+import { JoinProps } from '../../join'
+import { Query } from '../../query'
+import { Selection, SelectionSource } from '../../selection'
+import { toTableName } from '../../table'
 import { SortSelection } from '../orderBy'
 import { Where, where } from '../where'
 

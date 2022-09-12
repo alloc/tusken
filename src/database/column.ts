@@ -1,10 +1,10 @@
 import type { Any } from '@alloc/types'
 import { Expression } from './expression'
 import { CallExpression } from './function'
+import { tokenizeColumn } from './internal/tokenize'
 import { Selectable } from './query/select'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
-import { tokenizeColumn } from './tokenize'
 import { Input, Type } from './type'
 import { t } from './type-builtin'
 

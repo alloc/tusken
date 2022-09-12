@@ -1,27 +1,27 @@
-import { RuntimeType } from 'tusken'
-import { callProp } from '../utils/callProp'
-import { toArray } from '../utils/toArray'
-import { Check, CheckBuilder } from './check'
-import { BoolExpression, Expression } from './expression'
-import { Query } from './query'
-import { SortExpression, SortSelection } from './query/orderBy'
-import { Selectable } from './query/select'
-import type { AliasMapping, Selection } from './selection'
+import { callProp } from '../../utils/callProp'
+import { toArray } from '../../utils/toArray'
+import { Check, CheckBuilder } from '../check'
+import { BoolExpression, Expression } from '../expression'
+import { Query } from '../query'
+import { SortExpression, SortSelection } from '../query/orderBy'
+import { Selectable } from '../query/select'
+import type { AliasMapping, Selection } from '../selection'
 import {
   kExprProps,
   kExprTokens,
   kSelectionArgs,
   kTableName,
   kTypeTokenizer,
-} from './symbols'
-import type { Token, TokenArray } from './token'
+} from '../symbols'
 import {
   isBoolExpression,
   isCallExpression,
   isExpression,
   isSelection,
   isTableRef,
-} from './type'
+  RuntimeType,
+} from '../type'
+import type { Token, TokenArray } from './token'
 
 /**
  * Safely coerce a user-defined value to a SQL token.

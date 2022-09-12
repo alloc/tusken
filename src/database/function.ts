@@ -1,11 +1,11 @@
 import { FunctionFlags as f } from '../constants'
 import { isObject } from '../utils/isObject'
 import { Expression, ExpressionProps } from './expression'
+import { TokenArray } from './internal/token'
+import { tokenize } from './internal/tokenize'
 import { kUnknownType } from './internal/type'
 import type { Query } from './query'
 import { kExprProps } from './symbols'
-import { TokenArray } from './token'
-import { tokenize } from './tokenize'
 import type { Type } from './type'
 import { isCallExpression } from './type'
 

@@ -1,4 +1,4 @@
-import { Token } from './token'
+import { Token } from './internal/token'
 
 export function tokenizeJson(json: any): Token {
   return { literal: JSON.stringify(json) }

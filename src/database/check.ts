@@ -4,9 +4,9 @@ import {
   ExpressionProps,
   ExpressionType,
 } from './expression'
+import { tokenizeCheck, tokenizeExpression } from './internal/tokenize'
 import { kBoolType } from './internal/type'
 import { Query } from './query'
-import { tokenizeCheck, tokenizeExpression } from './tokenize'
 import { Input, isBoolExpression, Type } from './type'
 import { t } from './type-builtin'
 

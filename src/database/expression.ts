@@ -1,8 +1,8 @@
 import { Any } from '@alloc/types'
+import type { TokenProducer } from './internal/token'
 import { kUnknownType } from './internal/type'
 import { kExprProps, kExprTokens, kRuntimeType } from './symbols'
-import type { TokenProducer } from './token'
-import { RuntimeType, Type } from './type'
+import { RuntimeType, SetType, Type } from './type'
 import { t } from './type-builtin'
 
 const emptyProps: any = Object.freeze({})

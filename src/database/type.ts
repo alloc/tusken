@@ -2,6 +2,7 @@ import { Intersect, Remap } from '@alloc/types'
 import type { ColumnRef } from './column'
 import type { BoolExpression, Expression } from './expression'
 import type { CallExpression } from './function'
+import type { Token, TokenArray } from './internal/token'
 import type { Selection } from './selection'
 import {
   kColumnFrom,
@@ -15,7 +16,6 @@ import {
   kTypeTokenizer,
 } from './symbols'
 import type { TableRef } from './table'
-import type { Token, TokenArray } from './token'
 
 const kJsonType = Symbol()
 const kDownCasts = Symbol()

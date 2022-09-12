@@ -1,6 +1,7 @@
 import { Exclusive } from '@alloc/types'
-import { Query } from './query'
-import { kDatabaseReserved } from './symbols'
+import { Query } from '../query'
+import { kDatabaseReserved } from '../symbols'
+import { renderQuery, toQueryInternal } from './query'
 
 /** Coerce into a string, buffer, or null */
 type Value = { value: any }
@@ -82,7 +83,7 @@ function renderToken(token: Token, ctx: Query.Context): string {
     : 'number' in token
     ? toNumber(token.number)
     : token.query
-    ? `(${token.query.render()})`
+    ? `(${renderQuery(toQueryInternal(token.query).context)})`
     : renderList(token, ctx)
 }
 

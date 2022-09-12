@@ -1,9 +1,9 @@
 import { toArray } from '../../utils/toArray'
+import { Token, TokenArray } from '../internal/token'
+import { tokenizeTyped } from '../internal/tokenize'
 import { Query, QueryResult } from '../query'
 import { kPrimaryKey } from '../symbols'
 import { getColumnType, TableRef, toTableName } from '../table'
-import { Token, TokenArray } from '../token'
-import { tokenizeTyped } from '../tokenize'
 import { RuntimeType } from '../type'
 
 type Props<T extends TableRef> = {

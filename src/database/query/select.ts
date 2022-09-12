@@ -1,4 +1,5 @@
 import { Any, Intersect } from '@alloc/types'
+import { renderQuery } from '../internal/query'
 import { QueryStreamConfig } from '../stream'
 import { kDatabaseQueryStream } from '../symbols'
 import { SetType, Values } from '../type'
@@ -44,7 +45,7 @@ export class Select<From extends Selectable[] = any> //
         'pg-query-stream not installed or the generated client is outdated'
       )
 
-    const query = this.render()
+    const query = renderQuery(this.context)
     const stream = new QueryStream<SelectResult<From>>(query, values, config)
     db.client.query(stream)
     return stream
