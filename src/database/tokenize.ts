@@ -126,6 +126,12 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
   else if (right instanceof Check) {
     tokens.push(tokenizeCheck(right, ctx))
   }
+  // Array-based checks like "IN" actually use tuples.
+  else if (Array.isArray(right)) {
+    tokens.push({
+      tuple: right.map(value => tokenize(value, ctx)),
+    })
+  }
   // Infer the type of any other values.
   else {
     tokens.push(tokenize(right, ctx))
