@@ -1,4 +1,5 @@
 import endent from 'endent'
+import { FunctionFlags } from 'tusken/constants'
 import type { NativeFunc } from '../extract/extractFuncs'
 import { __PURE__ } from '../utils/syntax'
 
@@ -79,11 +80,13 @@ export function generateNativeFuncs(
       .map(name => {
         let returnSet = false
         let returnBool = false
+        let returnAggregate = false
 
         const signature: string[] = []
         const overloads = Object.values(groupedFuncs[name])
         for (const [fn] of overloads) {
           if (fn.returnSet) returnSet = true
+          else if (fn.kind == 'a') returnAggregate = true
           if (fn.returnType == 't.bool') returnBool = true
 
           const hasVoidReturn = fn.returnType == 't.void'
@@ -128,22 +131,32 @@ export function generateNativeFuncs(
           : ``
 
         const defineArgs: string[] = [`"${name}"`]
-        if (returnBool) {
-          defineArgs.push('t.bool')
-        }
-
-        const isVarFunc = varFuncs.includes(name)
+        const defineFlags: number[] = []
 
         let constType: string
+
+        const isVarFunc = varFuncs.includes(name)
         if (isVarFunc) {
           const [fn] = overloads[0]
-          defineArgs[1] ||= 'undefined'
-          defineArgs[2] = 'true'
+          defineFlags.push(FunctionFlags.omitArgs)
           constType = renderOutput(fn)
         } else {
           constType = endent`{
             ${summary + signature.join('\n')}
           }`
+          if (returnAggregate) {
+            defineFlags.push(FunctionFlags.isAggregate)
+          }
+        }
+
+        if (returnBool) {
+          defineArgs[2] = 't.bool'
+        }
+
+        if (defineFlags.length || defineArgs.length > 2) {
+          defineArgs[1] = defineFlags.length
+            ? String(defineFlags.reduce((a, b) => a | b, 0))
+            : '0'
         }
 
         let assignedValue =

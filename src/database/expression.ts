@@ -1,7 +1,8 @@
 import { Any } from '@alloc/types'
-import { kExprProps, kExprTokens } from './symbols'
+import { kUnknownType } from './internal/type'
+import { kExprProps, kExprTokens, kRuntimeType } from './symbols'
 import type { TokenProducer } from './token'
-import type { RuntimeType, SetType, Type } from './type'
+import { RuntimeType, Type } from './type'
 import { t } from './type-builtin'
 
 const emptyProps: any = Object.freeze({})
@@ -21,10 +22,12 @@ export class Expression<
   }
   constructor(
     props: ([Props] extends [Any] ? Record<string, any> : Props) | null,
-    tokens: TokenProducer
+    tokens: TokenProducer,
+    type?: RuntimeType<T>
   ) {
     this[kExprProps] = props || emptyProps
     this[kExprTokens] = tokens
+    this[kRuntimeType] = type || kUnknownType
   }
 }
 

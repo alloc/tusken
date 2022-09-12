@@ -6,6 +6,7 @@ import type { Selection } from './selection'
 import {
   kColumnFrom,
   kExprProps,
+  kRuntimeType,
   kSelectionFrom,
   kTableName,
   kTypeArrayId,
@@ -18,7 +19,6 @@ import type { Token, TokenArray } from './token'
 
 const kJsonType = Symbol()
 const kDownCasts = Symbol()
-const kRuntimeType = Symbol()
 
 /** Postgres data type */
 export abstract class Type<
@@ -59,14 +59,6 @@ export const defineType = <T extends Type>(
     [kTypeName]: name,
     [kTypeTokenizer]: tokenizer,
   } as any)
-
-/**
- * Expressions use this to set their runtime type metadata
- * without subclassing the `Type` class.
- */
-export function setType(self: Expression, type: RuntimeType) {
-  self[kRuntimeType] = type
-}
 
 /** Convert a Postgres type to a JavaScript type */
 export type Value<T> = T extends any

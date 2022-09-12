@@ -30,6 +30,11 @@
       "import": "./dist/config.mjs",
       "default": "./dist/config.cjs"
     },
+    "./constants": {
+      "types": "./dist/constants.d.ts",
+      "import": "./dist/constants.mjs",
+      "default": "./dist/constants.cjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [

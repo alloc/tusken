@@ -4,13 +4,13 @@ import {
   ExpressionProps,
   ExpressionType,
 } from './expression'
+import { kBoolType } from './internal/type'
 import { Query } from './query'
 import { tokenizeCheck, tokenizeExpression } from './tokenize'
 import { Input, isBoolExpression, Type } from './type'
 import { t } from './type-builtin'
 
 interface Props extends ExpressionProps {
-  type: 'bool'
   check: Check | BoolExpression
 }
 
@@ -18,7 +18,7 @@ export class CheckList<T extends t.bool | t.null = any> //
   extends Expression<T, Props>
 {
   constructor(check: Check | BoolExpression) {
-    super({ type: 'bool', check }, tokenizeCheckList)
+    super({ type: kBoolType, check }, tokenizeCheckList)
   }
 
   and(cond: BoolExpression): this

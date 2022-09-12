@@ -1,10 +1,11 @@
 import { Narrow } from '../utils/Narrow'
 import { ColumnRef } from './column'
 import { CallExpression } from './function'
+import { kSetType } from './internal/type'
 import { RawSelection, ResolveSelection, Selection } from './selection'
 import { makeSelector } from './selector'
 import { kSetAlias } from './symbols'
-import { defineType, SetType, Type } from './type'
+import { SetType, Type } from './type'
 
 /** A function that returns a set of rows. */
 export function defineSetFunction(callee: string): any {
@@ -29,15 +30,13 @@ type SetSelector<T extends Type, Callee extends string> = {
   ): Selection<ResolveSelection<Selected>, SetRef<T, Callee>>
 }
 
-const SET_TYPE = defineType(0, 'setof<record>')
-
 class SetRefExpression<
   T extends Type = any,
   Callee extends string = any
 > extends CallExpression<SetType<{ [P in Callee]: T }>, Callee> {
   protected [kSetAlias]: string
   constructor(callee: Callee, args: any[]) {
-    super(callee, args, SET_TYPE)
+    super({ callee, args, type: kSetType })
     this[kSetAlias] = callee
   }
 
