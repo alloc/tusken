@@ -63,7 +63,7 @@ export function generateTypeSchema(
         }, "${table.name}", ${pkColumn}, ${
         optionColumns.map(quoted).join(' | ') || '""'
       }> = ${__PURE__} makeTableRef("${table.name}", ${pkColumn}, {
-          ${renderColumns(table.columns).join(',\n')},
+          ${renderColumns(table.columns, true).join(',\n')},
         })
       `
     )
@@ -149,11 +149,14 @@ export function generateTypeSchema(
   ]
 }
 
-function renderColumns(columns: TableColumn[]) {
+function renderColumns(columns: TableColumn[], omitNulls?: boolean) {
   return columns.map(col => {
     let type = 't.' + col.informationSchemaValue.udt_name
     if (col.isArray) {
       type = `t.array(${type})`
+    }
+    if (!omitNulls && col.isNullable) {
+      type += ' | t.null'
     }
     return `${col.name}: ${type}`
   })
