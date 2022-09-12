@@ -1,7 +1,7 @@
 import { kTypeArrayId, kTypeName } from './symbols'
 import { defineType, RuntimeType, Type } from './type'
 
-const defineArrayType = ((type: RuntimeType) => {
+export const array = ((type: RuntimeType) => {
   const id = type[kTypeArrayId]
   if (id !== undefined) {
     return defineType(id, type[kTypeName] + '[]', id)
@@ -24,12 +24,10 @@ export type array<Element extends Type> = Element extends Type<
 export type array2d<Element extends Type> = array<array<Element>>
 export type array3d<Element extends Type> = array<array2d<Element>>
 
-export { defineArrayType as array }
-
 export const array2d = <Element extends RuntimeType<T>, T extends Type>(
   element: Element
-): RuntimeType<array2d<T>> => defineArrayType(defineArrayType(element) as any)
+): RuntimeType<array2d<T>> => array(array(element) as any)
 
 export const array3d = <Element extends RuntimeType<T>, T extends Type>(
   element: Element
-): RuntimeType<array3d<T>> => defineArrayType(array2d(element) as any)
+): RuntimeType<array3d<T>> => array(array2d(element) as any)
