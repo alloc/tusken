@@ -3,16 +3,16 @@ import type { ClientConfig } from 'pg'
 import type { Config } from 'tusken/config'
 import escalade from './escalade/sync'
 
-const defaultConnection = {
+const getDefaultConnection = () => ({
   host: process.env.PGHOST || 'localhost',
   port: +(process.env.PGPORT || 5432),
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE || 'main',
-}
+})
 
 export type LoadedConfig = Config & {
-  connection: ClientConfig & typeof defaultConnection
+  connection: ClientConfig & ReturnType<typeof getDefaultConnection>
   schemaDir: string
   dataDir: string
   tuskenId: string
@@ -29,6 +29,8 @@ export function loadConfig(configPath?: string, database?: string) {
     }
   })
 
+  const defaultConnection = getDefaultConnection()
+
   if (configPath) {
     const jiti = require('jiti') as typeof import('jiti').default
     const load = jiti(__filename, { interopDefault: true, esmResolve: true })
@@ -44,7 +46,7 @@ export function loadConfig(configPath?: string, database?: string) {
   }
 
   config ||= {
-    connection: { ...defaultConnection },
+    connection: defaultConnection,
   }
 
   assertType<LoadedConfig>(config)

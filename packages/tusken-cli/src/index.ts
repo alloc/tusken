@@ -11,7 +11,8 @@ import { Client } from 'pg'
 import { loadConfig } from './config'
 import { debounce } from './debounce'
 import { defer, Deferred } from './defer'
-import { firstLine } from './firstline/index'
+import { dotenv } from './dotenv'
+import { firstLine } from './firstline'
 
 export default async function () {
   const tusken = cac('tusken')
@@ -239,6 +240,7 @@ export default async function () {
 
   tusken.help()
   try {
+    dotenv()
     tusken.parse(process.argv, { run: false })
     await tusken.runMatchedCommand()
   } catch (e: any) {
