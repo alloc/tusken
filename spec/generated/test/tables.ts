@@ -8,7 +8,7 @@ export const follow: TableRef<{
 }, "follow", "id", "id"> = /*#__PURE__*/ makeTableRef("follow", "id", {
   id: t.int4,
   follower: t.int4,
-  author: t.int4
+  author: t.int4,
 })
 
 export const like: TableRef<{
@@ -18,7 +18,7 @@ export const like: TableRef<{
 }, "like", "id", "id"> = /*#__PURE__*/ makeTableRef("like", "id", {
   id: t.int4,
   tweet: t.int4,
-  author: t.int4
+  author: t.int4,
 })
 
 export const tweet: TableRef<{
@@ -28,7 +28,7 @@ export const tweet: TableRef<{
 }, "tweet", "id", "id"> = /*#__PURE__*/ makeTableRef("tweet", "id", {
   id: t.int4,
   author: t.int4,
-  text: t.text
+  text: t.text,
 })
 
 export const user: TableRef<{
@@ -36,11 +36,11 @@ export const user: TableRef<{
   name: t.text
   joinedAt: t.timestamptz
   bio: t.text
-}, "user", "id", "id" | "joinedAt"> = /*#__PURE__*/ makeTableRef("user", "id", {
+}, "user", "id", "id" | "joinedAt" | "bio"> = /*#__PURE__*/ makeTableRef("user", "id", {
   id: t.int4,
   name: t.text,
   joinedAt: t.timestamptz,
-  bio: t.text
+  bio: t.text,
 })
 
 // Materialized row types
