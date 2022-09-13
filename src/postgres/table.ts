@@ -71,7 +71,7 @@ export interface TableRef<
   PrimaryKey extends string = any,
   NullableColumn extends string = any
 > extends TableType<T, TableName, PrimaryKey, NullableColumn>,
-    TableSelector<T, PrimaryKey> {
+    TableSelector<T, TableName, PrimaryKey, NullableColumn> {
   /**
    * Exclude specific columns from the result set.
    */
@@ -80,10 +80,18 @@ export interface TableRef<
   ): Selection<Omit<T, Omitted[number]>, this>
 }
 
-type TableSelector<T extends object, PrimaryKey extends string> = {
+type TableSelector<
+  T extends object,
+  TableName extends string,
+  PrimaryKey extends string,
+  NullableColumn extends string
+> = {
   <Selected extends RawSelection>(
     selector: (row: ColumnRefs<T, PrimaryKey>) => Narrow<Selected>
-  ): Selection<ResolveSelection<Selected>, TableRef<T, PrimaryKey>>
+  ): Selection<
+    ResolveSelection<Selected>,
+    TableRef<T, TableName, PrimaryKey, NullableColumn>
+  >
 }
 
 export function makeTableRef<
