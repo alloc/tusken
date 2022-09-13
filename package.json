@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm -r --no-bail build",
     "dev": "pnpm -r --no-bail --parallel dev",
-    "release": "pnpm -r build && sh release.sh",
+    "release": "sh release.sh",
     "test": "vitest sql --watch",
     "test:types": "vitest types --watch",
     "test:generate": "cd spec/generated && tusken generate -d test"
