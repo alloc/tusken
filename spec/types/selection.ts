@@ -1,4 +1,4 @@
-import { assert, test, _ } from 'spec.ts'
+import { assert, describe, test, _ } from 'spec.ts'
 import { ResolveSelection, Selection } from 'tusken'
 import { ColumnRef } from '../../src/postgres/column'
 import { SelectedRow } from '../../src/postgres/selection'
@@ -52,4 +52,22 @@ test('db.select => asyncIterator', async () => {
   )) {
     assert(user, _ as { id: number; name: string })
   }
+})
+
+describe('table selection', () => {
+  test('nullable column', () => {
+    const selection = t.user(u => [u.bio])
+    /**
+     * The returned array should've been resolved
+     * into an object type like this.
+     */
+    type Columns = {
+      bio: t.text | t.null
+    }
+    /**
+     * The `selection` object should be this type.
+     */
+    type Result = Selection<Columns, typeof t.user>
+    assert(selection, _ as Result)
+  })
 })
