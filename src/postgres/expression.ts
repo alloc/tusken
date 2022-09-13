@@ -13,7 +13,7 @@ export type ExpressionProps = {
 
 export class Expression<
   T extends Type = any,
-  Props extends ExpressionProps = any
+  Props extends ExpressionProps = ExpressionProps
 > {
   protected [kExprProps]: Props
   protected [kExprTokens]: TokenProducer

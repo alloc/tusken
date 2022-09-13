@@ -106,7 +106,7 @@ export function isExpression(val: any): val is Expression {
 
 export function isBoolExpression(val: any): val is BoolExpression {
   const exprType = isExpression(val) && val[kExprProps].type
-  return exprType?.[kTypeName] == 'bool'
+  return !!exprType && exprType[kTypeName] == 'bool'
 }
 
 export function isCallExpression(
@@ -114,7 +114,7 @@ export function isCallExpression(
   callee?: string
 ): val is CallExpression {
   const props = isExpression(val) && val[kExprProps]
-  return props ? !callee || props.callee == callee : false
+  return props ? !callee || (props as any).callee == callee : false
 }
 
 export function isArrayType(val: any): val is Type {
