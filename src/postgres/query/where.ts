@@ -5,13 +5,12 @@ import { BoolExpression, Expression } from '../expression'
 import { CallExpression } from '../function'
 import { is } from '../is'
 import { JoinProps } from '../join'
-import { Selection } from '../selection'
+import { Selectable, Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
 import { kPrimaryKey, kTableName } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
 import { Type } from '../type'
 import { t } from '../type-builtin'
-import { Selectable } from './select'
 
 export function where<From extends Selectable[]>(
   props: {

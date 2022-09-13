@@ -1,10 +1,10 @@
-import type { CombineObjects, Intersect, Pick } from '@alloc/types'
+import type { Any, CombineObjects, Intersect, Pick } from '@alloc/types'
 import type { ColumnRef } from './column'
 import type { CallExpression } from './function'
 import type { SetRef } from './set'
 import { kSelectionArgs, kSelectionFrom, kSelectionType } from './symbols'
 import type { TableRef } from './table'
-import type { SetType } from './type'
+import type { SetType, Values } from './type'
 
 /** Selection sources have a default selection of all columns. */
 export type SelectionSource = SetRef | TableRef
@@ -24,6 +24,26 @@ export class Selection<
 }
 
 export interface Selection<T> extends SetType<T> {}
+
+/** Object types compatible with `SELECT` command */
+export type Selectable = SelectionSource | Selection
+
+export type SelectResult<From extends Selectable[]> = SelectedRow<
+  From[number]
+> extends infer Result
+  ? Extract<Result, object>
+  : never
+
+export type SelectResults<From extends Selectable[]> =
+  SelectResult<From>[] extends infer Result ? Extract<Result, object[]> : never
+
+/** Note that `T` must be a union, not an array type. */
+export type SelectedRow<T> = unknown &
+  ([T] extends [Any]
+    ? Record<string, any>
+    : Intersect<T extends SetType<infer Row> ? Row : never> extends infer Row
+    ? Values<Extract<Row, object>>
+    : never)
 
 export type AliasMapping = {
   [alias: string]: ColumnRef | CallExpression

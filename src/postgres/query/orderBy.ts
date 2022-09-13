@@ -2,11 +2,10 @@ import { Exclusive, Intersect } from '@alloc/types'
 import type { ColumnRefs } from '../column'
 import { Expression } from '../expression'
 import { JoinProps } from '../join'
-import { Selection } from '../selection'
+import { Selectable, SelectedRow, Selection } from '../selection'
 import { makeColumnRefs } from '../selector'
 import { kSelectionFrom } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableName } from '../table'
-import type { Selectable, SelectedRow } from './select'
 import type { SourceRefId } from './where'
 
 export function orderBy<From extends Selectable[]>(

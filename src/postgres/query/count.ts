@@ -1,5 +1,6 @@
 import { Query, QueryResult } from '../query'
-import { AbstractSelect, Selectable, SelectProps } from './abstract/select'
+import { Selectable } from '../selection'
+import { AbstractSelect, SelectProps } from './abstract/select'
 import { Where } from './where'
 
 export class Count<From extends Selectable[]> //

@@ -1,13 +1,13 @@
-import { Any, Intersect } from '@alloc/types'
 import { renderQuery } from '../internal/query'
+import { Selectable, SelectResult, SelectResults } from '../selection'
 import { QueryStreamConfig } from '../stream'
 import { kDatabaseQueryStream } from '../symbols'
-import { SetType, Values } from '../type'
-import { AbstractSelect, Selectable, SelectProps } from './abstract/select'
+import { SetType } from '../type'
+import { AbstractSelect, SelectProps } from './abstract/select'
 import { orderBy, SortSelection, SortSelector } from './orderBy'
 import { Where } from './where'
 
-export type { Selectable, SelectProps }
+export type { SelectProps }
 
 export class Select<From extends Selectable[] = any> //
   extends AbstractSelect<From, 'select'>
@@ -66,20 +66,3 @@ export interface Select<From>
     on: Where<[...From, Joined]>
   ): Select<[...From, Joined]>
 }
-
-type SelectResult<From extends Selectable[]> = SelectedRow<
-  From[number]
-> extends infer Result
-  ? Extract<Result, object>
-  : never
-
-type SelectResults<From extends Selectable[]> =
-  SelectResult<From>[] extends infer Result ? Extract<Result, object[]> : never
-
-/** Note that `T` must be a union, not an array type. */
-export type SelectedRow<T> = unknown &
-  ([T] extends [Any]
-    ? Record<string, any>
-    : Intersect<T extends SetType<infer Row> ? Row : never> extends infer Row
-    ? Values<Extract<Row, object>>
-    : never)

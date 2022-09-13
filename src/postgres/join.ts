@@ -1,5 +1,5 @@
 import type { BoolExpression } from './expression'
-import type { Selectable } from './query/select'
+import type { Selectable } from './selection'
 
 export type JoinProps = {
   type: 'inner'
