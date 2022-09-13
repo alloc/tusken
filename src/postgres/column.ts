@@ -2,10 +2,10 @@ import type { Any } from '@alloc/types'
 import { Expression } from './expression'
 import { CallExpression } from './function'
 import { tokenizeColumn } from './internal/tokenize'
-import { Selectable } from './query/select'
+import type { Selectable } from './selection'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
-import { Input, Type } from './type'
+import type { Input, Type } from './type'
 import { t } from './type-builtin'
 
 export type ColumnOf<T> = string & keyof RowType<T>

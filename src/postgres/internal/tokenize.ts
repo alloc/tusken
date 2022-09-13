@@ -1,11 +1,10 @@
 import { callProp } from '../../utils/callProp'
 import { toArray } from '../../utils/toArray'
 import { Check, CheckBuilder } from '../check'
-import { BoolExpression, Expression } from '../expression'
+import type { BoolExpression, Expression } from '../expression'
 import { Query } from '../query'
-import { SortExpression, SortSelection } from '../query/orderBy'
-import { Selectable } from '../query/select'
-import type { AliasMapping, Selection } from '../selection'
+import type { SortExpression, SortSelection } from '../query/orderBy'
+import type { AliasMapping, Selectable, Selection } from '../selection'
 import {
   kExprProps,
   kExprTokens,

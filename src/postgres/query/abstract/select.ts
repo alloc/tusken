@@ -8,7 +8,7 @@ import {
 } from '../../internal/tokenize'
 import { JoinProps } from '../../join'
 import { Query } from '../../query'
-import { Selection, SelectionSource } from '../../selection'
+import { Selectable } from '../../selection'
 import { toTableName } from '../../table'
 import { SortSelection } from '../orderBy'
 import { Where, where } from '../where'
@@ -23,9 +23,6 @@ export interface SelectProps {
   offset?: number
   orderBy?: SortSelection
 }
-
-/** Object types compatible with `SELECT` command */
-export type Selectable = SelectionSource | Selection
 
 /**
  * For queries based on `SELECT` command, but may not return a record set.
