@@ -1,8 +1,12 @@
 import { LoosePick, Omit, Remap } from '@alloc/types'
 import { Narrow } from '../utils/Narrow'
 import { ColumnInput, ColumnRefs, ColumnType } from './column'
-import { Selectable } from './query/select'
-import { RawSelection, ResolveSelection, Selection } from './selection'
+import {
+  RawSelection,
+  ResolveSelection,
+  Selectable,
+  Selection,
+} from './selection'
 import { makeSelector } from './selector'
 import {
   kNullableColumns,
