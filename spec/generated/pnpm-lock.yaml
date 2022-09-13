@@ -4,12 +4,8 @@ importers:
 
   .:
     specifiers:
-      '@tusken/cli': link:../../node_modules/@tusken/cli
-      tusken: link:./tusken
+      '@tusken/cli': link:../../packages/tusken-cli
+      tusken: link:../../src
     dependencies:
-      tusken: link:tusken
-    devDependencies:
-      '@tusken/cli': link:../../node_modules/@tusken/cli
-
-  tusken:
-    specifiers: {}
+      '@tusken/cli': link:../../packages/tusken-cli
+      tusken: link:../../src
