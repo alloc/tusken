@@ -59,15 +59,22 @@ type RawColumnSelection = ColumnRef | CallExpression | AliasMapping
 
 /** Coerce a `RawSelection` into an object type. */
 export type ResolveSelection<T extends RawSelection> = T extends (infer U)[]
-  ? ResolveSelection<Extract<U, RawColumnSelection>>
-  : Intersect<
-      | ResolveColumnRefs<T>
-      | (T extends CallExpression<infer ReturnType, infer Callee>
-          ? { [P in Callee]: ReturnType }
-          : T extends (infer E)[]
-          ? ResolveAliasMapping<E> | ResolveColumnRefs<E>
-          : ResolveAliasMapping<T>)
-    > extends infer Resolved
+  ? ResolveSingleSelection<Extract<U, RawColumnSelection>>
+  : ResolveSingleSelection<T>
+
+/**
+ * Unlike the `ResolveSelection` type, this type avoids separating the `T` union,
+ * in case there are multiple `ColumnExpression` with the same name that need to
+ * be merged.
+ */
+type ResolveSingleSelection<T extends RawSelection> = Intersect<
+  | ResolveColumnRefs<T>
+  | (T extends CallExpression<infer ReturnType, infer Callee>
+      ? { [P in Callee]: ReturnType }
+      : T extends (infer E)[]
+      ? ResolveAliasMapping<E> | ResolveColumnRefs<E>
+      : ResolveAliasMapping<T>)
+> extends infer Resolved
   ? Pick<Resolved, keyof Resolved>
   : never
 
