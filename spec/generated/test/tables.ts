@@ -35,7 +35,7 @@ export const user: TableRef<{
   id: t.int4
   name: t.text
   joinedAt: t.timestamptz
-  bio: t.text
+  bio: t.text | t.null
 }, "user", "id", "id" | "joinedAt" | "bio"> = /*#__PURE__*/ makeTableRef("user", "id", {
   id: t.int4,
   name: t.text,
