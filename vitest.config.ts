@@ -1,4 +1,5 @@
 import { resolve } from 'path'
+import { UserConfig } from 'vitest'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -13,6 +14,8 @@ export default defineConfig({
     include: ['spec/**/*.spec.ts'],
     globals: true,
     setupFiles: ['spec/db.ts'],
-    forceRerunTriggers: ['**/spec/types/*.ts', '**/spec/types/tsconfig.json'],
   },
-})
+}) as {
+  resolve: any
+  test: UserConfig
+}

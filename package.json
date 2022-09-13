@@ -8,7 +8,7 @@
     "dev": "pnpm -r --no-bail --parallel dev",
     "release": "sh release.sh",
     "test": "vitest sql --watch",
-    "test:types": "vitest types --watch",
+    "test:types": "vitest --watch -c spec/types/vitest.config.ts",
     "test:generate": "cd spec/generated && tusken generate -d test"
   },
   "prettier": "@alloc/prettier-config",
