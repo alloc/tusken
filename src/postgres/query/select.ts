@@ -7,6 +7,8 @@ import { AbstractSelect, SelectProps } from './abstract/select'
 import { orderBy, SortSelection, SortSelector } from './orderBy'
 import { Where } from './where'
 
+export type { SelectProps }
+
 export class Select<From extends Selectable[] = any> //
   extends AbstractSelect<From, 'select'>
 {
