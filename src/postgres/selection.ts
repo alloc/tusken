@@ -55,10 +55,18 @@ type ResolveAliasMapping<T> = T extends AliasMapping
   ? { [P in keyof T]: ResolveAliasedValue<T[P]> }
   : never
 
-type ResolveAliasedValue<T> =
-  | (T extends CallExpression<infer ReturnType> ? ReturnType : never)
-  | ResolveColumnRefs<T>
+type ResolveAliasedValue<T> = T extends CallExpression<infer ReturnType>
+  ? ReturnType
+  : T extends ColumnRef<infer ColumnValue>
+  ? ColumnValue
+  : never
 
+/**
+ * Convert a union of column refs into an object type.
+ *
+ * This is used when a selector returns an array that
+ * includes at least one column ref.
+ */
 type ResolveColumnRefs<T> = unknown &
   ([Extract<T, ColumnRef>] extends [ColumnRef<any, infer Column>]
     ? Column extends string
