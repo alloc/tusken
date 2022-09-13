@@ -3,7 +3,7 @@ import { Selectable, SelectResult, SelectResults } from '../selection'
 import { QueryStreamConfig } from '../stream'
 import { kDatabaseQueryStream } from '../symbols'
 import { SetType } from '../type'
-import { AbstractSelect } from './abstract/select'
+import { AbstractSelect, SelectProps } from './abstract/select'
 import { orderBy, SortSelection, SortSelector } from './orderBy'
 import { Where } from './where'
 
