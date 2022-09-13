@@ -35,6 +35,10 @@ export type ColumnRefs<T extends object, PrimaryKey extends string> = unknown &
           : ColumnRef<ColumnType<T, PrimaryKey>, PrimaryKey>
       })
 
+/**
+ * This creates a union of `ColumnExpression` types (one per Postgres type),
+ * instead of wrapping them all into one `ColumnExpression` type.
+ */
 export type ColumnRef<
   T extends Type = any,
   Name extends string = any
