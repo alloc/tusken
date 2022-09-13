@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import * as pgMem from 'pg-mem'
 import { Database, inspectQuery, Query } from 'tusken'
+import { expect } from 'vitest'
 
 export const memDb = pgMem.newDb()
 

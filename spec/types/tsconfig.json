@@ -1,10 +1,10 @@
 {
-  "extends": "../src/tsconfig.json",
+  "extends": "../../src/tsconfig.json",
   "include": ["./"],
-  "exclude": ["types"],
   "compilerOptions": {
+    "incremental": true,
     "module": "esnext",
     "moduleResolution": "node16",
-    "types": ["vitest/globals"]
+    "noEmit": true
   }
 }

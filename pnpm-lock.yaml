@@ -5,6 +5,7 @@ importers:
   .:
     specifiers:
       '@alloc/prettier-config': ^1.0.0
+      '@cush/exec': ^1.8.0
       '@tusken/cli': workspace:*
       '@types/pg': ^8.6.5
       callsites: ^3.1.0
@@ -15,6 +16,7 @@ importers:
       pg-mem: ^2.6.3
       pg-query-stream: ^4.2.4
       prettier: ^2.7.1
+      spec.ts: ^1.1.3
       tusken: workspace:*
       typescript: ^4.7.4
       vitest: ^0.22.1
@@ -22,6 +24,7 @@ importers:
       callsites: 3.1.0
     devDependencies:
       '@alloc/prettier-config': 1.0.0
+      '@cush/exec': 1.8.0
       '@tusken/cli': link:packages/tusken-cli
       '@types/pg': 8.6.5
       conventional-changelog-conventionalcommits: 5.0.0
@@ -31,6 +34,7 @@ importers:
       pg-mem: 2.6.3
       pg-query-stream: 4.2.4_pg@8.8.0
       prettier: 2.7.1
+      spec.ts: 1.1.3
       tusken: link:src
       typescript: 4.8.2
       vitest: 0.22.1
@@ -349,6 +353,13 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@cush/exec/1.8.0:
+    resolution: {integrity: sha512-wwWjZPAMyPP58ja9Ad1o3oo2mPqd0AXOPD+Zotn3amK1ZpLDJM4ci6xNAeupI9KvkXYMPWSxg1h1sUeUoMajOQ==}
+    dependencies:
+      shell-quote: 1.7.3
+      type-error: 1.0.3
+    dev: true
 
   /@esbuild/linux-loong64/0.14.54:
     resolution: {integrity: sha512-bZBrLAIX1kpWelV0XemxBZllyRmM6vgFQQG2GdNb+r3Fkp0FOh1NJSvekXDs7jq70k4euu1cryLMfU+mTXlEpw==}
@@ -4813,6 +4824,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /shell-quote/1.7.3:
+    resolution: {integrity: sha512-Vpfqwm4EnqGdlsBFNmHhxhElJYrdfcxPThu+ryKS5J8L/fhAwLazFZtq+S+TWZ9ANj2piSQLGj6NQg+lKPmxrw==}
+    dev: true
+
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
     dev: true
@@ -4934,6 +4949,10 @@ packages:
 
   /spdx-license-ids/3.0.12:
     resolution: {integrity: sha512-rr+VVSXtRhO4OHbXUiAF7xW3Bo9DuuF6C5jH+q/x15j2jniycgKbxU09Hr0WqlSLUs4i4ltHGXqTe7VHclYWyA==}
+    dev: true
+
+  /spec.ts/1.1.3:
+    resolution: {integrity: sha512-xDzHAwbHqe9OIHT1c+pnVpVuYSHNC5vk51aFKKoql2aH1RCzHplkd7MoSV7uLfzgm3GmlfpAfwLtfH2T3lQMmw==}
     dev: true
 
   /split-string/3.1.0:
@@ -5281,6 +5300,10 @@ packages:
   /type-detect/4.0.8:
     resolution: {integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==}
     engines: {node: '>=4'}
+    dev: true
+
+  /type-error/1.0.3:
+    resolution: {integrity: sha512-hlNA4NwwjtL9clb8nv+x/5C45uzxND+N+h+/y3z2dYdubGSmdtNtJjHVH4E68ZHR98Bkav4ACf1lmTZepc/4sg==}
     dev: true
 
   /type-fest/0.16.0:

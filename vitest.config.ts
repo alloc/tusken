@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       'tusken/config': resolve('src/config.ts'),
-      'tusken/array': resolve('src/database/array.ts'),
+      'tusken/array': resolve('src/postgres/array.ts'),
       tusken: resolve('src/tusken.ts'),
     },
   },
@@ -13,5 +13,6 @@ export default defineConfig({
     include: ['spec/**/*.spec.ts'],
     globals: true,
     setupFiles: ['spec/db.ts'],
+    forceRerunTriggers: ['**/spec/types/*.ts', '**/spec/types/tsconfig.json'],
   },
 })
