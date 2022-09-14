@@ -36,7 +36,7 @@ class SetRefExpression<
 > extends CallExpression<SetType<{ [P in Callee]: T }>, Callee> {
   protected [kSetAlias]: string
   constructor(callee: Callee, args: any[]) {
-    super({ callee, args, type: kSetType })
+    super(kSetType, { callee, args })
     this[kSetAlias] = callee
   }
 

@@ -1,25 +1,24 @@
 import { FunctionFlags as f } from '../constants'
 import { isObject } from '../utils/isObject'
-import { Expression, ExpressionProps } from './expression'
+import { Expression } from './expression'
 import { TokenArray } from './internal/token'
 import { tokenize } from './internal/tokenize'
 import { kUnknownType } from './internal/type'
 import type { Query } from './query'
 import { kExprProps } from './symbols'
-import type { Type } from './type'
+import type { RuntimeType, Type } from './type'
 import { isCallExpression } from './type'
 
 export const defineFunction =
   (callee: string, flags = 0, returnType = kUnknownType): any =>
   (...args: any[]) =>
-    new CallExpression({
+    new CallExpression(returnType, {
       callee,
       args: flags & f.omitArgs ? undefined : args,
-      type: returnType,
       isAggregate: (flags & f.isAggregate) !== 0,
     })
 
-interface Props<Callee extends string = any> extends ExpressionProps {
+interface Props<Callee extends string = any> {
   alias?: string
   args?: any[]
   callee: Callee
@@ -30,8 +29,8 @@ export class CallExpression<
   T extends Type = any,
   Callee extends string = any
 > extends Expression<T, Props<Callee>> {
-  constructor(props: Props<Callee>) {
-    super(props, tokenizeCallExpression)
+  constructor(returnType: RuntimeType<T>, props: Props<Callee>) {
+    super(returnType, props, tokenizeCallExpression)
 
     props.isAggregate ||= props.args?.some(
       arg => isObject(arg) && isCallExpression(arg) && arg.props.isAggregate

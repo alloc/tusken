@@ -2,10 +2,11 @@ import type { Any } from '@alloc/types'
 import { Expression } from './expression'
 import { CallExpression } from './function'
 import { tokenizeColumn } from './internal/tokenize'
+import { kUnknownType } from './internal/type'
 import type { Selectable } from './selection'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
-import type { Input, Type } from './type'
+import type { Input, RuntimeType, Type } from './type'
 import { t } from './type-builtin'
 
 export type ColumnOf<T> = string & keyof RowType<T>
@@ -44,8 +45,12 @@ export type ColumnRef<
   Name extends string = any
 > = T extends any ? ColumnExpression<T, Name> : never
 
-export function makeColumnRef(from: Selectable, name: string) {
-  return new ColumnExpression(from, name)
+export function makeColumnRef<T extends Type, Name extends string>(
+  from: Selectable,
+  name: Name,
+  type = kUnknownType as RuntimeType<T>
+): ColumnRef<T, Name> {
+  return new ColumnExpression(from, name, type) as any
 }
 
 class ColumnExpression<
@@ -55,8 +60,8 @@ class ColumnExpression<
   protected [kColumnFrom]: Selectable
   protected [kColumnName]: Name
 
-  constructor(from: Selectable, name: Name) {
-    super(null, (_, ctx) => [
+  constructor(from: Selectable, name: Name, type: RuntimeType<T>) {
+    super(type, null, (_, ctx) => [
       tokenizeColumn(
         this[kColumnName],
         // Omit the table name if no joins exist.

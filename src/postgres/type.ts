@@ -105,7 +105,7 @@ export function isExpression(val: any): val is Expression {
 }
 
 export function isBoolExpression(val: any): val is BoolExpression {
-  const exprType = isExpression(val) && val[kExprProps].type
+  const exprType = isExpression(val) && val[kRuntimeType]
   return !!exprType && exprType[kTypeName] == 'bool'
 }
 

@@ -7,23 +7,16 @@ import { t } from './type-builtin'
 
 const emptyProps: any = Object.freeze({})
 
-export type ExpressionProps = {
-  type?: RuntimeType
-}
-
-export class Expression<
-  T extends Type = any,
-  Props extends ExpressionProps = ExpressionProps
-> {
+export class Expression<T extends Type = any, Props extends object = {}> {
   protected [kExprProps]: Props
   protected [kExprTokens]: TokenProducer
   protected get props(): Props {
     return this[kExprProps]
   }
   constructor(
+    type: RuntimeType<T> | null,
     props: ([Props] extends [Any] ? Record<string, any> : Props) | null,
-    tokens: TokenProducer,
-    type?: RuntimeType<T>
+    tokens: TokenProducer
   ) {
     this[kExprProps] = props || emptyProps
     this[kExprTokens] = tokens
