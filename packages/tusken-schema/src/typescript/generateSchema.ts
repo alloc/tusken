@@ -26,7 +26,7 @@ export function generateTypeSchema(
 
   const userTypes: GeneratedLines & { refs: string[] } = {
     imports: {
-      [tuskenId]: ['makeTableRef', 'RowType', 'TableRef', 'Values'],
+      [tuskenId]: ['makeTableRef', 'ClientValues', 'RowType', 'TableRef'],
       './primitives': '* as t',
     },
     lines: [],
@@ -69,7 +69,7 @@ export function generateTypeSchema(
     )
     userTypes.lines.push(
       endent`
-        interface ${table.name} extends Values<RowType<typeof ${table.name}>> {}
+        interface ${table.name} extends ClientValues<RowType<typeof ${table.name}>> {}
       `
     )
   }

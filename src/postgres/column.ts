@@ -6,13 +6,13 @@ import { kUnknownType } from './internal/type'
 import type { Selectable } from './selection'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
-import type { Input, RuntimeType, Type } from './type'
+import type { ClientInput, RuntimeType, Type } from './type'
 import { t } from './type-builtin'
 
 export type ColumnOf<T> = string & keyof RowType<T>
 
 export type ColumnInput<T> = T extends Type<any, infer Value, infer CastFrom>
-  ? Value | T | Input<CastFrom>
+  ? Value | T | ClientInput<CastFrom>
   : T
 
 /**

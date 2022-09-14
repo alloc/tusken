@@ -16,7 +16,7 @@ import {
   kTableName,
 } from './symbols'
 import {
-  Input,
+  ClientInput,
   isSelection,
   isTableRef,
   RuntimeType,
@@ -25,7 +25,7 @@ import {
 } from './type'
 
 export type PrimaryKey<T> = RowType<T> extends infer Values
-  ? Input<Values[PrimaryKeyOf<T> & keyof Values]>
+  ? ClientInput<Values[PrimaryKeyOf<T> & keyof Values]>
   : never
 
 export type PrimaryKeyOf<T> = T extends TableRef<any, any, infer PrimaryKey>

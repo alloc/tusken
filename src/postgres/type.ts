@@ -17,17 +17,17 @@ import {
 } from './symbols'
 import type { TableRef } from './table'
 
-const kJsonType = Symbol()
+const kClientType = Symbol()
 const kDownCasts = Symbol()
 
 /** Postgres data type */
 export abstract class Type<
   TypeName extends string = any,
-  JsonType = any,
+  ClientType = any,
   DownCasts = any
 > {
   protected declare [kTypeName]: TypeName
-  protected declare [kJsonType]: JsonType
+  protected declare [kClientType]: ClientType
   protected declare [kDownCasts]: DownCasts
   protected declare [kRuntimeType]: RuntimeType
 }
@@ -60,15 +60,8 @@ export const defineType = <T extends Type>(
     [kTypeTokenizer]: tokenizer,
   } as any)
 
-/** Convert a Postgres type to a JavaScript type */
-export type Value<T> = T extends any
-  ? T extends Type<any, infer V>
-    ? V
-    : T
-  : never
-
 /** Convert a Postgres row to a JavaScript object */
-export type Values<T extends object> = Intersect<
+export type ClientValues<T extends object> = Intersect<
   keyof T extends infer Column
     ? Column extends keyof T
       ? Value<T[Column]> extends infer ColumnValue
@@ -83,7 +76,7 @@ export type Values<T extends object> = Intersect<
   : never
 
 /** Allow both the Postgres type and its JavaScript type */
-export type Input<T> = T extends Type<any, infer Value> ? Value | T : T
+export type ClientInput<T> = T extends Type<any, infer Value> ? Value | T : T
 
 export abstract class SetType<T extends object = any> //
   extends Type<`setof<record>`, T[], T[]> {}
