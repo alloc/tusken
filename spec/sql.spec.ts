@@ -12,11 +12,6 @@ describe('db.select', () => {
       'SELECT name, "joinedAt" FROM "user"'
     )
   })
-  test('count number of rows in a table', () => {
-    expect(db.select(t.user(() => pg.count()))).toMatchInlineSnapshot(
-      'SELECT count() FROM "user"'
-    )
-  })
 
   describe('.where', () => {
     test('with function call that returns boolean', () => {

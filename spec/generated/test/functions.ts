@@ -1531,7 +1531,6 @@ export const cotd: {
 
 export const count: {
   (arg: t.aggParam<t.any>): Aggregate<t.int8, "count">
-  (): Aggregate<t.int8, "count">
 } = /*#__PURE__*/ defineFunction("count", 1)
 
 export const covar_pop: {

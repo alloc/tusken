@@ -23,7 +23,14 @@ export function generateNativeFuncs(
     fn.returnType !== 't.bool' &&
     fn.returnType !== 't.void'
 
+  const skippedOverloads: Record<string, (fn: NativeFunc) => boolean> = {
+    count: fn => fn.argTypes.length == 0,
+  }
+
   for (const fn of nativeFuncs) {
+    if (skippedOverloads[fn.name]?.(fn)) {
+      continue
+    }
     const sig = String([
       isPassThrough(fn) ? '' : fn.returnType,
       fn.returnSet ? 'set' : '',
