@@ -87,7 +87,7 @@ export function generateNativeTypes(
   // These pseudo types are conflicting with TypeScript reserved keywords.
   const pseudoConflicts = {
     ANY: 'anynonarray | anyarray',
-    NULL: 'Type<"null", undefined, undefined>',
+    NULL: 'Type<"null", null, null>',
     VOID: 'Type<"void", void, void>',
   }
 
