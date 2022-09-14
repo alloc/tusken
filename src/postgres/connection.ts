@@ -4,20 +4,22 @@ import { QueryStream } from './stream'
 
 export type Client = Connection | ConnectionPool
 
-export type ConnectionPool = {
-  query: QueryFn
+export type Connection = ConnectionLike & {
+  end: () => Promise<void>
+}
+
+export type ConnectionPool = ConnectionLike & {
   connect: () => Promise<PooledConnection>
   end: () => Promise<void>
 }
 
-export type PooledConnection = {
-  query: QueryFn
+export type PooledConnection = ConnectionLike & {
   release: () => Promise<void>
 }
 
-export type Connection = {
+export type ConnectionLike = {
   query: QueryFn
-  end: () => Promise<void>
+  on: (event: string, listener: (...args: any[]) => void) => void
 }
 
 export type QueryFn = {
