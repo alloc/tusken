@@ -71,7 +71,7 @@ export interface TableRef<
   PrimaryKey extends string = any,
   NullableColumn extends string = any
 > extends TableType<T, TableName, PrimaryKey, NullableColumn>,
-    TableSelector<T, TableName, PrimaryKey, NullableColumn> {
+    TableSelect<T, TableName, PrimaryKey, NullableColumn> {
   /**
    * Exclude specific columns from the result set.
    */
@@ -80,7 +80,20 @@ export interface TableRef<
   ): Selection<Omit<T, Omitted[number]>, this>
 }
 
-type TableSelector<
+/**
+ * The callback type used for selecting columns from a table.
+ *
+ * Use this to wrap a `db.select` call while still allowing a
+ * custom selector to be used.
+ */
+export type TableSelector<
+  Selected extends RawSelection,
+  From extends TableRef
+> = (
+  row: From extends TableRef<infer T, any, infer PK> ? ColumnRefs<T, PK> : never
+) => Narrow<Selected>
+
+type TableSelect<
   T extends object,
   TableName extends string,
   PrimaryKey extends string,
