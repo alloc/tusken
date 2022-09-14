@@ -59,11 +59,11 @@ export function generateTypeSchema(
     userTypes.refs.push(
       endent`
         const ${table.name}: TableRef<{
-          ${renderColumns(table.columns).join('\n')}
+          ${renderColumns(table.columns, true).join('\n')}
         }, "${table.name}", ${pkColumn}, ${
         optionColumns.map(quoted).join(' | ') || '""'
       }> = ${__PURE__} makeTableRef("${table.name}", ${pkColumn}, {
-          ${renderColumns(table.columns, true).join(',\n')},
+          ${renderColumns(table.columns).join(',\n')},
         })
       `
     )
@@ -149,13 +149,14 @@ export function generateTypeSchema(
   ]
 }
 
-function renderColumns(columns: TableColumn[], omitNulls?: boolean) {
+function renderColumns(columns: TableColumn[], isType?: boolean) {
   return columns.map(col => {
     let type = 't.' + col.informationSchemaValue.udt_name
     if (col.isArray) {
-      type = `t.array(${type})`
+      type = isType ? `<${type}>` : `(${type})`
+      type = 't.array' + type
     }
-    if (!omitNulls && col.isNullable) {
+    if (isType && col.isNullable) {
       type += ' | t.null'
     }
     return `${col.name}: ${type}`
