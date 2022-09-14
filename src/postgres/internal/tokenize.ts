@@ -96,10 +96,14 @@ export function tokenizeColumn(column: string, table?: string | false): Token {
   return table ? { id: [table, column] } : { id: column }
 }
 
-export function tokenizeCheck(check: Check, ctx: Query.Context) {
+export function tokenizeCheck(
+  { left, op, right, isRange }: Check,
+  ctx: Query.Context
+): TokenArray {
   const tokens: TokenArray = []
-  const left = callProp(check.left)
-  const right = callProp(check.right)
+
+  left = callProp(left)
+  right = callProp(right)
 
   // This allows for overriding of operator precedence.
   if (isBoolExpression(left)) {
@@ -115,10 +119,12 @@ export function tokenizeCheck(check: Check, ctx: Query.Context) {
     tokens.push(tokenize(left, ctx))
   }
 
-  tokens.push(check.op)
+  tokens.push(
+    right === null ? (op == '=' ? 'IS' : op == '!=' ? 'IS NOT' : op) : op
+  )
 
   // For range checks, the right side is an array.
-  if (check.isRange) {
+  if (isRange) {
     tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
   }
   // Some checks have a check as their right side. (eg AND, OR)
