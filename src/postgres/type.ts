@@ -64,10 +64,8 @@ export const defineType = <T extends Type>(
 export type ClientValues<T extends object> = Intersect<
   keyof T extends infer Column
     ? Column extends keyof T
-      ? Value<T[Column]> extends infer ColumnValue
-        ? undefined extends ColumnValue
-          ? { [P in Column]?: ColumnValue }
-          : { [P in Column]: ColumnValue }
+      ? T[Column] extends Type<any, infer ColumnValue>
+        ? { [P in Column]: ColumnValue }
         : never
       : never
     : never
