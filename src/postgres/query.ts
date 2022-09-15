@@ -33,6 +33,7 @@ export abstract class Query<
         db: parent,
         nodes: [],
         values: [],
+        trace: Error(),
       }
     }
   }
@@ -74,16 +75,25 @@ export abstract class Query<
 // interface will not be awaitable, thus avoiding incomplete queries.
 Object.defineProperty(Query.prototype, 'then', {
   value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
-    const { db, values } = this.context
-    const query = renderQuery(this.context)
-    return db.client
-      .query(query, values)
-      .then(
-        this.resolve ||
-          (result =>
-            this.context.single ? result.rows[0] || null : result.rows)
-      )
-      .then(onfulfilled, onrejected)
+    const { db, values, trace } = this.context
+    const onError = (error: any) => {
+      trace.message = error.message
+      throw Object.assign(trace, { query, values, ...error })
+    }
+    try {
+      var query = renderQuery(this.context)
+      return db.client
+        .query(query, values)
+        .then(
+          this.resolve ||
+            (result =>
+              this.context.single ? result.rows[0] || null : result.rows),
+          onError
+        )
+        .then(onfulfilled, onrejected)
+    } catch (e: any) {
+      onError(e)
+    }
   },
 })
 
@@ -91,6 +101,7 @@ export namespace Query {
   export interface Context {
     db: Database
     nodes: Node<Query>[]
+    trace: Error
     /**
      * Any values that cannot be stringified without the
      * help of node-postgres (aka `pg`).
