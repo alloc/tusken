@@ -20,7 +20,7 @@ export interface DatabaseConfig {
 export class Database {
   protected [kDatabaseReserved]: string[]
   protected [kDatabaseQueryStream]?: typeof QueryStream
-  readonly connect: (opts: ConnectOptions) => Database
+  readonly connect: (opts?: ConnectOptions) => Database
   client: Client
 
   constructor(config: DatabaseConfig) {

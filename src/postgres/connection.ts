@@ -23,9 +23,9 @@ export type ConnectionLike = {
 }
 
 export type QueryFn = {
-  (query: string, values: any[]): Promise<QueryResult>
+  (query: string, values?: any[]): Promise<QueryResult>
   <T>(stream: QueryStream<T>): QueryStream<T>
 }
 
 export type ConnectOptions = ClientConfig
-export type ConnectFn = (opts: ConnectOptions) => Client
+export type ConnectFn = (opts?: ConnectOptions) => Client
