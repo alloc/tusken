@@ -19,7 +19,7 @@ export type PooledConnection = ConnectionLike & {
 
 export type ConnectionLike = {
   query: QueryFn
-  on: (event: string, listener: (...args: any[]) => void) => void
+  on: (event: 'error', listener: (e: Error) => void) => void
 }
 
 export type QueryFn = {
