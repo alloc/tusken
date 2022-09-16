@@ -8,6 +8,7 @@
     "dev": "pnpm -r --no-bail --parallel dev",
     "release": "sh release.sh",
     "test": "vitest sql --watch",
+    "test:db": "vitest db --watch",
     "test:types": "vitest --watch -c spec/types/vitest.config.ts",
     "test:generate": "cd spec/generated && tusken generate -d test"
   },
@@ -21,7 +22,6 @@
     "dotenv-cli": "^6.0.0",
     "multi-semantic-release": "^3.0.0",
     "pg": "^8.8.0",
-    "pg-mem": "^2.6.3",
     "pg-query-stream": "^4.2.4",
     "prettier": "^2.7.1",
     "spec.ts": "^1.1.3",

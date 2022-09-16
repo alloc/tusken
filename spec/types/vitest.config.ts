@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config'
 import baseConfig from '../../vitest.config'
 
 export default defineConfig({
-  ...baseConfig,
+  resolve: baseConfig.resolve,
   test: {
     include: ['spec/types.spec.ts'],
     globals: true,
