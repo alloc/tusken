@@ -2,7 +2,7 @@ import { assert, describe, test, _ } from 'spec.ts'
 import { ResolveSelection, Selection } from 'tusken'
 import { ColumnRef } from '../../src/postgres/column'
 import { SelectedRow } from '../../src/postgres/selection'
-import { db, t } from '../db'
+import db, { t } from '../db'
 
 test('db.select => asyncIterator', async () => {
   for await (const user of db.select(t.user)) {

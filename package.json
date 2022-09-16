@@ -8,7 +8,8 @@
     "dev": "pnpm -r --no-bail --parallel dev",
     "release": "sh release.sh",
     "test": "vitest sql --watch",
-    "test:db": "vitest db --watch",
+    "test:dump": "pg_dump -d test -a -f spec/generated/test/data.sql",
+    "test:e2e": "vitest e2e --watch",
     "test:types": "vitest --watch -c spec/types/vitest.config.ts",
     "test:generate": "cd spec/generated && tusken generate -d test"
   },

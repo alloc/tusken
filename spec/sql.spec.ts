@@ -1,5 +1,5 @@
 import { is } from 'tusken'
-import { db, pg, t } from './db'
+import db, { pg, t } from './db'
 
 describe('db.select', () => {
   test('select all columns of one table', () => {

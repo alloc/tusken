@@ -1,7 +1,7 @@
 import { inspectQuery, Query } from 'tusken'
 import { expect } from 'vitest'
 
-export { default as db, pg, t } from './generated/test'
+export { default, pg, t } from './generated/test'
 
 expect.addSnapshotSerializer({
   test: val => val instanceof Query,
