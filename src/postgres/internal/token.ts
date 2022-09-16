@@ -96,7 +96,7 @@ function renderList(
     ctx
   )
   const sql = tokens.join(token.concat ? '' : ', ')
-  return token.tuple ? `(${sql})` : sql
+  return token.tuple ? `(${sql || 'NULL'})` : sql
 }
 
 function mapTokensToSql(this: Query.Context, arg: Token | TokenArray) {
