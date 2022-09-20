@@ -74,7 +74,7 @@ export class CheckBuilder<T extends Type = any> {
   ) {}
 
   get not() {
-    return new CheckBuilder(this.wrap, this.left, !this.negated)
+    return new CheckBuilder<T>(this.wrap, this.left, !this.negated)
   }
 
   /** Inclusive range matching */
