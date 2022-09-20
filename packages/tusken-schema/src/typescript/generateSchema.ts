@@ -33,6 +33,9 @@ export function generateTypeSchema(
     refs: [],
   }
 
+  // Alphabetical order
+  schema.tables.sort((a, b) => (a.name > b.name ? 1 : -1))
+
   for (const table of schema.tables) {
     schemaTables.add(table.name)
 
