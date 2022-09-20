@@ -2,7 +2,7 @@ import { BoolExpression, Expression, ExpressionType } from './expression'
 import { tokenizeCheck, tokenizeExpression } from './internal/tokenize'
 import { kBoolType } from './internal/type'
 import { Query } from './query'
-import { ClientInput, isBoolExpression, Type } from './type'
+import { ClientInput, ExtractNull, isBoolExpression, Type } from './type'
 import { t } from './type-builtin'
 
 interface Props {
@@ -81,7 +81,7 @@ export class CheckBuilder<T extends Type = any> {
   between(
     min: ClientInput<T>,
     max: ClientInput<T>
-  ): CheckList<t.bool | Extract<T, t.null>> {
+  ): CheckList<t.bool | ExtractNull<T>> {
     return this.wrap(
       new Check(
         this.left,
@@ -94,7 +94,7 @@ export class CheckBuilder<T extends Type = any> {
 
   in(
     arr: ClientInput<T>[] | ClientInput<T[]>
-  ): CheckList<t.bool | Extract<T, t.null>> {
+  ): CheckList<t.bool | ExtractNull<T>> {
     return this.wrap(new Check(this.left, this.negated ? 'NOT IN' : 'IN', arr))
   }
 }
@@ -104,13 +104,13 @@ export interface CheckBuilder<T> extends CheckMethods<T>, CheckAliases<T> {}
 type CheckMethods<T> = {
   [P in keyof typeof checkMapping]: (
     right: ClientInput<T>
-  ) => CheckList<t.bool | Extract<T, t.null>>
+  ) => CheckList<t.bool | ExtractNull<T>>
 }
 
 type CheckAliases<T> = {
   [P in keyof typeof checkAliases]: (
     right: ClientInput<T>
-  ) => CheckList<t.bool | Extract<T, t.null>>
+  ) => CheckList<t.bool | ExtractNull<T>>
 }
 
 const checkMapping = {

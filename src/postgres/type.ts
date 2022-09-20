@@ -16,6 +16,7 @@ import {
   kTypeTokenizer,
 } from './symbols'
 import type { TableRef } from './table'
+import { t } from './type-builtin'
 
 const kClientType = Symbol()
 const kDownCasts = Symbol()
@@ -75,6 +76,13 @@ export type ClientValues<T extends object> = Intersect<
 
 /** Allow both the Postgres type and its JavaScript type */
 export type ClientInput<T> = T extends Type<any, infer Value> ? Value | T : T
+
+/** Returns the Postgres `NULL` type if `T` is ever nullable */
+export type ExtractNull<T> = T extends Type<infer TypeName>
+  ? 'null' extends TypeName
+    ? t.null
+    : never
+  : never
 
 export abstract class SetType<T extends object = any> //
   extends Type<`setof<record>`, T[], T[]> {}
