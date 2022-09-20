@@ -114,19 +114,20 @@ export function generateTypeSchema(
     databaseProps.push('QueryStream')
   }
 
-  let dotenvLoader = ''
+  let envFile: string | undefined
   if (isPackageInstalled(outDir, 'dotenv')) {
-    header.unshift(
-      `import dotenv from "dotenv"`,
-      `import { findDotenvFile } from "${tuskenId}/dotenv"`
-    )
-    dotenvLoader = 'process.env.CI || findDotenvFile(dotenv.config)'
-    dotenvLoader = '\n' + dotenvLoader + '\n'
+    header.unshift(`import "./env"`)
+    envFile = endent`
+      import dotenv from "dotenv"
+      import { findDotenvFile } from "${tuskenId}/dotenv"
+
+      process.env.CI || findDotenvFile(dotenv.config)
+    `
   }
 
   const indexFile = endent`
     ${header.join('\n')}
-    ${dotenvLoader}
+
     export default new Database({
       ${databaseProps.join(',\n')},
     })
@@ -155,12 +156,18 @@ export function generateTypeSchema(
     export * from './primitives'
   `
 
-  return [
+  const files = [
     { name: 'index.ts', content: indexFile },
     { name: 'types.ts', content: typesFile },
     { name: 'primitives.ts', content: primitivesFile },
     { name: 'tables.ts', content: tablesFile },
   ]
+
+  if (envFile) {
+    files.push({ name: 'env.ts', content: envFile })
+  }
+
+  return files
 }
 
 function renderColumns(columns: TableColumn[], isType?: boolean) {
