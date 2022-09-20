@@ -1,9 +1,10 @@
 import endent from 'endent'
 import { Schema, TableColumn } from 'extract-pg-schema'
-import { Module } from 'module'
+import fs from 'fs'
 import path from 'path'
 import { ClientConfig } from '../config'
 import { dataToEsm } from '../utils/dataToEsm'
+import escalade from '../utils/escalade/sync'
 import { serializeImports } from '../utils/imports'
 import { __PURE__ } from '../utils/syntax'
 import { GeneratedLines } from './generateNativeTypes'
@@ -177,10 +178,15 @@ function renderColumns(columns: TableColumn[], isType?: boolean) {
 }
 
 function isPackageInstalled(outDir: string, pkgId: string) {
-  const indexRequire = Module.createRequire(path.join(outDir, 'index.ts'))
-  try {
-    if (indexRequire.resolve(pkgId)) {
-      return true
+  return !!escalade(outDir, (dir, files) => {
+    if (files.includes('node_modules')) {
+      const pkgPath = path.join(dir, 'node_modules', pkgId)
+      if (fs.existsSync(pkgPath)) {
+        return true
+      }
     }
-  } catch {}
+    if (files.includes('.git')) {
+      return false
+    }
+  })
 }
