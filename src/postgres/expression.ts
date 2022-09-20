@@ -31,9 +31,5 @@ export interface Expression<T>
     T extends Type<any, any, infer U> ? (unknown extends U ? any : U) : never
   > {}
 
-export type BoolExpression = Expression<t.bool>
+export type BoolExpression = Expression<t.bool, any>
 export type SetExpression<T extends object = any> = Expression<SetType<T>>
-
-/** Extract `T` from `Expression<T>` */
-export type ExpressionType<E extends Expression> = unknown &
-  (E extends Expression<infer T> ? T : never)

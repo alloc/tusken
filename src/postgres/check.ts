@@ -1,4 +1,6 @@
-import { BoolExpression, Expression, ExpressionType } from './expression'
+import { toArray } from '../utils/toArray'
+import { Variadic } from '../utils/Variadic'
+import { BoolExpression, Expression } from './expression'
 import { tokenizeCheck, tokenizeExpression } from './internal/tokenize'
 import { kBoolType } from './internal/type'
 import { Query } from './query'
@@ -16,38 +18,24 @@ export class CheckList<T extends t.bool | t.null = any> //
     super(kBoolType as any, { check }, tokenizeCheckList)
   }
 
-  and(cond: BoolExpression): this
-  and(cond: Expression<t.bool | t.null>): CheckList<t.bool | t.null>
-  and<T extends Expression>(left: T): CheckBuilder<ExpressionType<T>>
-  and<T extends Type>(left: T): CheckBuilder<T>
-  and<T>(left: T): CheckBuilder<Type<any, T>>
-  and(right: any): any {
+  and(cond: Variadic<BoolExpression>): this
+  and(cond: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
+  and(cond: any): any {
     const { props } = this
-    if (isBoolExpression(right)) {
+    for (const right of toArray(cond)) {
       props.check = { left: props.check, op: 'AND', right }
-      return this
     }
-    return new CheckBuilder(right => {
-      props.check = { left: props.check, op: 'AND', right }
-      return this
-    }, right)
+    return this
   }
 
-  or(cond: BoolExpression): this
-  or(cond: Expression<t.bool | t.null>): CheckList<t.bool | t.null>
-  or<T extends Expression>(left: T): CheckBuilder<ExpressionType<T>>
-  or<T extends Type>(left: T): CheckBuilder<T>
-  or<T>(left: T): CheckBuilder<Type<any, T>>
-  or(right: any): any {
+  or(cond: Variadic<BoolExpression>): this
+  or(cond: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
+  or(cond: any): any {
     const { props } = this
-    if (isBoolExpression(right)) {
+    for (const right of toArray(cond)) {
       props.check = { left: props.check, op: 'OR', right }
-      return this
     }
-    return new CheckBuilder(right => {
-      props.check = { left: props.check, op: 'OR', right }
-      return this
-    }, right)
+    return this
   }
 }
 

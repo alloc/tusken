@@ -1,7 +1,9 @@
 import { Any, Intersect } from '@alloc/types'
+import { isArray } from '../../utils/isArray'
+import { Variadic } from '../../utils/Variadic'
 import { CheckBuilder } from '../check'
 import { ColumnRef, ColumnType, makeColumnRef } from '../column'
-import { BoolExpression, Expression } from '../expression'
+import { Expression } from '../expression'
 import { CallExpression } from '../function'
 import { is } from '../is'
 import { JoinProps } from '../join'
@@ -18,7 +20,7 @@ export function where<From extends Selectable[]>(
     joins?: JoinProps[]
   },
   filter: Where<From>
-): BoolExpression {
+) {
   const joined = props.joins?.map(join => join.from)
   const sources = [props.from].concat(joined || [])
 
@@ -42,12 +44,13 @@ export function where<From extends Selectable[]>(
     }
   })
 
-  return filter(joined ? refs : Object.values(refs)[0])
+  const cond = filter(joined ? refs : Object.values(refs)[0])
+  return isArray(cond) ? is(cond) : cond
 }
 
 export type Where<From extends Selectable[]> = (
   refs: WhereRefs<From>
-) => Expression<t.bool | t.null>
+) => Variadic<Expression<t.bool | t.null>>
 
 export type WhereRefs<From extends Selectable[]> = [From] extends [Any]
   ? Record<string, any>
