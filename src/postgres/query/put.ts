@@ -24,7 +24,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
     const pkColumn = table[kPrimaryKey]
     const mayConflict = pk !== undefined || columns.includes(pkColumn)
 
-    if (pk !== undefined) {
+    if (pk !== undefined && !columns.includes(pkColumn)) {
       columns.unshift(pkColumn)
       rows[0].tuple.unshift(
         tokenizeTyped(pk, getColumnType(table, pkColumn), ctx)
