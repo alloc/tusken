@@ -9,6 +9,7 @@ import { MistyTask, startTask } from 'misty/task'
 import path from 'path'
 import { Client } from 'pg'
 import { loadConfig } from './config'
+import { toConnectionString } from './connectionString'
 import { debounce } from './debounce'
 import { defer, Deferred } from './defer'
 import { dotenv } from './dotenv'
@@ -169,6 +170,8 @@ export default async function () {
       const [config] = loadConfig(options.config, options.database)
       const client = new Client(config.connection)
       await client.connect()
+
+      success('Connected to ' + toConnectionString(client))
 
       let affectedCount = 0
       for (const file of files) {
