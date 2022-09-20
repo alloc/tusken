@@ -1,4 +1,4 @@
-import { defineType, tokenizeJson, Input, Interval, Json, Range, Type } from "tusken"
+import { defineType, tokenizeJson, ClientInput, Interval, Json, Range, Type } from "tusken"
 import { array, array2d, array3d } from "tusken/array"
 
 // Primitive types
@@ -87,7 +87,7 @@ export { array, array2d, array3d }
 
 // Pseudo types
 export type ANY = anynonarray | anyarray
-export type NULL = Type<"null", undefined, undefined>
+export type NULL = Type<"null", null, null>
 export type VOID = Type<"void", void, void>
 export type anyarray = array<anynonarray> | array2d<anynonarray> | array3d<anynonarray>
 export type anycompatiblearray = anyarray
@@ -99,7 +99,7 @@ export type { ANY as any, NULL as null, VOID as void }
 export type { oid as regproc, oid as regprocedure, oid as regoper, oid as regoperator, oid as regclass, oid as regcollation, oid as regtype, oid as regconfig, oid as regdictionary, oid as regrole, oid as regnamespace }
 
 export type elementof<T extends Type> = T extends array<infer E> ? E : anyelement
-export type param<T extends Type> = T extends Type<infer Native> ? Input<T | ImplicitCast<Native>> : never
+export type param<T extends Type> = T extends Type<infer Native> ? ClientInput<T | ImplicitCast<Native>> : never
 export type aggParam<T extends Type> = T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never
 export type record = Type<"record", { [key: string]: any }, never>
 

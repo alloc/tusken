@@ -1,4 +1,4 @@
-import { makeTableRef, RowType, TableRef, Values } from "tusken"
+import { makeTableRef, ClientValues, RowType, TableRef } from "tusken"
 import * as t from "./primitives"
 
 export const follow: TableRef<{
@@ -44,7 +44,7 @@ export const user: TableRef<{
 })
 
 // Materialized row types
-export interface follow extends Values<RowType<typeof follow>> {}
-export interface like extends Values<RowType<typeof like>> {}
-export interface tweet extends Values<RowType<typeof tweet>> {}
-export interface user extends Values<RowType<typeof user>> {}
+export interface follow extends ClientValues<RowType<typeof follow>> {}
+export interface like extends ClientValues<RowType<typeof like>> {}
+export interface tweet extends ClientValues<RowType<typeof tweet>> {}
+export interface user extends ClientValues<RowType<typeof user>> {}
