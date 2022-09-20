@@ -1,7 +1,13 @@
 import { defineBuildConfig } from 'unbuild'
 
 export default defineBuildConfig({
-  entries: ['./tusken', './config', './constants', './postgres/array'],
+  entries: [
+    './tusken',
+    './config',
+    './constants',
+    './dotenv',
+    './postgres/array',
+  ],
   externals: ['pg', 'callsites'],
   declaration: true,
   rollup: {

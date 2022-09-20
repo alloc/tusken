@@ -2,17 +2,18 @@ import exec from '@cush/exec'
 import { getClientEnv } from '@tusken/schema'
 import { cac } from 'cac'
 import chokidar from 'chokidar'
+import dotenv from 'dotenv'
 import fs from 'fs'
 import { blue, cyan, gray, green } from 'kleur/colors'
 import { clear, success } from 'misty'
 import { MistyTask, startTask } from 'misty/task'
 import path from 'path'
 import { Client } from 'pg'
+import { findDotenvFile } from 'tusken/dotenv'
 import { loadConfig } from './config'
 import { toConnectionString } from './connectionString'
 import { debounce } from './debounce'
 import { defer, Deferred } from './defer'
-import { dotenv } from './dotenv'
 import { firstLine } from './firstline'
 
 export default async function () {
@@ -248,7 +249,7 @@ export default async function () {
 
   tusken.help()
   try {
-    dotenv()
+    findDotenvFile(dotenv.config)
     tusken.parse(process.argv, { run: false })
     await tusken.runMatchedCommand()
   } catch (e: any) {

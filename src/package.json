@@ -35,6 +35,11 @@
       "import": "./dist/constants.mjs",
       "default": "./dist/constants.cjs"
     },
+    "./dotenv": {
+      "types": "./dist/dotenv.d.ts",
+      "import": "./dist/dotenv.mjs",
+      "default": "./dist/dotenv.cjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [

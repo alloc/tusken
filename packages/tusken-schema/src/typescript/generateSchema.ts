@@ -78,8 +78,8 @@ export function generateTypeSchema(
   }
 
   const header = [
-    `import { Database } from '${tuskenId}'`,
-    `import { Pool } from 'pg'`,
+    `import { Database } from "${tuskenId}"`,
+    `import { Pool } from "pg"`,
   ]
   const databaseProps = [
     `reserved: [${reservedWords
@@ -91,7 +91,7 @@ export function generateTypeSchema(
   let configArgument: string
   if (configPath) {
     configPath = path.relative(outDir, configPath).replace(/\.ts$/, '')
-    header.push(`import config from '${configPath}'`)
+    header.push(`import config from "${configPath}"`)
     configArgument = endent`
       { ...config.connection, ...config.pool }
     `
@@ -108,14 +108,24 @@ export function generateTypeSchema(
       : new Pool(${configArgument})
   `)
 
-  if (isQueryStreamInstalled(outDir)) {
+  if (isPackageInstalled(outDir, 'pg-query-stream')) {
     header.push('import QueryStream from "pg-query-stream"')
     databaseProps.push('QueryStream')
   }
 
+  let dotenvLoader = ''
+  if (isPackageInstalled(outDir, 'dotenv')) {
+    header.unshift(
+      `import dotenv from "dotenv"`,
+      `import { findDotenvFile } from "${tuskenId}/dotenv"`
+    )
+    dotenvLoader = 'process.env.CI || findDotenvFile(dotenv.config)'
+    dotenvLoader = '\n' + dotenvLoader + '\n'
+  }
+
   const indexFile = endent`
     ${header.join('\n')}
-
+    ${dotenvLoader}
     export default new Database({
       ${databaseProps.join(',\n')},
     })
@@ -166,10 +176,10 @@ function renderColumns(columns: TableColumn[], isType?: boolean) {
   })
 }
 
-function isQueryStreamInstalled(outDir: string) {
+function isPackageInstalled(outDir: string, pkgId: string) {
   const indexRequire = Module.createRequire(path.join(outDir, 'index.ts'))
   try {
-    if (indexRequire.resolve('pg-query-stream')) {
+    if (indexRequire.resolve(pkgId)) {
       return true
     }
   } catch {}
