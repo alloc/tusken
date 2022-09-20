@@ -47,7 +47,12 @@ export default async function () {
 
         let task: MistyTask
         generator
-          .on('error', console.error)
+          .on('error', error => {
+            console.error(error)
+            if (!options.watch) {
+              process.exit(1)
+            }
+          })
           .on('generateStart', () => {
             clear()
             task = startTask('Generating schema...')
