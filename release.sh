@@ -1,7 +1,7 @@
 set -e
 pnpm -r build
 pnpm test:generate
-pnpm test
+pnpm vitest run sql
 pnpm test:types
 pnpm dotenv -- multi-semantic-release --deps.release inherit $@
 pnpm install
