@@ -57,7 +57,7 @@
   "dependencies": {
     "@alloc/types": "^2.2.2",
     "@types/pg": "^8.6.5",
-    "callsites": "^4.0.0"
+    "callsites": "^3.0.0"
   },
   "peerDependencies": {
     "pg": ">=8.0.0",
