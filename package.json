@@ -12,7 +12,7 @@
     "test": "vitest sql",
     "test:e2e": "vitest e2e",
     "test:types": "vitest -c spec/types/vitest.config.ts",
-    "test:generate": "cd spec/generated && tusken generate -d test"
+    "test:generate": "cd spec/generated && tusken generate -d e2e"
   },
   "prettier": "@alloc/prettier-config",
   "devDependencies": {
