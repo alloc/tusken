@@ -1,6 +1,5 @@
 set -e
 pnpm -r build
-pnpm test:e2e
 pnpm test:generate
 pnpm test
 pnpm test:types
