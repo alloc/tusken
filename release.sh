@@ -1,8 +1,8 @@
 set -e
 pnpm -r build
 pnpm test:generate
-pnpm vitest run sql
-pnpm test:types
+CI=1 pnpm test
+CI=1 pnpm test:types
 pnpm dotenv -- multi-semantic-release --deps.release inherit $@
 pnpm install
 git add -u
