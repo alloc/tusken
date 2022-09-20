@@ -1,6 +1,6 @@
-import { Database } from 'tusken'
-import { Pool } from 'pg'
-import config from '../tusken.config'
+import { Database } from "tusken"
+import { Pool } from "pg"
+import config from "../tusken.config"
 import QueryStream from "pg-query-stream"
 
 export default new Database({
