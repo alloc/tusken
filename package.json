@@ -7,8 +7,9 @@
     "build": "pnpm -r --no-bail build",
     "dev": "pnpm -r --no-bail --parallel dev",
     "release": "sh release.sh",
+    "db:dump": "pg_dump -d test -Fc --data-only --file spec/generated/test/data.dump",
+    "db:restore": "tusken wipe -d test -c spec/generated/tusken.config.ts && pg_restore -d test spec/generated/test/data.dump",
     "test": "vitest sql",
-    "test:dump": "pg_dump -d test -a -f spec/generated/test/data.sql",
     "test:e2e": "vitest e2e",
     "test:types": "vitest -c spec/types/vitest.config.ts",
     "test:generate": "cd spec/generated && tusken generate -d test"
