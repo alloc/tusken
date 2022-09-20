@@ -39,6 +39,7 @@ importers:
 
   packages/tusken-cli:
     specifiers:
+      '@cush/exec': ^1.8.0
       '@tusken/schema': 1.0.0-alpha.7
       '@types/node': ^18.7.9
       '@types/pg': ^8.6.5
@@ -53,6 +54,7 @@ importers:
       tusken: 1.0.0-alpha.7
       typescript: ^4.7.4
     dependencies:
+      '@cush/exec': 1.8.0
       '@tusken/schema': link:../tusken-schema
       chokidar: 3.5.3
       dotenv: 16.0.2
@@ -357,7 +359,6 @@ packages:
     dependencies:
       shell-quote: 1.7.3
       type-error: 1.0.3
-    dev: true
 
   /@esbuild/linux-loong64/0.14.54:
     resolution: {integrity: sha512-bZBrLAIX1kpWelV0XemxBZllyRmM6vgFQQG2GdNb+r3Fkp0FOh1NJSvekXDs7jq70k4euu1cryLMfU+mTXlEpw==}
@@ -3783,7 +3784,6 @@ packages:
 
   /shell-quote/1.7.3:
     resolution: {integrity: sha512-Vpfqwm4EnqGdlsBFNmHhxhElJYrdfcxPThu+ryKS5J8L/fhAwLazFZtq+S+TWZ9ANj2piSQLGj6NQg+lKPmxrw==}
-    dev: true
 
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
@@ -4160,7 +4160,6 @@ packages:
 
   /type-error/1.0.3:
     resolution: {integrity: sha512-hlNA4NwwjtL9clb8nv+x/5C45uzxND+N+h+/y3z2dYdubGSmdtNtJjHVH4E68ZHR98Bkav4ACf1lmTZepc/4sg==}
-    dev: true
 
   /type-fest/0.16.0:
     resolution: {integrity: sha512-eaBzG6MxNzEn9kiwvtre90cXaNLkmadMWa1zQMs3XORCXNbsH/OewwbxC5ia9dCxIxnTAsSxXJaa/p5y8DlvJg==}

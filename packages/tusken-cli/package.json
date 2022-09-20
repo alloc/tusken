@@ -33,6 +33,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@cush/exec": "^1.8.0",
     "@tusken/schema": "1.0.0-alpha.7",
     "chokidar": "^3.5.3",
     "dotenv": "^16.0.2",

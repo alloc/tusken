@@ -1,6 +1,6 @@
+import exec from '@cush/exec'
 import { getClientEnv } from '@tusken/schema'
 import { cac } from 'cac'
-import { execSync } from 'child_process'
 import chokidar from 'chokidar'
 import fs from 'fs'
 import { blue, cyan, gray, green } from 'kleur/colors'
@@ -210,7 +210,7 @@ export default async function () {
 
           // Use the \copy command of psql to support remote databases.
           const env = await getClientEnv(config.connection, client.password)
-          const result = execSync(
+          const result = await exec(
             `psql "${env.PGDATABASE}" -c '${copyCommand}'`,
             { env }
           )
@@ -219,7 +219,7 @@ export default async function () {
             await client.query(postQuery)
           }
 
-          const parsedCopyResult = result.toString('utf8').match(/^COPY (\d+)/)
+          const parsedCopyResult = result.match(/^COPY (\d+)/)
           if (parsedCopyResult) {
             const numCopied = +parsedCopyResult[1]
             affectedCount += numCopied
