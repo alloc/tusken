@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import type { ClientConfig } from 'pg'
 import type { Config } from 'tusken/config'
@@ -42,6 +43,9 @@ export function loadConfig(configPath?: string, database?: string) {
         config.connection = { ...defaultConnection, ...config.connection }
       }
       cwd = path.dirname(configPath)
+      configPath = fs.realpathSync(configPath)
+    } else {
+      configPath = undefined
     }
   }
 
