@@ -16,6 +16,7 @@ import {
 } from './symbols'
 import type { TableRef } from './table'
 import { t } from './type-builtin'
+import { TypeCast } from './typeCast'
 
 const kTypeName = Symbol()
 const kClientType = Symbol()
@@ -46,6 +47,10 @@ export declare class RuntimeType<T extends Type = any> {
   protected declare compilerType: T
 }
 
+export interface RuntimeType<T extends Type> {
+  (value: any): TypeCast<T>
+}
+
 export type ValueTokenizer = (value: any) => Token | TokenArray | undefined
 
 export const defineType = <T extends Type>(
@@ -53,13 +58,14 @@ export const defineType = <T extends Type>(
   name: string,
   arrayId?: number,
   tokenizer?: ValueTokenizer
-): RuntimeType<T> =>
-  ({
-    name,
-    [kTypeId]: id,
-    [kTypeArrayId]: arrayId,
-    [kTypeTokenizer]: tokenizer,
-  } as any)
+): RuntimeType<T> => {
+  const type: any = (value: any) => new TypeCast({ value, type })
+  Object.defineProperty(type, 'name', { value: name })
+  type[kTypeId] = id
+  type[kTypeArrayId] = arrayId
+  type[kTypeTokenizer] = tokenizer
+  return type
+}
 
 /** Convert a Postgres row to a JavaScript object */
 export type RowResult<T extends object> = Intersect<
