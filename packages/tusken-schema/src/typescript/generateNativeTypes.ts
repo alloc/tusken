@@ -102,7 +102,7 @@ export function generateNativeTypes(
 
   const specialTypes = [
     'type elementof<T extends Type> = T extends array<infer E> ? E : anyelement',
-    'type param<T extends Type> = T extends Type<infer Native> ? ClientInput<T | ImplicitCast<Native>> : never',
+    'type param<T extends Type> = T extends Type<infer Native> ? QueryInput<T | ImplicitCast<Native>> : never',
     'type aggParam<T extends Type> = T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never',
     'type record = Type<"record", { [key: string]: any }, never>',
   ]
@@ -112,9 +112,9 @@ export function generateNativeTypes(
       [tuskenId]: [
         'defineType',
         'tokenizeJson',
-        'ClientInput',
         'Interval',
         'Json',
+        'QueryInput',
         'Range',
         'Type',
       ],

@@ -1,6 +1,6 @@
 import { Intersect, Remap } from '@alloc/types'
 import type { ColumnRef } from './column'
-import type { BoolExpression, Expression } from './expression'
+import type { Expression, ExpressionType } from './expression'
 import type { CallExpression } from './function'
 import type { Token, TokenArray } from './internal/token'
 import type { Selection } from './selection'
@@ -19,17 +19,17 @@ import type { TableRef } from './table'
 import { t } from './type-builtin'
 
 const kClientType = Symbol()
-const kDownCasts = Symbol()
+const kColumnInput = Symbol()
 
 /** Postgres data type */
 export abstract class Type<
   TypeName extends string = any,
   ClientType = any,
-  DownCasts = any
+  ColumnInput = any
 > {
   protected declare [kTypeName]: TypeName
   protected declare [kClientType]: ClientType
-  protected declare [kDownCasts]: DownCasts
+  protected declare [kColumnInput]: ColumnInput
   protected declare [kRuntimeType]: RuntimeType
 }
 
@@ -62,7 +62,7 @@ export const defineType = <T extends Type>(
   } as any)
 
 /** Convert a Postgres row to a JavaScript object */
-export type ClientValues<T extends object> = Intersect<
+export type RowResult<T extends object> = Intersect<
   keyof T extends infer Column
     ? Column extends keyof T
       ? T[Column] extends Type<any, infer ColumnValue>
@@ -75,7 +75,11 @@ export type ClientValues<T extends object> = Intersect<
   : never
 
 /** Allow both the Postgres type and its JavaScript type */
-export type ClientInput<T> = T extends Type<any, infer Value> ? Value | T : T
+export type QueryInput<T> =
+  | (T extends Type<any, infer Value> ? Value : never)
+  | Expression<Extract<T, Type>> extends infer Result
+  ? Result
+  : never
 
 /** Returns the Postgres `NULL` type if `T` is ever nullable */
 export type ExtractNull<T> = T extends Type<infer TypeName>
@@ -100,10 +104,15 @@ export function isSelection(val: any): val is Selection {
 }
 
 export function isExpression(val: any): val is Expression {
+  return kRuntimeType in val
+}
+
+/** Is this an expression that can tokenize itself? */
+export function isExpressionType(val: any): val is ExpressionType {
   return kExprProps in val
 }
 
-export function isBoolExpression(val: any): val is BoolExpression {
+export function isBoolExpression(val: any): val is Expression<t.bool> {
   const exprType = isExpression(val) && val[kRuntimeType]
   return !!exprType && exprType[kTypeName] == 'bool'
 }
@@ -112,7 +121,7 @@ export function isCallExpression(
   val: any,
   callee?: string
 ): val is CallExpression {
-  const props = isExpression(val) && val[kExprProps]
+  const props = isExpressionType(val) && val[kExprProps]
   return props ? !callee || (props as any).callee == callee : false
 }
 

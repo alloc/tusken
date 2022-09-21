@@ -9,7 +9,7 @@ export type ValidQuery<T = any, Command extends string = any> = unknown &
 
 const kQueryCommand = Symbol()
 
-export type QueryResult = { rows: Record<string, any>[]; rowCount?: number }
+export type QueryResponse = { rows: Record<string, any>[]; rowCount?: number }
 
 export abstract class Query<
   Props extends object | null = any,
@@ -41,7 +41,7 @@ export abstract class Query<
   /**
    * Modify the query promise before the caller receives it.
    */
-  protected resolve?(result: QueryResult): any
+  protected resolve?(result: QueryResponse): any
 
   /**
    * Modify the context before tokens are generated. The `context` phase

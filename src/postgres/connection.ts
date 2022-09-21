@@ -1,5 +1,5 @@
 import { ClientConfig } from 'pg'
-import { QueryResult } from './query'
+import { QueryResponse } from './query'
 import { QueryStream } from './stream'
 
 export type Client = Connection | ConnectionPool
@@ -23,7 +23,7 @@ export type ConnectionLike = {
 }
 
 export type QueryFn = {
-  (query: string, values?: any[]): Promise<QueryResult>
+  (query: string, values?: any[]): Promise<QueryResponse>
   <T>(stream: QueryStream<T>): QueryStream<T>
 }
 

@@ -4,7 +4,7 @@ import type { CallExpression } from './function'
 import type { SetRef } from './set'
 import { kSelectionArgs, kSelectionFrom, kSelectionType } from './symbols'
 import type { TableRef } from './table'
-import type { ClientValues, SetType } from './type'
+import type { RowResult, SetType } from './type'
 
 /** Selection sources have a default selection of all columns. */
 export type SelectionSource = SetRef | TableRef
@@ -42,7 +42,7 @@ export type SelectedRow<T> = unknown &
   ([T] extends [Any]
     ? Record<string, any>
     : Intersect<T extends SetType<infer Row> ? Row : never> extends infer Row
-    ? ClientValues<Extract<Row, object>>
+    ? RowResult<Extract<Row, object>>
     : never)
 
 export type AliasMapping = {

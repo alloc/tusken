@@ -1,19 +1,23 @@
 import type { Any } from '@alloc/types'
-import { Expression } from './expression'
+import { ExpressionType } from './expression'
 import { CallExpression } from './function'
 import { tokenizeColumn } from './internal/tokenize'
 import { kUnknownType } from './internal/type'
 import type { Selectable } from './selection'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
-import type { ClientInput, RuntimeType, Type } from './type'
+import type { QueryInput, RuntimeType, Type } from './type'
 import { t } from './type-builtin'
 
 export type ColumnOf<T> = string & keyof RowType<T>
 
-export type ColumnInput<T> = T extends Type<any, infer Value, infer CastFrom>
-  ? Value | T | ClientInput<CastFrom>
-  : T
+/**
+ * Which values can be used (without an explicit cast) when
+ * assigning to a column with type `T`.
+ */
+export type ColumnInput<T> =
+  | QueryInput<T extends Type<any, any, infer U> ? T | U : never>
+  | (T extends undefined ? undefined : never)
 
 /**
  * Get the native Postgres type of a column.
@@ -56,7 +60,7 @@ export function makeColumnRef<T extends Type, Name extends string>(
 class ColumnExpression<
   T extends Type = any,
   Name extends string = any
-> extends Expression<T> {
+> extends ExpressionType<T> {
   protected [kColumnFrom]: Selectable
   protected [kColumnName]: Name
 

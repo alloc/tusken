@@ -3,9 +3,7 @@ import db, { pg, t } from './db'
 
 describe('db.select', () => {
   test('select all columns of one table', () => {
-    expect(db.select(t.user)).toMatchInlineSnapshot(
-      'SELECT * FROM "user"'
-    )
+    expect(db.select(t.user)).toMatchInlineSnapshot('SELECT * FROM "user"')
   })
   test('select 2 columns of one table', () => {
     expect(db.select(t.user(u => [u.name, u.joinedAt]))).toMatchInlineSnapshot(
@@ -26,7 +24,7 @@ describe('db.select', () => {
         db
           .select(t.user)
           .where(user =>
-            is(pg.starts_with(user.bio, 'a')).and(pg.length(user.bio)).gt(1)
+            is(pg.starts_with(user.bio, 'a')).and(pg.length(user.bio).is.gt(1))
           )
       ).toMatchInlineSnapshot(
         'SELECT * FROM "user" WHERE starts_with(bio, \'a\') AND length(bio) > 1'
@@ -92,9 +90,7 @@ describe('db.select', () => {
     test('ascending sort, nulls first', () => {
       expect(
         db.select(t.user).orderBy(user => ({ asc: user.name, nulls: 'first' }))
-      ).toMatchInlineSnapshot(
-        'SELECT * FROM "user" ORDER BY name NULLS FIRST'
-      )
+      ).toMatchInlineSnapshot('SELECT * FROM "user" ORDER BY name NULLS FIRST')
     })
     test('with multiple column refs', () => {
       expect(
@@ -113,9 +109,7 @@ describe('db.select', () => {
     test('with selection ref', () => {
       expect(
         db.select(t.user(user => pg.upper(user.name))).orderBy('upper')
-      ).toMatchInlineSnapshot(
-        'SELECT upper(name) FROM "user" ORDER BY upper'
-      )
+      ).toMatchInlineSnapshot('SELECT upper(name) FROM "user" ORDER BY upper')
     })
   })
 })
@@ -142,7 +136,7 @@ describe('db.put', () => {
     expect(
       db.put(t.user, [{ name: 'robin' }, { name: 'bob' }])
     ).toMatchInlineSnapshot(
-      'INSERT INTO "user" (name) VALUES (\'robin\'), (\'bob\')'
+      "INSERT INTO \"user\" (name) VALUES ('robin'), ('bob')"
     )
 
     // What if a column exists but is undefined?
@@ -156,14 +150,14 @@ describe('db.put', () => {
     expect(
       db.put(t.user, [{ name: 'robin' }, { name: 'bob', bio: 'sup' }])
     ).toMatchInlineSnapshot(
-      'INSERT INTO "user" (name, bio) VALUES (\'robin\', NULL), (\'bob\', \'sup\')'
+      "INSERT INTO \"user\" (name, bio) VALUES ('robin', NULL), ('bob', 'sup')"
     )
 
     // What if a later row is missing a column?
     expect(
       db.put(t.user, [{ name: 'robin', bio: 'sup' }, { name: 'bob' }])
     ).toMatchInlineSnapshot(
-      'INSERT INTO "user" (name, bio) VALUES (\'robin\', \'sup\'), (\'bob\', NULL)'
+      "INSERT INTO \"user\" (name, bio) VALUES ('robin', 'sup'), ('bob', NULL)"
     )
 
     // What if there's an ON CONFLICT clause?
@@ -173,7 +167,7 @@ describe('db.put', () => {
         { id: 2, name: 'bob', bio: 'sup' },
       ])
     ).toMatchInlineSnapshot(
-      'INSERT INTO "user" this (id, name, bio) VALUES (1, \'robin\', NULL), (2, \'bob\', \'sup\') ON CONFLICT (id) DO UPDATE SET name = excluded.name, bio = coalesce(excluded.bio, this.bio)'
+      "INSERT INTO \"user\" this (id, name, bio) VALUES (1, 'robin', NULL), (2, 'bob', 'sup') ON CONFLICT (id) DO UPDATE SET name = excluded.name, bio = coalesce(excluded.bio, this.bio)"
     )
   })
 })

@@ -1,26 +1,30 @@
 import { toArray } from '../utils/toArray'
 import { Variadic } from '../utils/Variadic'
-import { BoolExpression, Expression } from './expression'
-import { tokenizeCheck, tokenizeExpression } from './internal/tokenize'
+import { Expression, ExpressionType } from './expression'
+import {
+  tokenizeCheck,
+  tokenizeExpression,
+  tokenizeExpressionList,
+} from './internal/tokenize'
 import { kBoolType } from './internal/type'
 import { Query } from './query'
-import { ClientInput, ExtractNull, isBoolExpression, Type } from './type'
+import { ExtractNull, isBoolExpression, QueryInput, Type } from './type'
 import { t } from './type-builtin'
 
 interface Props {
-  check: Check | BoolExpression
+  check: Check | Variadic<Expression<t.bool | t.null>>
 }
 
 export class CheckList<T extends t.bool | t.null = any> //
-  extends Expression<T, Props>
+  extends ExpressionType<T, Props>
 {
-  constructor(check: Check | BoolExpression) {
+  constructor(check: Check | Variadic<Expression<T>>) {
     super(kBoolType as any, { check }, tokenizeCheckList)
   }
 
-  and(cond: Variadic<BoolExpression>): this
-  and(cond: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
-  and(cond: any): any {
+  and(right: Variadic<Expression<t.bool>>): this
+  and(right: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
+  and(right: any): any {
     const { props } = this
     for (const right of toArray(cond)) {
       props.check = { left: props.check, op: 'AND', right }
@@ -28,9 +32,9 @@ export class CheckList<T extends t.bool | t.null = any> //
     return this
   }
 
-  or(cond: Variadic<BoolExpression>): this
-  or(cond: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
-  or(cond: any): any {
+  or(right: Variadic<Expression<t.bool>>): this
+  or(right: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
+  or(right: any): any {
     const { props } = this
     for (const right of toArray(cond)) {
       props.check = { left: props.check, op: 'OR', right }
@@ -67,8 +71,8 @@ export class CheckBuilder<T extends Type = any> {
 
   /** Inclusive range matching */
   between(
-    min: ClientInput<T>,
-    max: ClientInput<T>
+    min: QueryInput<T>,
+    max: QueryInput<T>
   ): CheckList<t.bool | ExtractNull<T>> {
     return this.wrap(
       new Check(
@@ -81,7 +85,7 @@ export class CheckBuilder<T extends Type = any> {
   }
 
   in(
-    arr: ClientInput<T>[] | ClientInput<T[]>
+    arr: QueryInput<T>[] | QueryInput<T[]>
   ): CheckList<t.bool | ExtractNull<T>> {
     return this.wrap(new Check(this.left, this.negated ? 'NOT IN' : 'IN', arr))
   }
@@ -91,13 +95,13 @@ export interface CheckBuilder<T> extends CheckMethods<T>, CheckAliases<T> {}
 
 type CheckMethods<T> = {
   [P in keyof typeof checkMapping]: (
-    right: ClientInput<T>
+    right: QueryInput<T>
   ) => CheckList<t.bool | ExtractNull<T>>
 }
 
 type CheckAliases<T> = {
   [P in keyof typeof checkAliases]: (
-    right: ClientInput<T>
+    right: QueryInput<T>
   ) => CheckList<t.bool | ExtractNull<T>>
 }
 

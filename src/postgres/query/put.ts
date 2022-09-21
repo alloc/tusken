@@ -1,7 +1,7 @@
 import { toArray } from '../../utils/toArray'
 import { Token, TokenArray } from '../internal/token'
 import { tokenizeTyped } from '../internal/tokenize'
-import { Query, QueryResult } from '../query'
+import { Query, QueryResponse } from '../query'
 import { kPrimaryKey } from '../symbols'
 import { getColumnType, TableRef, toTableName } from '../table'
 import { RuntimeType } from '../type'
@@ -65,7 +65,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
     return insertion
   }
 
-  protected resolve(result: QueryResult) {
+  protected resolve(result: QueryResponse) {
     return result.rowCount
   }
 }

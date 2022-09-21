@@ -1,4 +1,4 @@
-import { BoolExpression } from '../../expression'
+import { Expression } from '../../expression'
 import { TokenArray } from '../../internal/token'
 import {
   tokenizeExpression,
@@ -10,6 +10,7 @@ import { JoinProps } from '../../join'
 import { Query } from '../../query'
 import { Selectable } from '../../selection'
 import { toTableName } from '../../table'
+import { t } from '../../type-builtin'
 import { SortSelection } from '../orderBy'
 import { Where, where } from '../where'
 
@@ -18,7 +19,7 @@ const kSelectFrom = Symbol()
 export interface SelectProps {
   from: Selectable
   joins?: JoinProps[]
-  where?: BoolExpression
+  where?: Expression<t.bool | t.null>
   limit?: number
   offset?: number
   orderBy?: SortSelection

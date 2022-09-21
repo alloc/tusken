@@ -1,4 +1,4 @@
-import { Query, QueryResult } from '../query'
+import { Query, QueryResponse } from '../query'
 import { Selectable } from '../selection'
 import { AbstractSelect, SelectProps } from './abstract/select'
 import { Where } from './where'
@@ -11,7 +11,7 @@ export class Count<From extends Selectable[]> //
     tokens[1] = 'COUNT(*)'
     return tokens
   }
-  protected resolve(result: QueryResult) {
+  protected resolve(result: QueryResponse) {
     return result.rows[0].count
   }
 }

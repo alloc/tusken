@@ -1,6 +1,6 @@
 import { FunctionFlags as f } from '../constants'
 import { isObject } from '../utils/isObject'
-import { Expression } from './expression'
+import { ExpressionType } from './expression'
 import { TokenArray } from './internal/token'
 import { tokenize } from './internal/tokenize'
 import { kUnknownType } from './internal/type'
@@ -28,7 +28,7 @@ interface Props<Callee extends string = any> {
 export class CallExpression<
   T extends Type = any,
   Callee extends string = any
-> extends Expression<T, Props<Callee>> {
+> extends ExpressionType<T, Props<Callee>> {
   constructor(returnType: RuntimeType<T>, props: Props<Callee>) {
     super(returnType, props, tokenizeCallExpression)
 

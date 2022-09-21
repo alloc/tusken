@@ -1,14 +1,15 @@
-import { BoolExpression } from '../expression'
+import { Expression } from '../expression'
 import { TokenArray } from '../internal/token'
 import { tokenizeWhere } from '../internal/tokenize'
-import { Query, QueryResult } from '../query'
+import { Query, QueryResponse } from '../query'
 import { kTableName } from '../symbols'
 import { TableRef } from '../table'
+import { t } from '../type-builtin'
 import { where, Where } from './where'
 
 type Props = {
   from: TableRef
-  where?: BoolExpression
+  where?: Expression<t.bool | t.null>
 }
 
 export class Delete<From extends TableRef = any> extends Query<
@@ -28,7 +29,7 @@ export class Delete<From extends TableRef = any> extends Query<
     return this
   }
 
-  protected resolve(result: QueryResult) {
+  protected resolve(result: QueryResponse) {
     return result.rowCount
   }
 }

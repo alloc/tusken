@@ -16,16 +16,16 @@ import {
   kTableName,
 } from './symbols'
 import {
-  ClientInput,
   isSelection,
   isTableRef,
+  QueryInput,
   RuntimeType,
   SetType,
   Type,
 } from './type'
 
 export type PrimaryKey<T> = RowType<T> extends infer Values
-  ? ClientInput<Values[PrimaryKeyOf<T> & keyof Values]>
+  ? QueryInput<Values[PrimaryKeyOf<T> & keyof Values]>
   : never
 
 export type PrimaryKeyOf<T> = T extends TableRef<any, any, infer PrimaryKey>
@@ -47,9 +47,9 @@ type RowInput<T extends TableRef> = RowType<T> extends infer Row
   ? Row extends object
     ? {
         [Column in keyof Row]: ColumnType<Row, Column> extends infer T
-          ? T extends Type<'json' | 'jsonb'>
-            ? any
-            : ColumnInput<T>
+          ? [Extract<T, Type<'json' | 'jsonb'>>] extends [never]
+            ? ColumnInput<T>
+            : any
           : never
       }
     : never

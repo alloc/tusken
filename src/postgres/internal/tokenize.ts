@@ -1,13 +1,14 @@
 import { callProp } from '../../utils/callProp'
 import { toArray } from '../../utils/toArray'
 import { Check, CheckBuilder } from '../check'
-import type { BoolExpression, Expression } from '../expression'
+import type { Expression } from '../expression'
 import { Query } from '../query'
 import type { SortExpression, SortSelection } from '../query/orderBy'
 import type { AliasMapping, Selectable, Selection } from '../selection'
 import {
   kExprProps,
   kExprTokens,
+  kRuntimeType,
   kSelectionArgs,
   kTableName,
   kTypeTokenizer,
@@ -16,10 +17,12 @@ import {
   isBoolExpression,
   isCallExpression,
   isExpression,
+  isExpressionType,
   isSelection,
   isTableRef,
   RuntimeType,
 } from '../type'
+import { t } from '../type-builtin'
 import type { Token, TokenArray } from './token'
 
 /**
@@ -57,7 +60,9 @@ export function tokenizeTyped(
 }
 
 export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
-  return expr[kExprTokens](expr[kExprProps], ctx)
+  return isExpressionType(expr)
+    ? expr[kExprTokens](expr[kExprProps], ctx)
+    : tokenizeTyped(expr, expr[kRuntimeType], ctx)
 }
 
 export function tokenizeSelectedColumns(
@@ -166,7 +171,10 @@ export function tokenizeSelected(
       }
 }
 
-export function tokenizeWhere(where: BoolExpression, ctx: Query.Context) {
+export function tokenizeWhere(
+  where: Expression<t.bool | t.null>,
+  ctx: Query.Context
+): TokenArray {
   return ['WHERE', tokenizeExpression(where, ctx)]
 }
 

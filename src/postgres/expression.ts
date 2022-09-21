@@ -1,13 +1,28 @@
 import { Any } from '@alloc/types'
+import { CheckBuilder, CheckList } from './check'
 import type { TokenProducer } from './internal/token'
 import { kUnknownType } from './internal/type'
 import { kExprProps, kExprTokens, kRuntimeType } from './symbols'
-import { RuntimeType, SetType, Type } from './type'
-import { t } from './type-builtin'
+import { RuntimeType, Type } from './type'
 
 const emptyProps: any = Object.freeze({})
 
-export class Expression<T extends Type = any, Props extends object = {}> {
+/**
+ * An expression is used to represent a value in a query.
+ *
+ * This type is recommended for use in function signatures (rather than
+ * the `ExpressionType` class), since it allows for `T` to be a union
+ * without breaking assignability.
+ */
+export declare abstract class Expression<T extends Type = any> {
+  protected [kRuntimeType]: RuntimeType<T>
+}
+
+/**
+ * An expression type contains runtime type information and it can
+ * even tokenize itself.
+ */
+export class ExpressionType<T extends Type = any, Props extends object = {}> {
   protected [kExprProps]: Props
   protected [kExprTokens]: TokenProducer
   protected get props(): Props {
@@ -20,16 +35,13 @@ export class Expression<T extends Type = any, Props extends object = {}> {
   ) {
     this[kExprProps] = props || emptyProps
     this[kExprTokens] = tokens
-    this[kRuntimeType] = type || kUnknownType
+    this[kRuntimeType] = type || (kUnknownType as any)
+  }
+  get is(): CheckBuilder<T> {
+    return new CheckBuilder<T>(check => {
+      return new CheckList(check)
+    }, this)
   }
 }
 
-export interface Expression<T>
-  extends Type<
-    T extends Type<infer U> ? (string extends U ? any : U) : never,
-    T extends Type<any, infer U> ? (unknown extends U ? any : U) : never,
-    T extends Type<any, any, infer U> ? (unknown extends U ? any : U) : never
-  > {}
-
-export type BoolExpression = Expression<t.bool, any>
-export type SetExpression<T extends object = any> = Expression<SetType<T>>
+export interface ExpressionType<T> extends Expression<T> {}
