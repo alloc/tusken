@@ -2,7 +2,7 @@ import { Query } from '../query'
 import { renderTokens, TokenArray } from './token'
 
 // @ts-ignore
-type QueryInternal = Pick<Query, 'context' | 'inject' | 'tokens'>
+type QueryInternal = Pick<Query, 'context' | 'inject' | 'tokenize'>
 
 /** Render a SQL string. */
 export function renderQuery(ctx: Query.Context): string {
@@ -17,7 +17,7 @@ export function tokenizeQuery(ctx: Query.Context): TokenArray {
     toQueryInternal(query).inject?.(props, ctx)
   })
   return ctx.nodes.map(({ query, props }) => {
-    return toQueryInternal(query).tokens(props, ctx)
+    return toQueryInternal(query).tokenize(props, ctx)
   })
 }
 

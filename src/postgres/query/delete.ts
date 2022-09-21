@@ -16,7 +16,7 @@ export class Delete<From extends TableRef = any> extends Query<
   Props,
   'delete'
 > {
-  protected tokens(props: Props, ctx: Query.Context) {
+  protected tokenize(props: Props, ctx: Query.Context) {
     const tokens: TokenArray = ['DELETE FROM', { id: props.from[kTableName] }]
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))

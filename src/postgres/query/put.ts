@@ -13,7 +13,7 @@ type Props<T extends TableRef> = {
 }
 
 export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
-  protected tokens(props: Props<T>, ctx: Query.Context) {
+  protected tokenize(props: Props<T>, ctx: Query.Context) {
     let { table, data, pk } = props
 
     const [columns, rows, nulls] = tokenizeRows(data, table, ctx)

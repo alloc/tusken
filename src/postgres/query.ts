@@ -1,6 +1,6 @@
 import type { Database } from './database'
 import { renderQuery, tokenizeQuery } from './internal/query'
-import { renderTokens, TokenArray } from './internal/token'
+import { renderTokens, Token, TokenArray } from './internal/token'
 import type { SelectProps } from './query/select'
 
 export type ValidQuery<T = any, Command extends string = any> = unknown &
@@ -51,10 +51,13 @@ export abstract class Query<
   protected inject?(props: Props, ctx: Query.Context): void
 
   /**
-   * Generate tokens for this node. The `tokens` phase runs any hooks
+   * Generate tokens for this node. The `tokenize` phase runs any hooks
    * in order, so later nodes will see context changes from earlier nodes.
    */
-  protected abstract tokens(props: Props, ctx: Query.Context): TokenArray
+  protected abstract tokenize(
+    props: Props,
+    ctx: Query.Context
+  ): Token | TokenArray
 
   protected query<T extends Query>(node: {
     type: T extends Query<any, infer Command> ? Command : never

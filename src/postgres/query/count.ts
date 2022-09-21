@@ -6,8 +6,8 @@ import { Where } from './where'
 export class Count<From extends Selectable[]> //
   extends AbstractSelect<From, 'count'>
 {
-  protected tokens(props: SelectProps, ctx: Query.Context) {
-    const tokens = super.tokens(props, ctx)
+  protected tokenize(props: SelectProps, ctx: Query.Context) {
+    const tokens = super.tokenize(props, ctx)
     tokens[1] = 'COUNT(*)'
     return tokens
   }

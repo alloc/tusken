@@ -36,7 +36,7 @@ export abstract class AbstractSelect<
   Command extends string
 > extends Query<SelectProps, Command> {
   protected declare [kSelectFrom]: From
-  protected tokens(props: SelectProps, ctx: Query.Context) {
+  protected tokenize(props: SelectProps, ctx: Query.Context) {
     ctx.select = props
 
     const selected = [props.from]

@@ -46,7 +46,7 @@ export type TokenArray = (Token | TokenArray)[]
 export type TokenProducer<Props extends object | null = any> = (
   props: Props,
   ctx: Query.Context
-) => TokenArray
+) => Token | TokenArray
 
 export function renderTokens(
   tokens: TokenArray,
