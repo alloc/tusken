@@ -65,48 +65,6 @@ export type RowInsertion<T extends TableRef> = (
 
 export type RowUpdate<T extends TableRef> = Partial<RowInput<T>>
 
-export interface TableRef<
-  T extends object = any,
-  TableName extends string = any,
-  PrimaryKey extends string = any,
-  NullableColumn extends string = any
-> extends TableType<T, TableName, PrimaryKey, NullableColumn>,
-    TableSelect<T, TableName, PrimaryKey, NullableColumn> {
-  /**
-   * Exclude specific columns from the result set.
-   */
-  omit<Omitted extends (string & keyof T)[]>(
-    ...omitted: Omitted
-  ): Selection<Omit<T, Omitted[number]>, this>
-}
-
-/**
- * The callback type used for selecting columns from a table.
- *
- * Use this to wrap a `db.select` call while still allowing a
- * custom selector to be used.
- */
-export type TableSelector<
-  Selected extends RawSelection,
-  From extends TableRef
-> = (
-  row: From extends TableRef<infer T, any, infer PK> ? ColumnRefs<T, PK> : never
-) => Narrow<Selected>
-
-type TableSelect<
-  T extends object,
-  TableName extends string,
-  PrimaryKey extends string,
-  NullableColumn extends string
-> = {
-  <Selected extends RawSelection>(
-    selector: (row: ColumnRefs<T, PrimaryKey>) => Narrow<Selected>
-  ): Selection<
-    ResolveSelection<Selected>,
-    TableRef<T, TableName, PrimaryKey, NullableColumn>
-  >
-}
-
 export function makeTableRef<
   T extends object = any,
   TableName extends string = any,
@@ -117,11 +75,15 @@ export function makeTableRef<
   pkColumn: PrimaryKey,
   columns: Record<string, RuntimeType>
 ): TableRef<T, TableName, PrimaryKey, NullableColumn> {
-  const type = new TableType(name, pkColumn, columns)
+  const type = new (TableRef as new (
+    name: TableName,
+    pkColumn: PrimaryKey,
+    columns: Record<string, RuntimeType>
+  ) => TableRef)(name, pkColumn, columns)
   return makeSelector(type)
 }
 
-class TableType<
+export abstract class TableRef<
   T extends object = any,
   TableName extends string = any,
   PrimaryKey extends string = any,
@@ -156,7 +118,29 @@ class TableType<
   }
 }
 
-interface TableType<T extends object> extends SetType<T> {}
+export interface TableRef<
+  T extends object,
+  TableName extends string,
+  PrimaryKey extends string,
+  NullableColumn extends string
+> extends SetType<T> {
+  /**
+   * Define a selection clause.
+   */
+  <Selected extends RawSelection>(
+    selector: (row: ColumnRefs<T, PrimaryKey>) => Narrow<Selected>
+  ): Selection<
+    ResolveSelection<Selected>,
+    TableRef<T, TableName, PrimaryKey, NullableColumn>
+  >
+
+  /**
+   * Exclude specific columns from the result set.
+   */
+  omit<Omitted extends (string & keyof T)[]>(
+    ...omitted: Omitted
+  ): Selection<Omit<T, Omitted[number]>, this>
+}
 
 export function toTableRef(arg: TableRef | Selection<any, TableRef>): TableRef
 export function toTableRef(arg: Selectable): TableRef | undefined
@@ -178,3 +162,16 @@ export function toTableName(arg: Selectable) {
 export function getColumnType(table: TableRef, column: string) {
   return table[kTableColumns][column]
 }
+
+/**
+ * The callback type used for selecting columns from a table.
+ *
+ * Use this to wrap a `db.select` call while still allowing a
+ * custom selector to be used.
+ */
+export type TableSelector<
+  Selected extends RawSelection,
+  From extends TableRef
+> = (
+  row: From extends TableRef<infer T, any, infer PK> ? ColumnRefs<T, PK> : never
+) => Narrow<Selected>
