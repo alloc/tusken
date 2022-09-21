@@ -1,6 +1,6 @@
 import { ExpressionType } from './expression'
 import { tokenize } from './internal/tokenize'
-import { Query } from './query'
+import type { Query } from './query'
 import type { RuntimeType, Type } from './type'
 
 type Props = { value: any; type: RuntimeType }

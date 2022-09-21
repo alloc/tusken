@@ -1,3 +1,5 @@
+import './postgres/expression'
+
 export * from './postgres/column'
 export * from './postgres/connection'
 export * from './postgres/database'

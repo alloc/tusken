@@ -1,7 +1,7 @@
 import { Variadic } from '../utils/Variadic'
 import { CheckList } from './check'
 import { Expression } from './expression'
-import { t } from './type-builtin'
+import { t } from './typesBuiltin'
 
 export function is(left: Variadic<Expression<t.bool>>): CheckList<t.bool>
 

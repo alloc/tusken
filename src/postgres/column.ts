@@ -7,7 +7,7 @@ import type { Selectable } from './selection'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
 import { RowType, toTableName } from './table'
 import type { QueryInput, RuntimeType, Type } from './type'
-import { t } from './type-builtin'
+import { t } from './typesBuiltin'
 
 export type ColumnOf<T> = string & keyof RowType<T>
 

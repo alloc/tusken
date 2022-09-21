@@ -1,5 +1,5 @@
 import { Exclusive } from '@alloc/types'
-import { Query } from '../query'
+import type { Query } from '../query'
 import { kDatabaseReserved } from '../symbols'
 import { renderQuery, toQueryInternal } from './query'
 

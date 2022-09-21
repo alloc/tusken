@@ -12,7 +12,7 @@ import { getSetAlias, SetRef } from '../set'
 import { kPrimaryKey, kTableName } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
 import { Type } from '../type'
-import { t } from '../type-builtin'
+import { t } from '../typesBuiltin'
 
 export function where<From extends Selectable[]>(
   props: {

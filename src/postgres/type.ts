@@ -1,22 +1,9 @@
 import { Intersect, Remap } from '@alloc/types'
-import type { ColumnRef } from './column'
-import type { Expression, ExpressionType } from './expression'
-import type { CallExpression } from './function'
+import type { Expression } from './expression'
 import type { Token, TokenArray } from './internal/token'
-import type { Selection } from './selection'
-import {
-  kColumnFrom,
-  kExprProps,
-  kRuntimeType,
-  kSelectionFrom,
-  kTableName,
-  kTypeArrayId,
-  kTypeId,
-  kTypeTokenizer,
-} from './symbols'
-import type { TableRef } from './table'
-import { t } from './type-builtin'
+import { kRuntimeType, kTypeArrayId, kTypeId, kTypeTokenizer } from './symbols'
 import { TypeCast } from './typeCast'
+import { t } from './typesBuiltin'
 
 const kTypeName = Symbol()
 const kClientType = Symbol()
@@ -96,41 +83,3 @@ export type ExtractNull<T> = T extends Type<infer TypeName>
 
 export abstract class SetType<T extends object = any> //
   extends Type<`setof<record>`, T[], T[]> {}
-
-export function isTableRef(val: any): val is TableRef {
-  return kTableName in val
-}
-
-export function isColumnRef(val: any): val is ColumnRef {
-  return kColumnFrom in val
-}
-
-export function isSelection(val: any): val is Selection {
-  return kSelectionFrom in val
-}
-
-export function isExpression(val: any): val is Expression {
-  return kRuntimeType in val
-}
-
-/** Is this an expression that can tokenize itself? */
-export function isExpressionType(val: any): val is ExpressionType {
-  return kExprProps in val
-}
-
-export function isBoolExpression(val: any): val is Expression<t.bool> {
-  const exprType = isExpression(val) && val[kRuntimeType]
-  return !!exprType && exprType.name == 'bool'
-}
-
-export function isCallExpression(
-  val: any,
-  callee?: string
-): val is CallExpression {
-  const props = isExpressionType(val) && val[kExprProps]
-  return props ? !callee || (props as any).callee == callee : false
-}
-
-export function isArrayType(val: any): val is Type {
-  return kTypeId in val && val.name.endsWith('[]')
-}

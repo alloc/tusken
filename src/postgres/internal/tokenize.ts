@@ -1,6 +1,6 @@
 import { callProp } from '../../utils/callProp'
 import { toArray } from '../../utils/toArray'
-import { Check, CheckBuilder } from '../check'
+import { Check } from '../check'
 import type { Expression } from '../expression'
 import { Query } from '../query'
 import type { SortExpression, SortSelection } from '../query/orderBy'
@@ -13,16 +13,15 @@ import {
   kTableName,
   kTypeTokenizer,
 } from '../symbols'
+import type { RuntimeType } from '../type'
 import {
-  isBoolExpression,
-  isCallExpression,
+  isCheckBuilder,
   isExpression,
   isExpressionType,
   isSelection,
   isTableRef,
-  RuntimeType,
-} from '../type'
-import { t } from '../type-builtin'
+} from '../typeChecks'
+import { t } from '../typesBuiltin'
 import type { Token, TokenArray } from './token'
 
 /**
@@ -42,7 +41,7 @@ export function tokenize(value: any, ctx: Query.Context): Token | TokenArray {
     if (value instanceof Query) {
       return { query: value }
     }
-    if (value instanceof CheckBuilder) {
+    if (isCheckBuilder(value)) {
       return tokenize(value['left'], ctx)
     }
   }

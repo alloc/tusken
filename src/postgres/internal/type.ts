@@ -1,5 +1,5 @@
 import { defineType } from '../type'
-import { t } from '../type-builtin'
+import { t } from '../typesBuiltin'
 
 export const kUnknownType = defineType(0, 'unknown')
 export const kBoolType = defineType<t.bool>(-1, 'bool')

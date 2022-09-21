@@ -1,4 +1,4 @@
-import { Query } from '../query'
+import type { Query } from '../query'
 import { renderTokens, TokenArray } from './token'
 
 // @ts-ignore

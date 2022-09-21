@@ -15,14 +15,8 @@ import {
   kTableColumns,
   kTableName,
 } from './symbols'
-import {
-  isSelection,
-  isTableRef,
-  QueryInput,
-  RuntimeType,
-  SetType,
-  Type,
-} from './type'
+import { QueryInput, RuntimeType, SetType, Type } from './type'
+import { isSelection, isTableRef } from './typeChecks'
 
 export type PrimaryKey<T> = RowType<T> extends infer Values
   ? QueryInput<Values[PrimaryKeyOf<T> & keyof Values]>

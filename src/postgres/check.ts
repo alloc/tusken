@@ -7,9 +7,10 @@ import {
   tokenizeExpressionList,
 } from './internal/tokenize'
 import { kBoolType } from './internal/type'
-import { Query } from './query'
-import { ExtractNull, isBoolExpression, QueryInput, Type } from './type'
-import { t } from './type-builtin'
+import type { Query } from './query'
+import type { ExtractNull, QueryInput, Type } from './type'
+import { isBoolExpression } from './typeChecks'
+import { t } from './typesBuiltin'
 
 interface Props {
   check: Check | Variadic<Expression<t.bool | t.null>>
@@ -138,3 +139,13 @@ Object.entries(checkAliases).forEach(([key, alias]) =>
     value: CheckBuilder.prototype[alias],
   })
 )
+
+// We have to define the `ExpressionType#is` method here
+// or else a circular dependency is created.
+Object.defineProperty(ExpressionType.prototype, 'is', {
+  get(this: ExpressionType) {
+    return new CheckBuilder(check => {
+      return new CheckList(check)
+    }, this)
+  },
+})

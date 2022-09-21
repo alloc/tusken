@@ -1,9 +1,8 @@
 import { Any } from '@alloc/types'
-import { CheckBuilder, CheckList } from './check'
+import type { CheckBuilder } from './check'
 import type { TokenProducer } from './internal/token'
-import { kUnknownType } from './internal/type'
 import { kExprProps, kExprTokens, kRuntimeType } from './symbols'
-import { RuntimeType, Type } from './type'
+import type { RuntimeType, Type } from './type'
 
 const emptyProps: any = Object.freeze({})
 
@@ -29,19 +28,16 @@ export class ExpressionType<T extends Type = any, Props extends object = {}> {
     return this[kExprProps]
   }
   constructor(
-    type: RuntimeType<T> | null,
+    type: RuntimeType<T>,
     props: ([Props] extends [Any] ? Record<string, any> : Props) | null,
     tokens: TokenProducer
   ) {
     this[kExprProps] = props || emptyProps
     this[kExprTokens] = tokens
-    this[kRuntimeType] = type || (kUnknownType as any)
-  }
-  get is(): CheckBuilder<T> {
-    return new CheckBuilder<T>(check => {
-      return new CheckList(check)
-    }, this)
+    this[kRuntimeType] = type
   }
 }
 
-export interface ExpressionType<T> extends Expression<T> {}
+export interface ExpressionType<T extends Type> extends Expression<T> {
+  is: CheckBuilder<T>
+}

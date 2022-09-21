@@ -10,7 +10,7 @@ import { JoinProps } from '../../join'
 import { Query } from '../../query'
 import { Selectable } from '../../selection'
 import { toTableName } from '../../table'
-import { t } from '../../type-builtin'
+import { t } from '../../typesBuiltin'
 import { SortSelection } from '../orderBy'
 import { Where, where } from '../where'
 

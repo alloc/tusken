@@ -4,7 +4,7 @@ import { tokenizeWhere } from '../internal/tokenize'
 import { Query, QueryResponse } from '../query'
 import { kTableName } from '../symbols'
 import { TableRef } from '../table'
-import { t } from '../type-builtin'
+import { t } from '../typesBuiltin'
 import { where, Where } from './where'
 
 type Props = {

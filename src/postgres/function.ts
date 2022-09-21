@@ -7,7 +7,7 @@ import { kUnknownType } from './internal/type'
 import type { Query } from './query'
 import { kExprProps } from './symbols'
 import type { RuntimeType, Type } from './type'
-import { isCallExpression } from './type'
+import { isCallExpression } from './typeChecks'
 
 export const defineFunction =
   (callee: string, flags = 0, returnType = kUnknownType): any =>
