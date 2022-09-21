@@ -1,10 +1,10 @@
-import { kTypeArrayId, kTypeName } from './symbols'
+import { kTypeArrayId } from './symbols'
 import { defineType, RuntimeType, Type } from './type'
 
 export const array = ((type: RuntimeType) => {
   const id = type[kTypeArrayId]
   if (id !== undefined) {
-    return defineType(id, type[kTypeName] + '[]', id)
+    return defineType(id, type.name + '[]', id)
   }
   throw Error('Cannot define array type for type without array ID')
 }) as {

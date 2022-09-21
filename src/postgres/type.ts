@@ -12,12 +12,12 @@ import {
   kTableName,
   kTypeArrayId,
   kTypeId,
-  kTypeName,
   kTypeTokenizer,
 } from './symbols'
 import type { TableRef } from './table'
 import { t } from './type-builtin'
 
+const kTypeName = Symbol()
 const kClientType = Symbol()
 const kColumnInput = Symbol()
 
@@ -38,9 +38,9 @@ export abstract class Type<
  * that describe the type of an expression.
  */
 export declare class RuntimeType<T extends Type = any> {
+  readonly name: string
   protected [kTypeId]: number
   protected [kTypeArrayId]: number | undefined
-  protected [kTypeName]: string
   protected [kTypeTokenizer]: ValueTokenizer | undefined
   /** Exists for type inference */
   protected declare compilerType: T
@@ -55,9 +55,9 @@ export const defineType = <T extends Type>(
   tokenizer?: ValueTokenizer
 ): RuntimeType<T> =>
   ({
+    name,
     [kTypeId]: id,
     [kTypeArrayId]: arrayId,
-    [kTypeName]: name,
     [kTypeTokenizer]: tokenizer,
   } as any)
 
@@ -114,7 +114,7 @@ export function isExpressionType(val: any): val is ExpressionType {
 
 export function isBoolExpression(val: any): val is Expression<t.bool> {
   const exprType = isExpression(val) && val[kRuntimeType]
-  return !!exprType && exprType[kTypeName] == 'bool'
+  return !!exprType && exprType.name == 'bool'
 }
 
 export function isCallExpression(
@@ -126,5 +126,5 @@ export function isCallExpression(
 }
 
 export function isArrayType(val: any): val is Type {
-  return kTypeName in val && val[kTypeName].endsWith('[]')
+  return kTypeId in val && val.name.endsWith('[]')
 }
