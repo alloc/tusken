@@ -30,6 +30,23 @@ describe('db.select', () => {
         'SELECT * FROM "user" WHERE starts_with(bio, \'a\') AND length(bio) > 1'
       )
     })
+    test('condition grouping', () => {
+      expect(
+        db
+          .select(t.user)
+          .where(user =>
+            is([
+              pg.starts_with(user.bio, 'a'),
+              pg.length(user.bio).is.gt(1),
+            ]).or([
+              pg.starts_with(user.bio, 'b'),
+              pg.length(user.bio).is.gte(2),
+            ])
+          )
+      ).toMatchInlineSnapshot(
+        'SELECT * FROM "user" WHERE (starts_with(bio, \'a\') AND length(bio) > 1) OR (starts_with(bio, \'b\') AND length(bio) >= 2)'
+      )
+    })
   })
 
   describe('.innerJoin', () => {
