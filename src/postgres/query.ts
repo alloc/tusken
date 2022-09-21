@@ -1,21 +1,13 @@
 import type { Database } from './database'
 import { renderQuery, tokenizeQuery } from './internal/query'
 import { renderTokens, Token, TokenArray } from './internal/token'
-import type { SelectProps } from './query/select'
+import type { SelectProps } from './props/select'
 
-export type ValidQuery<T = any, Command extends string = any> = unknown &
-  Query<any, Command> &
-  PromiseLike<T>
-
-const kQueryCommand = Symbol()
+export type QueryPromise<T = any> = Query & PromiseLike<T>
 
 export type QueryResponse = { rows: Record<string, any>[]; rowCount?: number }
 
-export abstract class Query<
-  Props extends object | null = any,
-  Command extends string = any
-> {
-  protected declare [kQueryCommand]: Command
+export abstract class Query<Props extends object | null = any> {
   protected position: number
   protected context: Query.Context
   protected get props(): Props {
@@ -60,9 +52,9 @@ export abstract class Query<
   ): Token | TokenArray
 
   protected query<T extends Query>(node: {
-    type: T extends Query<any, infer Command> ? Command : never
-    props: T extends Query<infer Props> ? Props : never
+    type: string
     query: T
+    props: T extends Query<infer Props> ? Props : never
   }): T
 
   protected query(node: any) {
