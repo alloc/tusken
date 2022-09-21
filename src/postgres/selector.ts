@@ -1,13 +1,12 @@
 import { makeColumnRef } from './column'
 import { Selection, SelectionSource } from './selection'
 import { kPrimaryKey } from './symbols'
-import { SetType } from './type'
 
 export function makeSelector<T extends SelectionSource>(
-  type: SetType,
+  from: SelectionSource,
   onlyColumn?: () => string
 ): T {
-  const from = onlyColumn
+  const selector = onlyColumn
     ? (((select: any): any => {
         const column = makeColumnRef(from, onlyColumn())
         return new Selection(select(column), from)
@@ -17,7 +16,7 @@ export function makeSelector<T extends SelectionSource>(
         return new Selection(select(columns), from)
       }) as T)
 
-  return Object.setPrototypeOf(from, type)
+  return Object.setPrototypeOf(selector, from)
 }
 
 export function makeColumnRefs(from: SelectionSource): any {

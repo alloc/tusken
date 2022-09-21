@@ -1,5 +1,6 @@
 import { Narrow } from '../utils/Narrow'
 import { ColumnRef } from './column'
+import { Expression } from './expression'
 import { CallExpression } from './function'
 import { kSetType } from './internal/type'
 import { RawSelection, ResolveSelection, Selection } from './selection'
@@ -12,25 +13,29 @@ export function defineSetFunction(callee: string): any {
   return (...args: any[]) => makeSetRef(callee, args)
 }
 
+/**
+ * An expression that results in a set of rows.
+ */
+export declare abstract class SetExpression<
+  T extends object = any
+> extends Expression<SetType<T>> {}
+
 export function makeSetRef<T extends Type, Callee extends string = any>(
   callee: Callee,
   args: any[]
 ): SetRef<T, Callee> {
-  const type = new SetRefExpression<T>(callee, args)
+  const type = new (SetRef as new (
+    callee: Callee, // @prettier-ignore
+    args: any[]
+  ) => SetRef<T, Callee>)(callee, args)
+
   return makeSelector(type, () => type[kSetAlias])
 }
 
-export interface SetRef<T extends Type = any, Callee extends string = any>
-  extends SetRefExpression<T>,
-    SetSelector<T, Callee> {}
-
-type SetSelector<T extends Type, Callee extends string> = {
-  <Selected extends RawSelection>(
-    selector: (value: ColumnRef<T, Callee>) => Narrow<Selected>
-  ): Selection<ResolveSelection<Selected>, SetRef<T, Callee>>
-}
-
-class SetRefExpression<
+/**
+ * A function call that returns a set of rows.
+ */
+export abstract class SetRef<
   T extends Type = any,
   Callee extends string = any
 > extends CallExpression<SetType<{ [P in Callee]: T }>, Callee> {
@@ -47,7 +52,17 @@ class SetRefExpression<
   }
 }
 
-export function getSetAlias(val: SetRefExpression): string
+export interface SetRef<T extends Type, Callee extends string>
+  extends SetExpression<{ [P in Callee]: T }> {
+  /**
+   * Define a selection of columns from this set.
+   */
+  <Selected extends RawSelection>(
+    selector: (value: ColumnRef<T, Callee>) => Narrow<Selected>
+  ): Selection<ResolveSelection<Selected>, SetRef<T, Callee>>
+}
+
+export function getSetAlias(val: SetRef): string
 export function getSetAlias(val: any): string | undefined
 export function getSetAlias(val: any) {
   return val ? val[kSetAlias] : undefined

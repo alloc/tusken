@@ -8,6 +8,7 @@ import {
   Selection,
 } from './selection'
 import { makeSelector } from './selector'
+import { SetExpression } from './set'
 import {
   kNullableColumns,
   kPrimaryKey,
@@ -30,10 +31,10 @@ export type PrimaryKeyOf<T> = T extends TableRef<any, any, infer PrimaryKey>
 
 /** Get the `SELECT *` row type. */
 export type RowType<T> = T extends Selection<any, infer From>
-  ? From extends SetType<infer Values>
+  ? From extends SetExpression<infer Values> | TableRef<infer Values>
     ? Values
     : never
-  : T extends SetType<infer Values>
+  : T extends SetExpression<infer Values> | TableRef<infer Values>
   ? Values
   : never
 

@@ -1,13 +1,13 @@
 import type { Any, CombineObjects, Intersect, Pick } from '@alloc/types'
 import type { ColumnExpression } from './column'
 import type { CallExpression } from './function'
-import type { SetRef } from './set'
+import type { SetExpression } from './set'
 import { kSelectionArgs, kSelectionFrom, kSelectionType } from './symbols'
 import type { TableRef } from './table'
 import type { RowResult, SetType } from './type'
 
 /** Selection sources have a default selection of all columns. */
-export type SelectionSource = SetRef | TableRef
+export type SelectionSource = SetExpression | TableRef
 
 export class Selection<
   T extends object = any,
@@ -23,7 +23,7 @@ export class Selection<
   }
 }
 
-export interface Selection<T> extends SetType<T> {}
+export interface Selection<T extends object> extends SetType<T> {}
 
 /** Object types compatible with `SELECT` command */
 export type Selectable = SelectionSource | Selection
@@ -51,7 +51,7 @@ export type AliasMapping = {
 
 export type RawSelection =
   | string[]
-  | SetRef
+  | SetExpression
   | RawColumnSelection
   | RawColumnSelection[]
 
