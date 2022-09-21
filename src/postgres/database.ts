@@ -1,5 +1,5 @@
 import { Client, ConnectFn, ConnectOptions } from './connection'
-import { Query, ValidQuery } from './query'
+import { Query, QueryPromise } from './query'
 import { Count } from './query/count'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
@@ -53,7 +53,7 @@ export class Database {
   delete<From extends TableRef>(
     from: From,
     pk: PrimaryKey<From>
-  ): ValidQuery<number>
+  ): QueryPromise<number>
   delete(from: TableRef, pk?: any) {
     const query = this.query({
       type: 'delete',
@@ -72,7 +72,7 @@ export class Database {
   find<T extends Selectable>(
     from: T,
     filter: Where<[T]>
-  ): ValidQuery<SelectedRow<T> | null> {
+  ): QueryPromise<SelectedRow<T> | null> {
     return this.select(from).where(filter).at(0) as any
   }
 
@@ -84,7 +84,7 @@ export class Database {
   get<T extends Selectable>(
     from: T,
     pk: PrimaryKey<T>
-  ): ValidQuery<SelectedRow<T> | null> {
+  ): QueryPromise<SelectedRow<T> | null> {
     return this.find(from as Extract<T, TableRef>, from =>
       from[kPrimaryKey].is.eq(pk)
     )
@@ -130,9 +130,9 @@ export class Database {
   }
 
   protected query<T extends Query>(node: {
-    type: T extends Query<any, infer Command> ? Command : never
-    props: T extends Query<infer Props> ? Props : never
+    type: string
     query: T
+    props: T extends Query<infer Props> ? Props : never
   }): T
 
   protected query(node: any) {

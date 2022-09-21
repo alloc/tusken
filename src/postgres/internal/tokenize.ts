@@ -2,6 +2,7 @@ import { callProp } from '../../utils/callProp'
 import { toArray } from '../../utils/toArray'
 import { Check } from '../check'
 import type { Expression } from '../expression'
+import { SetProps } from '../props/set'
 import { Query } from '../query'
 import type { SortExpression, SortSelection } from '../query/orderBy'
 import type { AliasMapping, Selectable, Selection } from '../selection'
@@ -201,4 +202,18 @@ export function tokenizeOrderBy(orderBy: SortSelection, ctx: Query.Context) {
     }
   }
   return ['ORDER BY', { list: tokens }]
+}
+
+export function tokenizeSetProps(props: SetProps, ctx: Query.Context) {
+  const tokens: TokenArray = []
+  if (props.orderBy) {
+    tokens.push(tokenizeOrderBy(props.orderBy, ctx))
+  }
+  if (props.limit) {
+    tokens.push('LIMIT', { number: props.limit })
+  }
+  if (props.offset) {
+    tokens.push('OFFSET', { number: props.offset })
+  }
+  return tokens
 }

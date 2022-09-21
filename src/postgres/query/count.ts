@@ -1,11 +1,10 @@
+import { SelectProps } from '../props/select'
 import { Query, QueryResponse } from '../query'
 import { Selectable } from '../selection'
-import { AbstractSelect, SelectProps } from './abstract/select'
+import { SelectBase } from './base/select'
 import { Where } from './where'
 
-export class Count<From extends Selectable[]> //
-  extends AbstractSelect<From, 'count'>
-{
+export class Count<From extends Selectable[]> extends SelectBase<From> {
   protected tokenize(props: SelectProps, ctx: Query.Context) {
     const tokens = super.tokenize(props, ctx)
     tokens[1] = 'COUNT(*)'

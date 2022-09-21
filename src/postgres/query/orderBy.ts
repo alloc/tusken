@@ -1,30 +1,26 @@
 import { Exclusive, Intersect } from '@alloc/types'
 import type { ColumnRefs } from '../column'
 import { Expression } from '../expression'
-import { JoinProps } from '../join'
-import { Selectable, SelectedRow, Selection } from '../selection'
+import {
+  Selectable,
+  SelectedRow,
+  Selection,
+  SelectionSource,
+} from '../selection'
 import { makeColumnRefs } from '../selector'
-import { kSelectionFrom } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableName } from '../table'
 import type { SourceRefId } from './where'
 
 export function orderBy<From extends Selectable[]>(
-  props: {
-    from: Selectable
-    joins?: JoinProps[]
-  },
+  sources: SelectionSource[],
   selector: SortSelection<From> | SortSelector<From>
 ): SortSelection<From> {
   if (typeof selector !== 'function') {
     return selector
   }
-  const source = toSelectionSource(props.from)
-  if (!props.joins) {
-    return selector(makeColumnRefs(source))
+  if (sources.length == 1) {
+    return selector(makeColumnRefs(sources[0]))
   }
-  const sources = [source].concat(
-    props.joins.map(join => toSelectionSource(join.from))
-  )
   const refs: any = {}
   for (const source of sources) {
     const table = toTableName(source)
@@ -33,13 +29,6 @@ export function orderBy<From extends Selectable[]>(
     }
   }
   return selector(refs)
-}
-
-function toSelectionSource(s: Selectable) {
-  while (s instanceof Selection) {
-    s = s[kSelectionFrom]
-  }
-  return s
 }
 
 export type SortSelector<From extends Selectable[] = any> = (

@@ -1,29 +1,18 @@
-import { Expression } from '../../expression'
 import { TokenArray } from '../../internal/token'
 import {
   tokenizeExpression,
-  tokenizeOrderBy,
   tokenizeSelected,
+  tokenizeSetProps,
   tokenizeWhere,
 } from '../../internal/tokenize'
 import { JoinProps } from '../../join'
+import { SelectProps } from '../../props/select'
 import { Query } from '../../query'
-import { Selectable } from '../../selection'
+import { Selectable, Selection, SelectionSource } from '../../selection'
+import { kSelectionFrom } from '../../symbols'
 import { toTableName } from '../../table'
-import { t } from '../../typesBuiltin'
-import { SortSelection } from '../orderBy'
 import { Where, where } from '../where'
-
-const kSelectFrom = Symbol()
-
-export interface SelectProps {
-  from: Selectable
-  joins?: JoinProps[]
-  where?: Expression<t.bool | t.null>
-  limit?: number
-  offset?: number
-  orderBy?: SortSelection
-}
+import { SetBase } from './set'
 
 /**
  * For queries based on `SELECT` command, but may not return a record set.
@@ -31,11 +20,17 @@ export interface SelectProps {
  * Note: You need to override `innerJoin` to provide a return type.
  * This can be done at the type-level with interface merging.
  */
-export abstract class AbstractSelect<
-  From extends Selectable[],
-  Command extends string
-> extends Query<SelectProps, Command> {
-  protected declare [kSelectFrom]: From
+export abstract class SelectBase<From extends Selectable[]> //
+  extends SetBase<From, SelectProps>
+{
+  protected get sources(): SelectionSource[] {
+    const { from, joins } = this.props
+    const sources = [toSelectionSource(from)]
+    joins?.forEach(join => {
+      sources.push(toSelectionSource(join.from))
+    })
+    return sources
+  }
   protected tokenize(props: SelectProps, ctx: Query.Context) {
     ctx.select = props
 
@@ -62,15 +57,7 @@ export abstract class AbstractSelect<
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))
     }
-    if (props.orderBy) {
-      tokens.push(tokenizeOrderBy(props.orderBy, ctx))
-    }
-    if (props.limit) {
-      tokens.push('LIMIT', { number: props.limit })
-    }
-    if (props.offset) {
-      tokens.push('OFFSET', { number: props.offset })
-    }
+    tokens.push(tokenizeSetProps(props, ctx))
     return tokens
   }
 
@@ -91,4 +78,11 @@ export abstract class AbstractSelect<
     this.props.where = where(this.props, filter)
     return this
   }
+}
+
+function toSelectionSource(s: Selectable) {
+  while (s instanceof Selection) {
+    s = s[kSelectionFrom]
+  }
+  return s
 }

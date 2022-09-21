@@ -12,7 +12,7 @@ type Props<T extends TableRef> = {
   pk?: any
 }
 
-export class Put<T extends TableRef = any> extends Query<Props<T>, 'put'> {
+export class Put<T extends TableRef = any> extends Query<Props<T>> {
   protected tokenize(props: Props<T>, ctx: Query.Context) {
     let { table, data, pk } = props
 

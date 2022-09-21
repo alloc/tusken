@@ -15,9 +15,7 @@ describe('db.select', () => {
     test('with function call that returns boolean', () => {
       expect(
         db.select(t.user).where(user => pg.starts_with(user.bio, 'a'))
-      ).toMatchInlineSnapshot(
-        'SELECT * FROM "user" WHERE starts_with(bio, \'a\')'
-      )
+      ).toMatchInlineSnapshot('SELECT * FROM "user" WHERE starts_with(bio, \'a\')')
     })
     test('AND expression', () => {
       expect(
@@ -26,9 +24,7 @@ describe('db.select', () => {
           .where(user =>
             is(pg.starts_with(user.bio, 'a')).and(pg.length(user.bio).is.gt(1))
           )
-      ).toMatchInlineSnapshot(
-        'SELECT * FROM "user" WHERE starts_with(bio, \'a\') AND length(bio) > 1'
-      )
+      ).toMatchInlineSnapshot('SELECT * FROM "user" WHERE starts_with(bio, \'a\') AND length(bio) > 1')
     })
     test('condition grouping', () => {
       expect(
@@ -43,9 +39,7 @@ describe('db.select', () => {
               pg.length(user.bio).is.gte(2),
             ])
           )
-      ).toMatchInlineSnapshot(
-        'SELECT * FROM "user" WHERE (starts_with(bio, \'a\') AND length(bio) > 1) OR (starts_with(bio, \'b\') AND length(bio) >= 2)'
-      )
+      ).toMatchInlineSnapshot('SELECT * FROM "user" WHERE (starts_with(bio, \'a\') AND length(bio) > 1) OR (starts_with(bio, \'b\') AND length(bio) >= 2)')
     })
   })
 
@@ -60,9 +54,7 @@ describe('db.select', () => {
           .innerJoin(t.like, ({ tweet, like }) =>
             tweet.id.is.equalTo(like.tweet)
           )
-      ).toMatchInlineSnapshot(
-        'SELECT * FROM "user" INNER JOIN tweet ON "user".id = tweet.author INNER JOIN "like" ON tweet.id = "like".tweet'
-      )
+      ).toMatchInlineSnapshot('SELECT * FROM "user" INNER JOIN tweet ON "user".id = tweet.author INNER JOIN "like" ON tweet.id = "like".tweet')
     })
 
     test('omit column from a joined table', () => {
@@ -131,6 +123,41 @@ describe('db.select', () => {
       expect(
         db.select(t.user(user => pg.upper(user.name))).orderBy('upper')
       ).toMatchInlineSnapshot('SELECT upper(name) FROM "user" ORDER BY upper')
+    })
+  })
+
+  describe('.union', () => {
+    test('simplest case', () => {
+      expect(
+        db
+          .select(t.user)
+          .where(user => user.id.is.eq(1))
+          .union(db.select(t.user).where(user => user.id.is.eq(2)))
+      ).toMatchInlineSnapshot(
+        '(SELECT * FROM "user" WHERE id = 1) UNION (SELECT * FROM "user" WHERE id = 2)'
+      )
+    })
+
+    test('double union', () => {
+      expect(
+        db
+          .select(t.user)
+          .where(user => user.id.is.eq(1))
+          .union(db.select(t.user).where(user => user.id.is.eq(2)))
+          .union(db.select(t.user).where(user => user.id.is.eq(3)))
+      ).toMatchInlineSnapshot(
+        '(SELECT * FROM "user" WHERE id = 1) UNION (SELECT * FROM "user" WHERE id = 2) UNION (SELECT * FROM "user" WHERE id = 3)'
+      )
+    })
+
+    test('with order by', () => {
+      expect(
+        db
+          .select(t.user)
+          .where(user => user.id.is.eq(1))
+          .union(db.select(t.user).where(user => user.id.is.eq(2)))
+          .orderBy(user => user.id)
+      ).toMatchInlineSnapshot('(SELECT * FROM "user" WHERE id = 1) UNION (SELECT * FROM "user" WHERE id = 2) ORDER BY id')
     })
   })
 })
