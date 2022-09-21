@@ -61,9 +61,7 @@ export class Database {
       query: new Delete(this),
     })
     if (arguments.length > 1) {
-      query.where(from => {
-        return from[kPrimaryKey].eq(pk)
-      })
+      return query.where(from => from[kPrimaryKey].is.eq(pk))
     }
     return query
   }
@@ -88,7 +86,7 @@ export class Database {
     pk: PrimaryKey<T>
   ): ValidQuery<SelectedRow<T> | null> {
     return this.find(from as Extract<T, TableRef>, from =>
-      from[kPrimaryKey].eq(pk)
+      from[kPrimaryKey].is.eq(pk)
     )
   }
 

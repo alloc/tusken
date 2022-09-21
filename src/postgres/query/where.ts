@@ -1,7 +1,6 @@
 import { Any, Intersect } from '@alloc/types'
 import { isArray } from '../../utils/isArray'
 import { Variadic } from '../../utils/Variadic'
-import { CheckBuilder } from '../check'
 import { ColumnRef, ColumnType, makeColumnRef } from '../column'
 import { Expression } from '../expression'
 import { CallExpression } from '../function'
@@ -11,7 +10,6 @@ import { Selectable, Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
 import { kPrimaryKey, kTableName } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
-import { Type } from '../type'
 import { t } from '../typesBuiltin'
 
 export function where<From extends Selectable[]>(
@@ -36,9 +34,9 @@ export function where<From extends Selectable[]>(
           get: (_, column: string | typeof kPrimaryKey) =>
             column == kPrimaryKey
               ? table && table[column] !== ''
-                ? is(makeColumnRef(from, table[column]))
+                ? makeColumnRef(from, table[column])
                 : undefined
-              : is(makeColumnRef(from, column)),
+              : makeColumnRef(from, column),
         }) as any
       }
     }
@@ -78,23 +76,19 @@ export type SourceRefId<Source> = Source extends SetRef<any, infer Alias>
 type WhereRef<From extends Selectable> = [From] extends [Any]
   ? WhereRef<TableRef>
   : From extends SetRef<infer T, infer Alias>
-  ? WhereBuilder<T, Alias>
+  ? ColumnRef<T, Alias>
   : RowType<From> extends infer Values
   ? Values extends object
     ? {
-        [K in string & keyof Values]-?: WhereBuilder<ColumnType<Values, K>, K>
+        [K in string & keyof Values]-?: ColumnRef<ColumnType<Values, K>, K>
       } & {
         [kPrimaryKey]: PrimaryKeyOf<From> extends infer PK
           ? PK extends ''
             ? never
             : PK extends string
-            ? WhereBuilder<ColumnType<Values, PK>, PK>
+            ? ColumnRef<ColumnType<Values, PK>, PK>
             : never
           : never
       }
     : never
   : never
-
-export type WhereBuilder<T extends Type, Column extends string> = unknown &
-  ColumnRef<T, Column> &
-  CheckBuilder<T>

@@ -38,9 +38,11 @@ describe('db.select', () => {
         db
           .select(t.user)
           .innerJoin(t.tweet, ({ user, tweet }) =>
-            user.id.equalTo(tweet.author)
+            user.id.is.equalTo(tweet.author)
           )
-          .innerJoin(t.like, ({ tweet, like }) => tweet.id.equalTo(like.tweet))
+          .innerJoin(t.like, ({ tweet, like }) =>
+            tweet.id.is.equalTo(like.tweet)
+          )
       ).toMatchInlineSnapshot(
         'SELECT * FROM "user" INNER JOIN tweet ON "user".id = tweet.author INNER JOIN "like" ON tweet.id = "like".tweet'
       )
@@ -51,7 +53,7 @@ describe('db.select', () => {
         db
           .select(t.user)
           .innerJoin(t.tweet.omit('id'), ({ user, tweet }) =>
-            user.id.equalTo(tweet.author)
+            user.id.is.equalTo(tweet.author)
           )
       ).toMatchInlineSnapshot(
         'SELECT "user".*, author, text FROM "user" INNER JOIN tweet ON "user".id = tweet.author'
@@ -69,7 +71,9 @@ describe('db.select', () => {
       expect(
         db
           .select(t.user)
-          .innerJoin(t.like, ({ user, like }) => user.id.equalTo(like.author))
+          .innerJoin(t.like, ({ user, like }) =>
+            user.id.is.equalTo(like.author)
+          )
           .orderBy(({ user }) => user.name)
       ).toMatchInlineSnapshot(
         'SELECT * FROM "user" INNER JOIN "like" ON "user".id = "like".author ORDER BY "user".name'
@@ -183,7 +187,7 @@ describe('db.get', () => {
 describe('db.find', () => {
   test('get first row to match where clause', () => {
     expect(
-      db.find(t.tweet, tweet => tweet.author.equalTo(1))
+      db.find(t.tweet, tweet => tweet.author.is.equalTo(1))
     ).toMatchInlineSnapshot('SELECT * FROM tweet WHERE author = 1 LIMIT 1')
   })
 })
