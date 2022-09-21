@@ -1,5 +1,5 @@
 import type { Any, CombineObjects, Intersect, Pick } from '@alloc/types'
-import type { ColumnRef } from './column'
+import type { ColumnExpression } from './column'
 import type { CallExpression } from './function'
 import type { SetRef } from './set'
 import { kSelectionArgs, kSelectionFrom, kSelectionType } from './symbols'
@@ -46,7 +46,7 @@ export type SelectedRow<T> = unknown &
     : never)
 
 export type AliasMapping = {
-  [alias: string]: ColumnRef | CallExpression
+  [alias: string]: ColumnExpression | CallExpression
 }
 
 export type RawSelection =
@@ -55,7 +55,7 @@ export type RawSelection =
   | RawColumnSelection
   | RawColumnSelection[]
 
-type RawColumnSelection = ColumnRef | CallExpression | AliasMapping
+type RawColumnSelection = ColumnExpression | CallExpression | AliasMapping
 
 /** Coerce a `RawSelection` into an object type. */
 export type ResolveSelection<T extends RawSelection> = T extends (infer U)[]
@@ -68,11 +68,11 @@ export type ResolveSelection<T extends RawSelection> = T extends (infer U)[]
  * be merged.
  */
 type ResolveSingleSelection<T extends RawSelection> = Intersect<
-  | ResolveColumnRefs<T>
+  | ResolveColumns<T>
   | (T extends CallExpression<infer ReturnType, infer Callee>
       ? { [P in Callee]: ReturnType }
       : T extends (infer E)[]
-      ? ResolveAliasMapping<E> | ResolveColumnRefs<E>
+      ? ResolveAliasMapping<E> | ResolveColumns<E>
       : ResolveAliasMapping<T>)
 > extends infer Resolved
   ? Pick<Resolved, keyof Resolved>
@@ -84,7 +84,7 @@ type ResolveAliasMapping<T> = T extends AliasMapping
 
 type ResolveAliasedValue<T> = T extends CallExpression<infer ReturnType>
   ? ReturnType
-  : T extends ColumnRef<infer ColumnValue>
+  : T extends ColumnExpression<infer ColumnValue>
   ? ColumnValue
   : never
 
@@ -94,11 +94,11 @@ type ResolveAliasedValue<T> = T extends CallExpression<infer ReturnType>
  * This is used when a selector returns an array that
  * includes at least one column ref.
  */
-type ResolveColumnRefs<T> = unknown &
-  ([Extract<T, ColumnRef>] extends [ColumnRef<any, infer Column>]
+type ResolveColumns<T> = unknown &
+  ([Extract<T, ColumnExpression>] extends [ColumnExpression<any, infer Column>]
     ? Column extends string
       ? CombineObjects<
-          T extends ColumnRef<infer ColumnValue, Column>
+          T extends ColumnExpression<infer ColumnValue, Column>
             ? { [P in Column]: ColumnValue }
             : never
         >

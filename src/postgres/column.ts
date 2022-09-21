@@ -1,5 +1,5 @@
 import type { Any } from '@alloc/types'
-import { ExpressionType } from './expression'
+import { Expression, ExpressionType } from './expression'
 import { CallExpression } from './function'
 import { tokenizeColumn } from './internal/tokenize'
 import { kUnknownType } from './internal/type'
@@ -41,23 +41,32 @@ export type ColumnRefs<T extends object, PrimaryKey extends string> = unknown &
       })
 
 /**
- * This creates a union of `ColumnExpression` types (one per Postgres type),
- * instead of wrapping them all into one `ColumnExpression` type.
+ * An expression is used to represent a table column in a query.
+ *
+ * This type is recommended for use in function signatures (rather than
+ * the `ColumnRef` class), since it allows for `T` to be a union
+ * without breaking assignability.
  */
-export type ColumnRef<
+export declare abstract class ColumnExpression<
   T extends Type = any,
   Name extends string = any
-> = T extends any ? ColumnExpression<T, Name> : never
+> extends Expression<T> {
+  protected [kColumnName]: Name
+}
 
 export function makeColumnRef<T extends Type, Name extends string>(
   from: Selectable,
   name: Name,
   type = kUnknownType as RuntimeType<T>
 ): ColumnRef<T, Name> {
-  return new ColumnExpression(from, name, type) as any
+  return new (ColumnRef as new (
+    from: Selectable,
+    name: Name,
+    type: RuntimeType<T>
+  ) => any)(from, name, type)
 }
 
-class ColumnExpression<
+export abstract class ColumnRef<
   T extends Type = any,
   Name extends string = any
 > extends ExpressionType<T> {
@@ -76,6 +85,9 @@ class ColumnExpression<
     this[kColumnName] = name
   }
 }
+
+export interface ColumnRef<T extends Type, Name extends string>
+  extends ColumnExpression<T, Name> {}
 
 const kAggregate = Symbol()
 

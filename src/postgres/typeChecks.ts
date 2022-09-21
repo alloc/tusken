@@ -1,10 +1,11 @@
 import type { CheckBuilder } from './check'
-import type { ColumnRef } from './column'
+import type { ColumnExpression, ColumnRef } from './column'
 import type { Expression, ExpressionType } from './expression'
 import type { CallExpression } from './function'
 import type { Selection } from './selection'
 import {
   kColumnFrom,
+  kColumnName,
   kExprProps,
   kRuntimeType,
   kSelectionFrom,
@@ -47,6 +48,15 @@ export function isCallExpression(
 ): val is CallExpression {
   const props = isExpressionType(val) && val[kExprProps]
   return props ? !callee || (props as any).callee == callee : false
+}
+
+/**
+ * Only use this over `isColumnRef` if your value is never a `ColumnRef`
+ * but it might be a `ColumnExpression` (which is more common in libraries
+ * than in applications).
+ */
+export function isColumnExpression(val: any): val is ColumnExpression {
+  return kColumnName in val
 }
 
 export function isArrayType(val: any): val is Type {
