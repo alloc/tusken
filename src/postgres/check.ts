@@ -1,4 +1,4 @@
-import { toArray } from '../utils/toArray'
+import { isArray } from '../utils/isArray'
 import { Variadic } from '../utils/Variadic'
 import { Expression, ExpressionType } from './expression'
 import {
@@ -27,9 +27,7 @@ export class CheckList<T extends t.bool | t.null = any> //
   and(right: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
   and(right: any): any {
     const { props } = this
-    for (const right of toArray(cond)) {
-      props.check = { left: props.check, op: 'AND', right }
-    }
+    props.check = new Check(props.check, 'AND', right)
     return this
   }
 
@@ -37,15 +35,15 @@ export class CheckList<T extends t.bool | t.null = any> //
   or(right: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
   or(right: any): any {
     const { props } = this
-    for (const right of toArray(cond)) {
-      props.check = { left: props.check, op: 'OR', right }
-    }
+    props.check = new Check(props.check, 'OR', right)
     return this
   }
 }
 
 function tokenizeCheckList({ check }: Props, ctx: Query.Context) {
-  return isBoolExpression(check)
+  return isArray(check)
+    ? tokenizeExpressionList(check, ' AND ', ctx)
+    : isBoolExpression(check)
     ? tokenizeExpression(check, ctx)
     : tokenizeCheck(check, ctx)
 }

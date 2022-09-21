@@ -64,6 +64,23 @@ export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
     : tokenizeTyped(expr, expr[kRuntimeType], ctx)
 }
 
+export function tokenizeExpressionList(
+  list: readonly Expression[],
+  separator: Token,
+  ctx: Query.Context
+): Token {
+  return {
+    concat: [
+      '(',
+      {
+        join: list.map(expr => tokenizeExpression(expr, ctx)),
+        with: separator,
+      },
+      ')',
+    ],
+  }
+}
+
 export function tokenizeSelectedColumns(
   selection: Selection,
   ctx: Query.Context
@@ -109,17 +126,11 @@ export function tokenizeCheck(
   left = callProp(left)
   right = callProp(right)
 
-  // This allows for overriding of operator precedence.
-  if (isBoolExpression(left)) {
-    const expr = tokenizeExpression(left, ctx)
-    tokens.push(isCallExpression(left) ? expr : { concat: ['(', expr, ')'] })
-  }
-  // Some checks have a check as their left side. (eg AND, OR)
-  else if (left instanceof Check) {
+  if (left instanceof Check) {
     tokens.push(tokenizeCheck(left, ctx))
-  }
-  // Infer the type of any other values.
-  else {
+  } else if (Array.isArray(left)) {
+    tokens.push(tokenizeExpressionList(left, ' AND ', ctx))
+  } else {
     tokens.push(tokenize(left, ctx))
   }
 
@@ -127,22 +138,15 @@ export function tokenizeCheck(
     right === null ? (op == '=' ? 'IS' : op == '!=' ? 'IS NOT' : op) : op
   )
 
-  // For range checks, the right side is an array.
   if (isRange) {
     tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
-  }
-  // Some checks have a check as their right side. (eg AND, OR)
-  else if (right instanceof Check) {
-    tokens.push(tokenizeCheck(right, ctx))
-  }
-  // Array-based checks like "IN" actually use tuples.
-  else if (Array.isArray(right)) {
-    tokens.push({
-      tuple: right.map(value => tokenize(value, ctx)),
-    })
-  }
-  // Infer the type of any other values.
-  else {
+  } else if (Array.isArray(right)) {
+    tokens.push(
+      op == 'AND' || op == 'OR'
+        ? tokenizeExpressionList(right, ' AND ', ctx)
+        : { tuple: right.map(value => tokenize(value, ctx)) }
+    )
+  } else {
     tokens.push(tokenize(right, ctx))
   }
 

@@ -15,6 +15,9 @@ type Literal = { literal: any }
 /** Coerce into a number, throw if `NaN` */
 type Numeric = { number: any }
 
+/** Join tokens with another token */
+type Join = { join: TokenArray; with: Token }
+
 /** Join tokens with an empty string */
 type Concat = { concat: TokenArray }
 
@@ -35,6 +38,7 @@ export type Token =
       | Identifier
       | Literal
       | Numeric
+      | Join
       | Concat
       | List
       | Tuple
@@ -88,15 +92,19 @@ function renderToken(token: Token, ctx: Query.Context): string {
 }
 
 function renderList(
-  token: Exclusive<List | Concat | Tuple>,
+  token: Exclusive<List | Concat | Tuple | Join>,
   ctx: Query.Context
 ): string {
-  const tokens = (token.list || token.concat || token.tuple).map(
-    mapTokensToSql,
-    ctx
-  )
-  const sql = tokens.join(token.concat ? '' : ', ')
-  return token.tuple ? `(${sql || 'NULL'})` : sql
+  const list = token.list || token.concat || token.tuple || token.join
+  const sql = list.length
+    ? list
+        .map(mapTokensToSql, ctx)
+        .join(
+          token.concat ? '' : token.join ? renderToken(token.with, ctx) : ', '
+        )
+    : 'NULL'
+
+  return token.tuple ? `(${sql})` : sql
 }
 
 function mapTokensToSql(this: Query.Context, arg: Token | TokenArray) {
