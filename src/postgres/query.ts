@@ -17,9 +17,6 @@ export abstract class Query<Props extends object | null = any> {
   protected nodes: Node<Query>[]
   protected position: number
   protected trace = Error().stack!.slice(6)
-  protected get props(): Props {
-    return this.nodes[this.position].props as any
-  }
 
   constructor(parent: Query | Database) {
     if (parent instanceof Query) {
@@ -54,17 +51,9 @@ export abstract class Query<Props extends object | null = any> {
     return wrapper(this)
   }
 
-  /**
-   * Modify the query promise before the caller receives it.
-   */
-  protected resolve?(result: QueryResponse): any
-
-  /**
-   * Modify the context before tokens are generated. The `context` phase
-   * runs any hooks in reverse order, so earlier nodes will see changes
-   * from later nodes.
-   */
-  protected inject?(props: Props, ctx: Query.Context): void
+  protected get props(): Props {
+    return this.nodes[this.position].props
+  }
 
   /**
    * Generate tokens for this node. The `tokenize` phase runs any hooks
@@ -98,6 +87,8 @@ Object.defineProperty(Query.prototype, 'then', {
     const ctx: Query.Context = {
       query: this as any,
       values: [],
+      resolvers: [],
+      mutators: [],
     }
 
     const onError = (error: any) => {
@@ -111,12 +102,28 @@ Object.defineProperty(Query.prototype, 'then', {
       var query = renderQuery(ctx)
       return db.client
         .query(query, ctx.values)
-        .then(
-          this.resolve ||
-            (result =>
-              ctx.single ? result.rows[0] || null : result.rows),
-          onError
-        )
+        .then(async (response: QueryResponse) => {
+          let result = response.rows
+          if (ctx.mutators.length) {
+            for (const row of response.rows) {
+              for (const mutateRow of ctx.mutators) {
+                mutateRow(row)
+              }
+            }
+          }
+          for (let i = 1; i <= ctx.resolvers.length; i++) {
+            const resolver = ctx.resolvers.at(-i)!
+            const replacement = await resolver(response)
+            if (replacement !== undefined) {
+              result = replacement
+              break
+            }
+          }
+          if (ctx.single && Array.isArray(result)) {
+            return result[0] || null
+          }
+          return result
+        }, onError)
         .then(onfulfilled, onrejected)
     } catch (e: any) {
       onError(e)
@@ -133,25 +140,34 @@ export namespace Query {
      */
     values: any[]
     /**
-     * Exists when a `SELECT` command starts this query.
-     *
-     * If tokenizing a column expression, this property is
-     * used to detect when joins are present, which means
-     * explicit table names must be included.
+     * Functions called with the query result. Each resolver
+     * may affect the query result, so they're called in order.
      */
-    select?: SelectProps
+    resolvers: ((response: QueryResponse) => any)[]
+    mutators: ((row: Record<string, any>) => void)[]
+    /**
+     * Exists when there are joins.
+     */
+    joins?: JoinProps[]
     /**
      * Equals true when the query promise should resolve
      * with a single result, even if multiple rows are returned
      * from the query.
      */
     single?: boolean
+    /**
+     * Equals true when tokenizing a row tuple.
+     *
+     * If tokenizing a selection, aliases will be omitted
+     * when this property is true.
+     */
+    inTuple?: boolean
   }
 }
 
 /** Inspect the context, tokens, and SQL of a query */
 export function inspectQuery(query: any) {
-  const ctx: Query.Context = { query, values: [] }
+  const ctx: Query.Context = { query, values: [], resolvers: [], mutators: [] }
   const tokens = tokenizeQuery(ctx)
   const rendered = renderTokens(tokens, ctx)
   return {

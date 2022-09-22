@@ -7,7 +7,7 @@ import {
   Selection,
   SelectionSource,
 } from '../selection'
-import { makeColumnRefs } from '../selector'
+import { makeRowRef } from '../selector'
 import { PrimaryKeyOf, RowType, TableRef, toTableName } from '../table'
 import type { SourceRefId } from './where'
 
@@ -19,13 +19,13 @@ export function orderBy<From extends Selectable[]>(
     return selector
   }
   if (sources.length == 1) {
-    return selector(makeColumnRefs(sources[0]))
+    return selector(makeRowRef<any>(sources[0]))
   }
   const refs: any = {}
   for (const source of sources) {
     const table = toTableName(source)
     if (table) {
-      refs[table] = makeColumnRefs(source)
+      refs[table] = makeRowRef<any>(source)
     }
   }
   return selector(refs)

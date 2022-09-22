@@ -21,10 +21,10 @@ export abstract class SetBase<
    * - Multiple calls are not supported.
    */
   at(offset: number) {
+    this.props.single = true
     if (offset > 0) {
       this.props.offset = offset
     }
-    this.context.single = true
     return this.limit(1)
   }
 
@@ -39,17 +39,28 @@ export abstract class SetBase<
   }
 
   stream(config?: QueryStreamConfig) {
-    const { db, values } = this.context
-
-    const QueryStream = db[kDatabaseQueryStream]
+    const QueryStream = this.db[kDatabaseQueryStream]
     if (!QueryStream)
       throw Error(
         'pg-query-stream not installed or the generated client is outdated'
       )
 
-    const query = renderQuery(this.context)
-    const stream = new QueryStream<SelectResult<From>>(query, values, config)
-    db.client.query(stream)
+    const ctx: Query.Context = {
+      query: this as any,
+      values: [],
+      resolvers: [],
+      mutators: [],
+    }
+
+    // TODO: apply mutators to stream
+    const query = renderQuery(ctx)
+    const stream = new QueryStream<SelectResult<From>>(
+      query,
+      ctx.values,
+      config
+    )
+
+    this.db.client.query(stream)
     return stream
   }
 
