@@ -1,6 +1,7 @@
 import { LoosePick, Omit, Remap } from '@alloc/types'
 import { Narrow } from '../utils/Narrow'
 import { ColumnInput, ColumnRefs, ColumnType } from './column'
+import { kUnknownType } from './internal/type'
 import {
   RawSelection,
   ResolveSelection,
@@ -154,8 +155,8 @@ export function toTableName(arg: Selectable) {
   return tableRef ? tableRef[kTableName] : undefined
 }
 
-export function getColumnType(table: TableRef, column: string) {
-  return table[kTableColumns][column]
+export function getColumnType(table: TableRef | undefined, column: string) {
+  return (table && table[kTableColumns][column]) || kUnknownType
 }
 
 /**
