@@ -16,6 +16,7 @@ import {
 } from '../symbols'
 import type { RuntimeType } from '../type'
 import {
+  isArrayExpression,
   isCheckBuilder,
   isExpression,
   isExpressionType,
@@ -118,11 +119,20 @@ export function tokenizeColumn(column: string, table?: string | false): Token {
   return table ? { id: [table, column] } : { id: column }
 }
 
+const negatedChecks: Record<string, string> = {
+  '=': '!=',
+  '>': '<=',
+  '>=': '<',
+  '<': '>=',
+  '<=': '>',
+  IS: 'IS NOT',
+}
+
 export function tokenizeCheck(
-  { left, op, right, isRange }: Check,
+  { left, op, right, isNot }: Check,
   ctx: Query.Context
 ): TokenArray {
-  const tokens: TokenArray = []
+  let tokens: TokenArray = []
 
   left = callProp(left)
   right = callProp(right)
@@ -135,18 +145,41 @@ export function tokenizeCheck(
     tokens.push(tokenize(left, ctx))
   }
 
-  tokens.push(
-    right === null ? (op == '=' ? 'IS' : op == '!=' ? 'IS NOT' : op) : op
-  )
+  const isTuple = op == 'IN'
+  const isRange = op == 'BETWEEN'
+  const isAny = !isTuple && (Array.isArray(right) || isArrayExpression(right))
 
-  if (isRange) {
+  if (!isAny) {
+    if (right === null && op == '=') {
+      op = 'IS'
+    }
+    if (isNot) {
+      op = negatedChecks[op] || `NOT ${op}`
+    }
+  }
+  tokens.push(op)
+
+  if (isAny) {
+    tokens.push({
+      concat: [
+        'ANY(',
+        // An explicit cast is required if a placeholder is used,
+        // so we have to serialize JS arrays as Postgres arrays manually.
+        Array.isArray(right) ? { array: right } : tokenize(right, ctx),
+        ')',
+      ],
+    })
+    if (isNot) {
+      tokens = ['NOT', '(', tokens, ')']
+    }
+  } else if (isRange) {
     tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
+  } else if (isTuple) {
+    tokens.push({
+      tuple: (right as any[]).map(value => tokenize(value, ctx)),
+    })
   } else if (Array.isArray(right)) {
-    tokens.push(
-      op == 'AND' || op == 'OR'
-        ? tokenizeExpressionList(right, ' AND ', ctx)
-        : { tuple: right.map(value => tokenize(value, ctx)) }
-    )
+    tokens.push(tokenizeExpressionList(right, ' AND ', ctx))
   } else {
     tokens.push(tokenize(right, ctx))
   }
