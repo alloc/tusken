@@ -63,6 +63,10 @@ export function isSetExpression(val: any): val is SetExpression {
   return isExpression(val) && val[kRuntimeType].name == 'setof<record>'
 }
 
+export function isArrayExpression(val: any): val is Expression {
+  return isExpression(val) && val[kRuntimeType].name.endsWith('[]')
+}
+
 export function isArrayType(val: any): val is RuntimeType {
   return kTypeId in val && val.name.endsWith('[]')
 }
