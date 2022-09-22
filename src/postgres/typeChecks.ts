@@ -59,6 +59,10 @@ export function isColumnExpression(val: any): val is ColumnExpression {
   return kColumnName in val
 }
 
+export function isSetExpression(val: any): val is SetExpression {
+  return isExpression(val) && val[kRuntimeType].name == 'setof<record>'
+}
+
 export function isArrayType(val: any): val is RuntimeType {
   return kTypeId in val && val.name.endsWith('[]')
 }
