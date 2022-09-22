@@ -6,7 +6,7 @@ export const array = ((type: RuntimeType) => {
   if (id !== undefined) {
     return defineType(id, type.name + '[]', id)
   }
-  throw Error('Cannot define array type for type without array ID')
+  throw Error('no array type is defined')
 }) as {
   <Element extends RuntimeType<T>, T extends Type>(type: Element): RuntimeType<
     array<T>
