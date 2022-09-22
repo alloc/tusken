@@ -1,7 +1,5 @@
 export const kAliasName = Symbol.for('alias.name')
 export const kAliasOf = Symbol.for('alias.of')
-export const kCheckLeft = Symbol.for('check.left')
-export const kCheckNegated = Symbol.for('check.negated')
 export const kColumnFrom = Symbol.for('column.from')
 export const kColumnName = Symbol.for('column.name')
 export const kDatabaseReserved = Symbol.for('database.reserved')
