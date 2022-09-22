@@ -174,6 +174,9 @@ function renderColumns(columns: TableColumn[], isType?: boolean) {
   return columns.map(col => {
     let type = 't.' + col.informationSchemaValue.udt_name
     if (col.isArray) {
+      if (type.startsWith('t._')) {
+        type = 't.' + type.slice(3)
+      }
       type = isType ? `<${type}>` : `(${type})`
       type = 't.array' + type
     }
