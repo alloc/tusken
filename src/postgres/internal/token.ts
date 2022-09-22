@@ -1,7 +1,7 @@
 import { Exclusive } from '@alloc/types'
 import type { Query } from '../query'
 import { kDatabaseReserved } from '../symbols'
-import { renderQuery, toQueryInternal } from './query'
+import { renderQuery } from './query'
 
 /** Coerce into a string, buffer, or null */
 type Value = { value: any }
@@ -87,7 +87,10 @@ function renderToken(token: Token, ctx: Query.Context): string {
     : 'number' in token
     ? toNumber(token.number)
     : token.query
-    ? `(${renderQuery(toQueryInternal(token.query).context)})`
+    ? `(${renderQuery({
+        query: token.query as any,
+        values: ctx.values,
+      })})`
     : renderList(token, ctx)
 }
 
@@ -137,7 +140,7 @@ function toLiteral(val: any): string {
 
 const capitalOrSpace = /[A-Z\s]/
 
-function toIdentifier(val: any, { db }: Query.Context): string {
+function toIdentifier(val: any, { query: { db } }: Query.Context): string {
   val = String(val).replace(/"/g, '""')
   return capitalOrSpace.test(val) || db[kDatabaseReserved].includes(val)
     ? `"${val}"`
