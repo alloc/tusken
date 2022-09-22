@@ -33,6 +33,17 @@ export abstract class Query<Props extends object | null = any> {
   }
 
   /**
+   * Acquire a variable within the given `wrapper` that points
+   * to this query, allowing easy duplication.
+   *
+   * One use case is creating a union of two `select` queries
+   * without repeating the selection manually.
+   */
+  wrap<Result extends Query>(wrapper: (query: this) => Result) {
+    return wrapper(this)
+  }
+
+  /**
    * Modify the query promise before the caller receives it.
    */
   protected resolve?(result: QueryResponse): any
