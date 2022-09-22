@@ -31,11 +31,12 @@ export function where<From extends Selectable[]>(
     } else {
       const table = toTableRef(from)
       if (table) {
+        const pkColumn = table[kPrimaryKey]
         refs[table[kTableName]] = new Proxy(from, {
           get: (_, column: string | typeof kPrimaryKey) =>
             column == kPrimaryKey
-              ? table && table[column] !== ''
-                ? makeColumnRef(from, table[column])
+              ? pkColumn
+                ? makeColumnRef(from, pkColumn)
                 : undefined
               : makeColumnRef(from, column),
         }) as any
