@@ -58,11 +58,7 @@ export type AliasMapping = {
   [alias: string]: ColumnExpression | CallExpression
 }
 
-export type RawSelection =
-  | string[]
-  | SetExpression
-  | RawColumnSelection
-  | RawColumnSelection[]
+export type RawSelection = string[] | RawColumnSelection | RawColumnSelection[]
 
 type RawColumnSelection = ColumnExpression | CallExpression | AliasMapping
 
