@@ -1,12 +1,12 @@
 import { makeTableRef, RowResult, RowType, TableRef } from "tusken"
 import * as t from "./primitives"
 
-export const blah: TableRef<{
+export const featureFlag: TableRef<{
   id: t.int4
-  test: t.jsonb | t.null
-}, "blah", "id", "id" | "test"> = /*#__PURE__*/ makeTableRef("blah", "id", {
+  enabled: t.bool | t.null
+}, "featureFlag", "id", "enabled"> = /*#__PURE__*/ makeTableRef("featureFlag", "id", {
   id: t.int4,
-  test: t.jsonb,
+  enabled: t.bool,
 })
 
 export const follow: TableRef<{
@@ -44,15 +44,17 @@ export const user: TableRef<{
   name: t.text
   joinedAt: t.timestamptz
   bio: t.text | t.null
-}, "user", "id", "id" | "joinedAt" | "bio"> = /*#__PURE__*/ makeTableRef("user", "id", {
+  featureFlags: t.array<t.int4>
+}, "user", "id", "id" | "joinedAt" | "bio" | "featureFlags"> = /*#__PURE__*/ makeTableRef("user", "id", {
   id: t.int4,
   name: t.text,
   joinedAt: t.timestamptz,
   bio: t.text,
+  featureFlags: t.array(t.int4),
 })
 
 // Materialized row types
-export interface blah extends RowResult<RowType<typeof blah>> {}
+export interface featureFlag extends RowResult<RowType<typeof featureFlag>> {}
 export interface follow extends RowResult<RowType<typeof follow>> {}
 export interface like extends RowResult<RowType<typeof like>> {}
 export interface tweet extends RowResult<RowType<typeof tweet>> {}

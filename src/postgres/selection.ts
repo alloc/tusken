@@ -4,6 +4,7 @@ import type { CallExpression } from './function'
 import type { SetExpression } from './set'
 import { kSelectionArgs, kSelectionFrom, kSelectionType } from './symbols'
 import type { TableRef } from './table'
+import type { TableCast } from './tableCast'
 import type { RowResult, SetType } from './type'
 
 /** Selection sources have a default selection of all columns. */
@@ -55,12 +56,16 @@ export type SelectedRow<T> = unknown &
     : never)
 
 export type AliasMapping = {
-  [alias: string]: ColumnExpression | CallExpression
+  [alias: string]: ColumnExpression | CallExpression | TableCast
 }
 
 export type RawSelection = string[] | RawColumnSelection | RawColumnSelection[]
 
-type RawColumnSelection = ColumnExpression | CallExpression | AliasMapping
+export type RawColumnSelection =
+  | AliasMapping
+  | ColumnExpression
+  | CallExpression
+  | TableCast
 
 /** Coerce a `RawSelection` into an object type. */
 export type ResolveSelection<T extends RawSelection> = T extends (infer U)[]
