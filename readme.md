@@ -148,6 +148,42 @@ await db.select(t.author).innerJoin(
 )
 ```
 
+### Denormalized joins
+
+Use a table function to denormalize columns that reference another table…
+
+```ts
+await db.select(
+  t.book(book => [
+    book,
+    {
+      // Replace "authorId" with "author" object.
+      author: t.author(book.authorId, author => [
+        // Select only these columns.
+        author.id,
+        author.name,
+      ]),
+      authorId: undefined,
+    },
+  ])
+)
+```
+
+Even columns with an array of primary keys can be denormalized this way.
+
+```ts
+await db.select(
+  t.book(book => [
+    book,
+    {
+      // Replace "authorIds" with "authors" object array.
+      authors: t.author(book.authorIds),
+      authorIds: undefined,
+    },
+  ])
+)
+```
+
 &nbsp;
 
 ## What's planned?
