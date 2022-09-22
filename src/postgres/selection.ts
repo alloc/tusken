@@ -25,6 +25,17 @@ export class Selection<
 
 export interface Selection<T extends object> extends SetType<T> {}
 
+/**
+ * Get the sources of one or more selection types.
+ */
+export type SelectionSources<T> = T extends readonly any[]
+  ? { [I in keyof T]: SelectionSources<T[I]> }
+  : T extends Selection<any, infer From>
+  ? From
+  : T extends SelectionSource
+  ? T
+  : never
+
 /** Object types compatible with `SELECT` command */
 export type Selectable = SelectionSource | Selection
 
