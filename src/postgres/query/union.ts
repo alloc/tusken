@@ -1,4 +1,3 @@
-import { tokenizeQuery } from '../internal/query'
 import { TokenArray } from '../internal/token'
 import { tokenizeSetProps } from '../internal/tokenize'
 import { UnionProps } from '../props/union'
@@ -14,11 +13,8 @@ export class Union<From extends Selectable[] = any> //
     return this.props.selects[0]['sources']
   }
   protected tokenize(props: UnionProps, ctx: Query.Context): TokenArray {
-    const resultSets = props.selects.map(query =>
-      tokenizeQuery(query['context'])
-    )
     return [
-      { concat: ['(', { join: resultSets, with: ') UNION (' }, ')'] },
+      { join: props.selects.map(query => ({ query })), with: ' UNION ' },
       tokenizeSetProps(props, ctx),
     ]
   }
