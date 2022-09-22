@@ -136,7 +136,7 @@ export class Database {
   }): T
 
   protected query(node: any) {
-    node.query.context.nodes.push(node)
+    node.query.nodes.push(node)
     return node.query
   }
 }

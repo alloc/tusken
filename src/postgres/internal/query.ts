@@ -1,8 +1,17 @@
 import type { Query } from '../query'
 import { renderTokens, TokenArray } from './token'
 
-// @ts-ignore
-type QueryInternal = Pick<Query, 'context' | 'inject' | 'tokenize'>
+export type QueryInternal = Pick<
+  Query,
+  // @ts-expect-error ts(2344)
+  'db' | 'position' | 'nodes' | 'tokenize' | 'resolve'
+>
+
+export type Node<T extends Query = any, Type extends string = any> = {
+  readonly type: Type
+  readonly query: T
+  readonly props: T extends Query<infer Props> ? Props : never
+}
 
 /** Render a SQL string. */
 export function renderQuery(ctx: Query.Context): string {
@@ -13,11 +22,14 @@ export function renderQuery(ctx: Query.Context): string {
 
 /** Convert the tree of query nodes into SQL tokens. */
 export function tokenizeQuery(ctx: Query.Context): TokenArray {
-  ctx.nodes.forEach(({ query, props }) => {
-    toQueryInternal(query).inject?.(props, ctx)
-  })
-  return ctx.nodes.map(({ query, props }) => {
-    return toQueryInternal(query).tokenize(props, ctx)
+  const { query } = ctx
+  const nodes =
+    query.position < query.nodes.length - 1
+      ? query.nodes.slice(0, query.position + 1)
+      : query.nodes
+
+  return nodes.map(node => {
+    return toQueryInternal(node.query).tokenize(node.props, ctx)
   })
 }
 

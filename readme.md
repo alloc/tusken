@@ -206,7 +206,3 @@ Contributions are extra welcome in these places:
   - `UNION` / `INTERSECT`
   - `CASE`
   - etc
-
-## Design limitations
-
-- Queries cannot be reused.

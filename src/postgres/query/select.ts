@@ -11,7 +11,7 @@ export class Select<From extends Selectable[] = any> //
     return this.query({
       type: 'union',
       props: { selects: [this, query] },
-      query: new Union(this.context.db),
+      query: new Union(this.db),
     })
   }
 }
