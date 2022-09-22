@@ -75,7 +75,7 @@ export abstract class SelectBase<From extends Selectable[]> //
   }
 
   where(filter: Where<From>) {
-    this.props.where = where(this.props, filter)
+    this.props.where = where(this.props, filter, this.props.where)
     return this
   }
 }

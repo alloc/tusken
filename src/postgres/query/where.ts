@@ -1,6 +1,6 @@
 import { Any, Intersect } from '@alloc/types'
 import { isArray } from '../../utils/isArray'
-import { Variadic } from '../../utils/Variadic'
+import { RecursiveVariadic } from '../../utils/Variadic'
 import { ColumnRef, ColumnType, makeColumnRef } from '../column'
 import { Expression } from '../expression'
 import { CallExpression } from '../function'
@@ -17,7 +17,8 @@ export function where<From extends Selectable[]>(
     from: Selectable
     joins?: JoinProps[]
   },
-  filter: Where<From>
+  filter: Where<From>,
+  where?: Expression<t.bool | t.null>
 ) {
   const joined = props.joins?.map(join => join.from)
   const sources = [props.from].concat(joined || [])
@@ -43,12 +44,18 @@ export function where<From extends Selectable[]>(
   })
 
   const cond = filter(joined ? refs : Object.values(refs)[0])
-  return isArray(cond) ? is(cond) : cond
+  return reduceCondition(where ? [where, cond] : cond)
+}
+
+function reduceCondition(
+  cond: RecursiveVariadic<Expression<t.bool | t.null>>
+): Expression<t.bool | t.null> {
+  return isArray(cond) ? is(cond.map(reduceCondition)) : cond
 }
 
 export type Where<From extends Selectable[]> = (
   refs: WhereRefs<From>
-) => Variadic<Expression<t.bool | t.null>>
+) => RecursiveVariadic<Expression<t.bool | t.null>>
 
 export type WhereRefs<From extends Selectable[]> = [From] extends [Any]
   ? Record<string, any>
