@@ -1,5 +1,13 @@
-import { makeTableRef, ClientValues, RowType, TableRef } from "tusken"
+import { makeTableRef, RowResult, RowType, TableRef } from "tusken"
 import * as t from "./primitives"
+
+export const blah: TableRef<{
+  id: t.int4
+  test: t.jsonb | t.null
+}, "blah", "id", "id" | "test"> = /*#__PURE__*/ makeTableRef("blah", "id", {
+  id: t.int4,
+  test: t.jsonb,
+})
 
 export const follow: TableRef<{
   id: t.int4
@@ -44,7 +52,8 @@ export const user: TableRef<{
 })
 
 // Materialized row types
-export interface follow extends ClientValues<RowType<typeof follow>> {}
-export interface like extends ClientValues<RowType<typeof like>> {}
-export interface tweet extends ClientValues<RowType<typeof tweet>> {}
-export interface user extends ClientValues<RowType<typeof user>> {}
+export interface blah extends RowResult<RowType<typeof blah>> {}
+export interface follow extends RowResult<RowType<typeof follow>> {}
+export interface like extends RowResult<RowType<typeof like>> {}
+export interface tweet extends RowResult<RowType<typeof tweet>> {}
+export interface user extends RowResult<RowType<typeof user>> {}
