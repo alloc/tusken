@@ -59,7 +59,7 @@ export function isColumnExpression(val: any): val is ColumnExpression {
   return kColumnName in val
 }
 
-export function isArrayType(val: any): val is Type {
+export function isArrayType(val: any): val is RuntimeType {
   return kTypeId in val && val.name.endsWith('[]')
 }
 
