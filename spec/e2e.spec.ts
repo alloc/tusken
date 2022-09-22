@@ -1,43 +1,121 @@
-import fs from 'fs'
-import path from 'path'
-import _db, { t } from './db'
+import db, { t } from './db'
 
-test.only('where id equals any in JS array', async () => {
-  await db.put(t.user, { id: 4, name: 'sharon', bio: null })
-  console.log(await db.select(t.user))
-
-  expect(await db.select(t.user(u => u.name)).where(u => u.id.eq([1, 2, 3])))
+test('equal check with array of ids', async () => {
+  expect(await db.select(t.user(u => u.name)).where(u => u.id.eq([1, 2])))
     .toMatchInlineSnapshot(`
     [
       {
         "name": "alec",
       },
       {
-        "name": "jerry",
-      },
-      {
-        "name": "spud",
+        "name": "anakin",
       },
     ]
   `)
 })
 
-let db: typeof _db
-beforeAll(async () => {
-  db = await _db.connect({ database: 'test' })
-  const schemaDump = fs.readFileSync(
-    path.resolve(__dirname, 'generated/test/schema.sql'),
-    'utf8'
-  )
-  const dataDump = fs.readFileSync(
-    path.resolve(__dirname, 'generated/test/data.sql'),
-    'utf8'
-  )
-  await db.client.query(
+describe('resolve a column that references another table', () => {
+  test('single id', async () => {
+    expect(
+      await db
+        .select(t.tweet(tweet => [tweet.text, t.user(tweet.author)]))
+        .limit(1)
+    ).toMatchInlineSnapshot(`
     [
-      'drop schema public cascade; create schema public',
-      schemaDump,
-      dataDump,
-    ].join(';\n')
-  )
+      {
+        "author": {
+          "bio": "You underestimate my power!",
+          "featureFlags": [
+            2,
+          ],
+          "id": 2,
+          "joinedAt": 2022-09-17T17:47:45.350Z,
+          "name": "anakin",
+        },
+        "text": "I've got a bad feeling about this.",
+      },
+    ]
+  `)
+  })
+
+  test('array of ids', async () => {
+    expect(
+      await db
+        .select(t.user(u => [u.id, u.name, t.featureFlag(u.featureFlags)]))
+        .limit(1)
+    ).toMatchInlineSnapshot(`
+    [
+      {
+        "featureFlags": [
+          {
+            "enabled": true,
+            "id": 1,
+          },
+        ],
+        "id": 1,
+        "name": "alec",
+      },
+    ]
+  `)
+  })
+
+  test('with selector', async () => {
+    // One selected columns
+    expect(
+      await db
+        .select(t.tweet(tweet => t.user(tweet.author, author => author.name)))
+        .limit(1)
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "author": {
+            "name": "anakin",
+          },
+        },
+      ]
+    `)
+
+    // Many selected columns
+    expect(
+      await db
+        .select(
+          t.tweet(tweet =>
+            t.user(tweet.author, author => [author.id, author.name])
+          )
+        )
+        .limit(1)
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "author": {
+            "id": 2,
+            "name": "anakin",
+          },
+        },
+      ]
+    `)
+
+    // Alias mapping
+    expect(
+      await db
+        .select(
+          t.tweet(tweet =>
+            t.user(tweet.author, author => ({
+              _id: author.id,
+              alias: author.name,
+            }))
+          )
+        )
+        .limit(1)
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "author": {
+            "_id": 2,
+            "alias": "anakin",
+          },
+        },
+      ]
+    `)
+  })
 })
