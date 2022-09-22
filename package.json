@@ -10,7 +10,7 @@
     "db:dump": "pg_dump -d test -Fc --data-only --file spec/generated/test/data.dump",
     "db:restore": "tusken wipe -d test -c spec/generated/tusken.config.ts && pg_restore -d test spec/generated/test/data.dump",
     "test": "vitest sql",
-    "test:e2e": "vitest e2e",
+    "test:e2e": "E2E=1 vitest e2e",
     "test:types": "vitest -c spec/types/vitest.config.ts",
     "test:generate": "cd spec/generated && tusken generate -d e2e"
   },
@@ -20,6 +20,7 @@
     "@cush/exec": "^1.8.0",
     "@tusken/cli": "workspace:*",
     "@types/pg": "^8.6.5",
+    "@vitest/ui": "^0.23.2",
     "conventional-changelog-conventionalcommits": "^5.0.0",
     "dotenv-cli": "^6.0.0",
     "multi-semantic-release": "^3.0.0",

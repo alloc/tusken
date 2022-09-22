@@ -11,11 +11,45 @@ describe('db.select', () => {
     )
   })
 
+  // TODO: missing "GROUP BY"
+  describe('with table cast', () => {
+    test('in column array', () => {
+      expect(
+        db.select(t.tweet(tw => [tw.id, tw.text, t.user(tw.author)]))
+      ).toMatchInlineSnapshot(
+        'SELECT tweet.id, tweet.text, array_agg("user") author FROM tweet INNER JOIN "user" ON "user".id = tweet.author GROUP BY tweet.id'
+      )
+    })
+    test('in alias mapping', () => {
+      expect(
+        db.select(t.tweet(tw => [tw.id, { user: t.user(tw.author) }]))
+      ).toMatchInlineSnapshot(
+        'SELECT tweet.id, array_agg("user") "user" FROM tweet INNER JOIN "user" ON "user".id = tweet.author GROUP BY tweet.id'
+      )
+    })
+    test('with selector', () => {
+      expect(
+        db.select(t.tweet(tw => [tw.id, t.user(tw.author, user => user.name)]))
+      ).toMatchInlineSnapshot(
+        'SELECT tweet.id, array_agg(("user".name)) author FROM tweet INNER JOIN "user" ON "user".id = tweet.author GROUP BY tweet.id'
+      )
+    })
+    test('an array column with foreign keys', () => {
+      expect(
+        db.select(t.user(user => [user.id, t.featureFlag(user.featureFlags)]))
+      ).toMatchInlineSnapshot(
+        'SELECT "user".id, array_agg("featureFlag") "featureFlags" FROM "user" INNER JOIN "featureFlag" ON "featureFlag".id = ANY("user"."featureFlags") GROUP BY "user".id'
+      )
+    })
+  })
+
   describe('.where', () => {
     test('with function call that returns boolean', () => {
       expect(
         db.select(t.user).where(user => pg.starts_with(user.bio, 'a'))
-      ).toMatchInlineSnapshot('SELECT * FROM "user" WHERE starts_with(bio, \'a\')')
+      ).toMatchInlineSnapshot(
+        'SELECT * FROM "user" WHERE starts_with(bio, \'a\')'
+      )
     })
     test('AND expression', () => {
       expect(
@@ -24,7 +58,9 @@ describe('db.select', () => {
           .where(user =>
             is(pg.starts_with(user.bio, 'a')).and(pg.length(user.bio).is.gt(1))
           )
-      ).toMatchInlineSnapshot('SELECT * FROM "user" WHERE starts_with(bio, \'a\') AND length(bio) > 1')
+      ).toMatchInlineSnapshot(
+        'SELECT * FROM "user" WHERE starts_with(bio, \'a\') AND length(bio) > 1'
+      )
     })
     test('condition grouping', () => {
       expect(
@@ -39,7 +75,9 @@ describe('db.select', () => {
               pg.length(user.bio).is.gte(2),
             ])
           )
-      ).toMatchInlineSnapshot('SELECT * FROM "user" WHERE (starts_with(bio, \'a\') AND length(bio) > 1) OR (starts_with(bio, \'b\') AND length(bio) >= 2)')
+      ).toMatchInlineSnapshot(
+        "SELECT * FROM \"user\" WHERE (starts_with(bio, 'a') AND length(bio) > 1) OR (starts_with(bio, 'b') AND length(bio) >= 2)"
+      )
     })
   })
 
@@ -54,7 +92,9 @@ describe('db.select', () => {
           .innerJoin(t.like, ({ tweet, like }) =>
             tweet.id.is.equalTo(like.tweet)
           )
-      ).toMatchInlineSnapshot('SELECT * FROM "user" INNER JOIN tweet ON "user".id = tweet.author INNER JOIN "like" ON tweet.id = "like".tweet')
+      ).toMatchInlineSnapshot(
+        'SELECT * FROM "user" INNER JOIN tweet ON "user".id = tweet.author INNER JOIN "like" ON tweet.id = "like".tweet'
+      )
     })
 
     test('omit column from a joined table', () => {
@@ -157,7 +197,9 @@ describe('db.select', () => {
           .where(user => user.id.is.eq(1))
           .union(db.select(t.user).where(user => user.id.is.eq(2)))
           .orderBy(user => user.id)
-      ).toMatchInlineSnapshot('(SELECT * FROM "user" WHERE id = 1) UNION (SELECT * FROM "user" WHERE id = 2) ORDER BY id')
+      ).toMatchInlineSnapshot(
+        '(SELECT * FROM "user" WHERE id = 1) UNION (SELECT * FROM "user" WHERE id = 2) ORDER BY id'
+      )
     })
   })
 })

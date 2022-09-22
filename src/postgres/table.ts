@@ -1,6 +1,7 @@
-import { LoosePick, Omit, Remap } from '@alloc/types'
+import { Omit } from '@alloc/types'
 import { Narrow } from '../utils/Narrow'
-import { ColumnInput, ColumnRefs, ColumnType } from './column'
+import { kUnknownType } from './internal/type'
+import { RowRef } from './row'
 import {
   RawSelection,
   ResolveSelection,
@@ -13,11 +14,13 @@ import {
   kNullableColumns,
   kPrimaryKey,
   kSelectionFrom,
+  kTableCast,
   kTableColumns,
   kTableName,
 } from './symbols'
-import { QueryInput, RuntimeType, SetType, Type } from './type'
-import { isSelection, isTableRef } from './typeChecks'
+import { TableCast } from './tableCast'
+import { ArrayInput, QueryInput, RuntimeType, SetType } from './type'
+import { isSelection, isTableCast, isTableRef } from './typeChecks'
 
 export type PrimaryKey<T> = RowType<T> extends infer Values
   ? QueryInput<Values[PrimaryKeyOf<T> & keyof Values]>
@@ -38,28 +41,6 @@ export type RowType<T> = T extends Selection<any, infer From>
   ? Values
   : never
 
-type RowInput<T extends TableRef> = RowType<T> extends infer Row
-  ? Row extends object
-    ? {
-        [Column in keyof Row]: ColumnType<Row, Column> extends infer T
-          ? [Extract<T, Type<'json' | 'jsonb'>>] extends [never]
-            ? ColumnInput<T>
-            : any
-          : never
-      }
-    : never
-  : never
-
-export type RowInsertion<T extends TableRef> = (
-  T extends TableRef<any, any, any, infer Option>
-    ? Omit<RowInput<T>, Option> & Partial<LoosePick<RowInput<T>, Option>>
-    : never
-) extends infer Props
-  ? Remap<Props>
-  : never
-
-export type RowUpdate<T extends TableRef> = Partial<RowInput<T>>
-
 export function makeTableRef<
   T extends object = any,
   TableName extends string = any,
@@ -75,7 +56,16 @@ export function makeTableRef<
     pkColumn: PrimaryKey,
     columns: Record<string, RuntimeType>
   ) => TableRef)(name, pkColumn, columns)
-  return makeSelector(type)
+
+  const select = makeSelector(type)
+  const ref: any = (arg: any, selector?: (from: any) => RawSelection): any => {
+    if (typeof arg == 'function') {
+      return select(arg)
+    }
+    return new TableCast(arg, selector ? select(selector) : ref)
+  }
+
+  return Object.setPrototypeOf(ref, type)
 }
 
 export abstract class TableRef<
@@ -119,15 +109,21 @@ export interface TableRef<
   PrimaryKey extends string,
   NullableColumn extends string
 > extends SetType<T> {
-  /**
-   * Define a selection clause.
-   */
+  // Select from a table.
   <Selected extends RawSelection>(
-    selector: (row: ColumnRefs<T, PrimaryKey>) => Narrow<Selected>
-  ): Selection<
-    ResolveSelection<Selected>,
-    TableRef<T, TableName, PrimaryKey, NullableColumn>
-  >
+    selector: (row: RowRef<this>) => Narrow<Selected>
+  ): Selection<ResolveSelection<Selected>, this>
+
+  // Cast a row identifier to a "SELECT *" statement.
+  (
+    id: T[PrimaryKey & keyof T] | ArrayInput<T[PrimaryKey & keyof T]>
+  ): Selection<T, this>
+
+  // Cast a row identifier to a table selection.
+  <Selected extends RawSelection>(
+    id: T[PrimaryKey & keyof T] | ArrayInput<T[PrimaryKey & keyof T]>,
+    selector: (row: RowRef<this>) => Narrow<Selected>
+  ): Selection<ResolveSelection<Selected>, this>
 
   /**
    * Exclude specific columns from the result set.
@@ -137,25 +133,31 @@ export interface TableRef<
   ): Selection<Omit<T, Omitted[number]>, this>
 }
 
-export function toTableRef(arg: TableRef | Selection<any, TableRef>): TableRef
-export function toTableRef(arg: Selectable): TableRef | undefined
-export function toTableRef(arg: Selectable) {
+export function toTableRef(
+  arg: TableRef | TableCast | Selection<any, TableRef>
+): TableRef
+export function toTableRef(arg: Selectable | TableCast): TableRef | undefined
+export function toTableRef(arg: Selectable | TableCast) {
   return isTableRef(arg)
     ? arg
     : isSelection(arg)
     ? toTableRef(arg[kSelectionFrom])
+    : isTableCast(arg)
+    ? toTableRef(arg[kTableCast].from)
     : undefined
 }
 
-export function toTableName(arg: TableRef | Selection<any, TableRef>): string
-export function toTableName(arg: Selectable): string | undefined
-export function toTableName(arg: Selectable) {
+export function toTableName(
+  arg: TableRef | TableCast | Selection<any, TableRef>
+): string
+export function toTableName(arg: Selectable | TableCast): string | undefined
+export function toTableName(arg: Selectable | TableCast) {
   const tableRef = toTableRef(arg)
   return tableRef ? tableRef[kTableName] : undefined
 }
 
-export function getColumnType(table: TableRef, column: string) {
-  return table[kTableColumns][column]
+export function getColumnType(table: TableRef | undefined, column: string) {
+  return (table && table[kTableColumns][column]) || kUnknownType
 }
 
 /**
@@ -167,6 +169,4 @@ export function getColumnType(table: TableRef, column: string) {
 export type TableSelector<
   Selected extends RawSelection,
   From extends TableRef
-> = (
-  row: From extends TableRef<infer T, any, infer PK> ? ColumnRefs<T, PK> : never
-) => Narrow<Selected>
+> = (row: RowRef<From>) => Narrow<Selected>

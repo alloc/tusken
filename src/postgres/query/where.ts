@@ -5,7 +5,7 @@ import { ColumnRef, ColumnType, makeColumnRef } from '../column'
 import { Expression } from '../expression'
 import { CallExpression } from '../function'
 import { is } from '../is'
-import { JoinProps } from '../join'
+import { JoinProps } from '../props/join'
 import { Selectable, Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
 import { kPrimaryKey, kTableName } from '../symbols'
@@ -31,11 +31,12 @@ export function where<From extends Selectable[]>(
     } else {
       const table = toTableRef(from)
       if (table) {
+        const pkColumn = table[kPrimaryKey]
         refs[table[kTableName]] = new Proxy(from, {
           get: (_, column: string | typeof kPrimaryKey) =>
             column == kPrimaryKey
-              ? table && table[column] !== ''
-                ? makeColumnRef(from, table[column])
+              ? pkColumn
+                ? makeColumnRef(from, pkColumn)
                 : undefined
               : makeColumnRef(from, column),
         }) as any

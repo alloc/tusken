@@ -2,18 +2,21 @@ import type { CheckBuilder } from './check'
 import type { ColumnExpression, ColumnRef } from './column'
 import type { Expression, ExpressionType } from './expression'
 import type { CallExpression } from './function'
-import type { Selection } from './selection'
+import type { Selectable, Selection } from './selection'
+import { SetExpression } from './set'
 import {
   kColumnFrom,
   kColumnName,
   kExprProps,
   kRuntimeType,
   kSelectionFrom,
+  kTableCast,
   kTableName,
   kTypeId,
 } from './symbols'
 import type { TableRef } from './table'
-import type { Type } from './type'
+import { TableCast } from './tableCast'
+import { RuntimeType } from './type'
 import { t } from './typesBuiltin'
 
 export function isTableRef(val: any): val is TableRef {
@@ -59,11 +62,25 @@ export function isColumnExpression(val: any): val is ColumnExpression {
   return kColumnName in val
 }
 
-export function isArrayType(val: any): val is Type {
+export function isSetExpression(val: any): val is SetExpression {
+  return isExpression(val) && val[kRuntimeType].name == 'setof<record>'
+}
+
+export function isArrayExpression(val: any): val is Expression {
+  return isExpression(val) && val[kRuntimeType].name.endsWith('[]')
+}
+
+export function isArrayType(val: any): val is RuntimeType {
   return kTypeId in val && val.name.endsWith('[]')
 }
 
 // TODO: use symbol checking instead of duck typing
 export function isCheckBuilder(val: any): val is CheckBuilder {
   return 'left' in val && 'negated' in val && 'wrap' in val
+}
+
+export function isTableCast<T extends Selectable = Selectable>(
+  val: any
+): val is TableCast<T> {
+  return kTableCast in val
 }

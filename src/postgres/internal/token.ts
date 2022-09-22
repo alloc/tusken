@@ -1,7 +1,8 @@
 import { Exclusive } from '@alloc/types'
 import type { Query } from '../query'
 import { kDatabaseReserved } from '../symbols'
-import { renderQuery, toQueryInternal } from './query'
+import { renderQuery } from './query'
+import { tokenize } from './tokenize'
 
 /** Coerce into a string, buffer, or null */
 type Value = { value: any }
@@ -15,14 +16,17 @@ type Literal = { literal: any }
 /** Coerce into a number, throw if `NaN` */
 type Numeric = { number: any }
 
-/** Join tokens with another token */
-type Join = { join: TokenArray; with: Token }
-
 /** Join tokens with an empty string */
 type Concat = { concat: TokenArray }
 
+/** Postgres array literal */
+type ArrayLiteral = { array: any[] }
+
 /** A comma-separated list */
 type List = { list: TokenArray }
+
+/** Join tokens with another token */
+type Join = { join: TokenArray; with: Token }
 
 /** A comma-separated list with parentheses around it */
 type Tuple = { tuple: TokenArray }
@@ -38,9 +42,10 @@ export type Token =
       | Identifier
       | Literal
       | Numeric
-      | Join
+      | ArrayLiteral
       | Concat
       | List
+      | Join
       | Tuple
       | Call
       | SubQuery
@@ -87,8 +92,24 @@ function renderToken(token: Token, ctx: Query.Context): string {
     : 'number' in token
     ? toNumber(token.number)
     : token.query
-    ? `(${renderQuery(toQueryInternal(token.query).context)})`
+    ? `(${renderQuery({
+        query: token.query as any,
+        values: ctx.values,
+        resolvers: [],
+        mutators: [],
+      })})`
+    : token.array
+    ? `'${renderArrayLiteral(token.array, ctx)}'`
     : renderList(token, ctx)
+}
+
+function renderArrayLiteral(values: any[], ctx: Query.Context): string {
+  const sql = values.map(value =>
+    Array.isArray(value)
+      ? renderArrayLiteral(value, ctx)
+      : mapTokensToSql.call(ctx, tokenize(value, ctx))
+  )
+  return `{${sql.join(', ')}}`
 }
 
 function renderList(
@@ -137,7 +158,7 @@ function toLiteral(val: any): string {
 
 const capitalOrSpace = /[A-Z\s]/
 
-function toIdentifier(val: any, { db }: Query.Context): string {
+function toIdentifier(val: any, { query: { db } }: Query.Context): string {
   val = String(val).replace(/"/g, '""')
   return capitalOrSpace.test(val) || db[kDatabaseReserved].includes(val)
     ? `"${val}"`

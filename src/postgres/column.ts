@@ -2,10 +2,9 @@ import type { Any } from '@alloc/types'
 import { Expression, ExpressionType } from './expression'
 import { CallExpression } from './function'
 import { tokenizeColumn } from './internal/tokenize'
-import { kUnknownType } from './internal/type'
 import type { Selectable } from './selection'
 import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
-import { RowType, toTableName } from './table'
+import { getColumnType, RowType, toTableName, toTableRef } from './table'
 import type { QueryInput, RuntimeType, Type } from './type'
 import { t } from './typesBuiltin'
 
@@ -56,14 +55,15 @@ export declare abstract class ColumnExpression<
 
 export function makeColumnRef<T extends Type, Name extends string>(
   from: Selectable,
-  name: Name,
-  type = kUnknownType as RuntimeType<T>
+  name: Name
 ): ColumnRef<T, Name> {
+  const table = toTableRef(from)
+  const type = getColumnType(table, name)
   return new (ColumnRef as new (
     from: Selectable,
     name: Name,
     type: RuntimeType<T>
-  ) => any)(from, name, type)
+  ) => any)(from, name, type) as any
 }
 
 export abstract class ColumnRef<
@@ -78,7 +78,7 @@ export abstract class ColumnRef<
       tokenizeColumn(
         this[kColumnName],
         // Omit the table name if no joins exist.
-        ctx.select?.joins !== undefined && toTableName(this[kColumnFrom])
+        !!ctx.joins && toTableName(this[kColumnFrom])
       ),
     ])
     this[kColumnFrom] = from

@@ -8,7 +8,13 @@ import {
 } from './internal/tokenize'
 import { kBoolType } from './internal/type'
 import type { Query } from './query'
-import type { ExtractNull, QueryInput, Type } from './type'
+import type {
+  ArrayInput,
+  ExtractNull,
+  QueryInput,
+  StringInput,
+  Type,
+} from './type'
 import { isBoolExpression } from './typeChecks'
 import { t } from './typesBuiltin'
 
@@ -53,7 +59,7 @@ export class Check {
     readonly left: any,
     readonly op: string,
     readonly right: any,
-    readonly isRange?: boolean
+    readonly isNot?: boolean
   ) {}
 }
 
@@ -61,11 +67,15 @@ export class CheckBuilder<T extends Type = any> {
   constructor(
     protected wrap: (check: Check) => CheckList,
     protected left: any,
-    protected negated?: boolean
+    protected isNot?: boolean
   ) {}
 
+  protected check(op: string, right: any) {
+    return this.wrap(new Check(this.left, op, right, this.isNot))
+  }
+
   get not() {
-    return new CheckBuilder<T>(this.wrap, this.left, !this.negated)
+    return new CheckBuilder<T>(this.wrap, this.left, !this.isNot)
   }
 
   /** Inclusive range matching */
@@ -73,53 +83,49 @@ export class CheckBuilder<T extends Type = any> {
     min: QueryInput<T>,
     max: QueryInput<T>
   ): CheckList<t.bool | ExtractNull<T>> {
-    return this.wrap(
-      new Check(
-        this.left,
-        this.negated ? 'NOT BETWEEN' : 'BETWEEN',
-        [min, max],
-        true
-      )
-    )
+    return this.check('BETWEEN', [min, max])
   }
 
-  in(
-    arr: QueryInput<T>[] | QueryInput<T[]>
-  ): CheckList<t.bool | ExtractNull<T>> {
-    return this.wrap(new Check(this.left, this.negated ? 'NOT IN' : 'IN', arr))
+  in(arr: readonly QueryInput<T>[]): CheckList<t.bool | ExtractNull<T>> {
+    return this.check('IN', arr)
+  }
+
+  like(pattern: StringInput<T>): CheckList<t.bool | ExtractNull<T>> {
+    return this.check('LIKE', pattern)
+  }
+
+  ilike(pattern: StringInput<T>): CheckList<t.bool | ExtractNull<T>> {
+    return this.check('ILIKE', pattern)
   }
 }
 
 export interface CheckBuilder<T> extends CheckMethods<T>, CheckAliases<T> {}
 
+// TODO: let right be null here
 type CheckMethods<T> = {
   [P in keyof typeof checkMapping]: (
-    right: QueryInput<T>
+    right: QueryInput<T> | ArrayInput<T>
   ) => CheckList<t.bool | ExtractNull<T>>
 }
 
 type CheckAliases<T> = {
   [P in keyof typeof checkAliases]: (
-    right: QueryInput<T>
+    right: QueryInput<T> | ArrayInput<T>
   ) => CheckList<t.bool | ExtractNull<T>>
 }
 
 const checkMapping = {
-  equalTo: ['=', '!='],
-  greaterThan: ['>', '<='],
-  greaterThanOrEqualTo: ['>=', '<'],
-  lessThan: ['<', '>='],
-  lessThanOrEqualTo: ['<=', '>'],
-  like: ['LIKE', 'NOT LIKE'],
-  ilike: ['ILIKE', 'NOT ILIKE'],
+  equalTo: '=',
+  greaterThan: '>',
+  greaterThanOrEqualTo: '>=',
+  lessThan: '<',
+  lessThanOrEqualTo: '<=',
 } as const
 
 Object.entries(checkMapping).forEach(([key, [op, negatedOp]]) =>
   Object.defineProperty(CheckBuilder.prototype, key, {
     value(this: CheckBuilder, right: any) {
-      return this.wrap(
-        new Check(this.left, this.negated ? negatedOp : op, right)
-      )
+      return this.wrap(new Check(this.left, this.isNot ? negatedOp : op, right))
     },
   })
 )

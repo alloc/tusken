@@ -1,7 +1,12 @@
 import type { Database } from './database'
-import { renderQuery, tokenizeQuery } from './internal/query'
+import {
+  Node,
+  QueryInternal,
+  renderQuery,
+  tokenizeQuery,
+} from './internal/query'
 import { renderTokens, Token, TokenArray } from './internal/token'
-import type { SelectProps } from './props/select'
+import { JoinProps } from './props/join'
 
 export type QueryPromise<T = any> = Query & PromiseLike<T>
 
@@ -10,26 +15,31 @@ const kQueryCommand = Symbol()
 export type QueryResponse = { rows: Record<string, any>[]; rowCount?: number }
 
 export abstract class Query<Props extends object | null = any> {
+  protected db: Database
+  protected nodes: Node<Query>[]
   protected position: number
-  protected context: Query.Context
-  protected get props(): Props {
-    return this.context.nodes[this.position].props as any
-  }
+  protected trace = Error().stack!.slice(6)
 
   constructor(parent: Query | Database) {
     if (parent instanceof Query) {
-      // Assume our node will be added next.
-      this.position = parent.context.nodes.length
-      this.context = parent.context
-    } else {
-      this.position = 0
-      this.context = {
-        db: parent,
-        nodes: [],
-        values: [],
-        trace: Error(),
+      this.db = parent.db
+
+      // Reuse the node list if our parent is the last node.
+      let { nodes } = parent
+      if (parent.position < nodes.length - 1) {
+        // Otherwise, convert the parent into a reusable node with a frozen
+        // node list, so it won't hold onto disposable queries that use it.
+        nodes = parent.nodes = Object.freeze(
+          nodes.slice(0, parent.position + 1)
+        ) as any
       }
+      this.nodes = Object.isFrozen(nodes) ? [...nodes] : nodes
+    } else {
+      this.db = parent
+      this.nodes = []
     }
+    // Assume this query's node will be added next.
+    this.position = this.nodes.length
   }
 
   /**
@@ -43,17 +53,9 @@ export abstract class Query<Props extends object | null = any> {
     return wrapper(this)
   }
 
-  /**
-   * Modify the query promise before the caller receives it.
-   */
-  protected resolve?(result: QueryResponse): any
-
-  /**
-   * Modify the context before tokens are generated. The `context` phase
-   * runs any hooks in reverse order, so earlier nodes will see changes
-   * from later nodes.
-   */
-  protected inject?(props: Props, ctx: Query.Context): void
+  protected get props(): Props {
+    return this.nodes[this.position].props
+  }
 
   /**
    * Generate tokens for this node. The `tokenize` phase runs any hooks
@@ -71,7 +73,7 @@ export abstract class Query<Props extends object | null = any> {
   }): T
 
   protected query(node: any) {
-    node.query.context.nodes.push(node)
+    node.query.nodes.push(node)
     return node.query
   }
 }
@@ -83,21 +85,47 @@ export abstract class Query<Props extends object | null = any> {
 // interface will not be awaitable, thus avoiding incomplete queries.
 Object.defineProperty(Query.prototype, 'then', {
   value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
-    const { db, values, trace } = this.context
-    const onError = (error: any) => {
-      trace.message = error.message
-      throw Object.assign(trace, { query, values, ...error })
+    const { db, trace } = this
+    const ctx: Query.Context = {
+      query: this as any,
+      values: [],
+      resolvers: [],
+      mutators: [],
     }
+
+    const onError = (error: any) => {
+      throw Object.assign(error, {
+        context: ctx,
+        stack: error.stack + '\n' + trace,
+      })
+    }
+
     try {
-      var query = renderQuery(this.context)
+      var query = renderQuery(ctx)
       return db.client
-        .query(query, values)
-        .then(
-          this.resolve ||
-            (result =>
-              this.context.single ? result.rows[0] || null : result.rows),
-          onError
-        )
+        .query(query, ctx.values)
+        .then(async (response: QueryResponse) => {
+          let result = response.rows
+          if (ctx.mutators.length) {
+            for (const row of response.rows) {
+              for (const mutateRow of ctx.mutators) {
+                mutateRow(row)
+              }
+            }
+          }
+          for (let i = 1; i <= ctx.resolvers.length; i++) {
+            const resolver = ctx.resolvers.at(-i)!
+            const replacement = await resolver(response)
+            if (replacement !== undefined) {
+              result = replacement
+              break
+            }
+          }
+          if (ctx.single && Array.isArray(result)) {
+            return result[0] || null
+          }
+          return result
+        }, onError)
         .then(onfulfilled, onrejected)
     } catch (e: any) {
       onError(e)
@@ -107,45 +135,41 @@ Object.defineProperty(Query.prototype, 'then', {
 
 export namespace Query {
   export interface Context {
-    db: Database
-    nodes: Node<Query>[]
-    trace: Error
+    query: QueryInternal
     /**
      * Any values that cannot be stringified without the
      * help of node-postgres (aka `pg`).
-     *
-     * Empty until the query is rendered.
      */
     values: any[]
     /**
-     * Exists when a `SELECT` command starts this query.
-     *
-     * If tokenizing a column expression, this property is
-     * used to detect when joins are present, which means
-     * explicit table names must be included.
+     * Functions called with the query result. Each resolver
+     * may affect the query result, so they're called in order.
      */
-    select?: SelectProps
+    resolvers: ((response: QueryResponse) => any)[]
+    mutators: ((row: Record<string, any>) => void)[]
+    /**
+     * Exists when there are joins.
+     */
+    joins?: JoinProps[]
     /**
      * Equals true when the query promise should resolve
      * with a single result, even if multiple rows are returned
      * from the query.
      */
     single?: boolean
+    /**
+     * Equals true when tokenizing a row tuple.
+     *
+     * If tokenizing a selection, aliases will be omitted
+     * when this property is true.
+     */
+    inTuple?: boolean
   }
 }
 
-export type Node<T extends Query = any, Type extends string = any> = {
-  readonly type: Type
-  readonly query: T
-  readonly props: T extends Query<infer Props> ? Props : never
-}
-
 /** Inspect the context, tokens, and SQL of a query */
-export function inspectQuery(q: any) {
-  const ctx = { ...q.context }
-  ctx.nodes = [...ctx.nodes]
-  ctx.values = []
-
+export function inspectQuery(query: any) {
+  const ctx: Query.Context = { query, values: [], resolvers: [], mutators: [] }
   const tokens = tokenizeQuery(ctx)
   const rendered = renderTokens(tokens, ctx)
   return {

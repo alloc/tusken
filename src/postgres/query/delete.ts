@@ -1,7 +1,7 @@
 import { Expression } from '../expression'
 import { TokenArray } from '../internal/token'
 import { tokenizeWhere } from '../internal/tokenize'
-import { Query, QueryResponse } from '../query'
+import { Query } from '../query'
 import { kTableName } from '../symbols'
 import { TableRef } from '../table'
 import { t } from '../typesBuiltin'
@@ -18,16 +18,13 @@ export class Delete<From extends TableRef = any> extends Query<Props> {
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))
     }
+    ctx.resolvers.push(result => result.rowCount)
     return tokens
   }
 
   where(filter: Where<[From]>) {
     this.props.where = where(this.props, filter)
     return this
-  }
-
-  protected resolve(result: QueryResponse) {
-    return result.rowCount
   }
 }
 

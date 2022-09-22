@@ -2,24 +2,38 @@ import { callProp } from '../../utils/callProp'
 import { toArray } from '../../utils/toArray'
 import { Check } from '../check'
 import type { Expression } from '../expression'
+import { JoinProps } from '../props/join'
 import { SetProps } from '../props/set'
 import { Query } from '../query'
 import type { SortExpression, SortSelection } from '../query/orderBy'
-import type { AliasMapping, Selectable, Selection } from '../selection'
 import {
+  AliasMapping,
+  RawColumnSelection,
+  RawSelection,
+  Selectable,
+  Selection,
+} from '../selection'
+import {
+  kColumnName,
   kExprProps,
   kExprTokens,
   kRuntimeType,
   kSelectionArgs,
+  kTableCast,
   kTableName,
   kTypeTokenizer,
 } from '../symbols'
+import { toTableName } from '../table'
+import type { TableCast } from '../tableCast'
 import type { RuntimeType } from '../type'
 import {
+  isArrayExpression,
   isCheckBuilder,
+  isColumnRef,
   isExpression,
   isExpressionType,
   isSelection,
+  isTableCast,
   isTableRef,
 } from '../typeChecks'
 import { t } from '../typesBuiltin'
@@ -86,43 +100,71 @@ export function tokenizeSelectedColumns(
   selection: Selection,
   ctx: Query.Context
 ): Token | TokenArray {
-  const args = selection[kSelectionArgs]
-  if (Array.isArray(args)) {
+  const selected = selection[kSelectionArgs]
+  if (Array.isArray(selected)) {
     return {
-      list: args.map(arg => {
-        if (typeof arg == 'string') {
-          return { id: arg }
-        }
-        if (isExpression(arg)) {
-          return tokenizeExpression(arg, ctx)
-        }
-        return tokenizeAliasMapping(arg, ctx)
-      }),
+      list: tokenizeColumnList(selected, ctx),
     }
   }
-  if (isExpression(args)) {
-    return tokenizeExpression(args, ctx)
+  return tokenizeSelectedColumn(selected, ctx)
+}
+
+function tokenizeSelectedColumn(
+  column: RawColumnSelection,
+  ctx: Query.Context
+) {
+  if (isExpression(column)) {
+    return tokenizeExpression(column, ctx)
   }
-  return tokenizeAliasMapping(args, ctx)
+  if (isTableCast<any>(column)) {
+    return tokenizeTableCast(column, ctx)
+  }
+  return tokenizeAliasMapping(column, ctx)
+}
+
+function tokenizeColumnList(
+  list: Extract<RawSelection, any[]>,
+  ctx: Query.Context
+): TokenArray {
+  return list.map(arg => {
+    if (typeof arg == 'string') {
+      return { id: arg }
+    }
+    return tokenizeSelectedColumn(arg, ctx)
+  })
 }
 
 export function tokenizeAliasMapping(
   mapping: AliasMapping,
   ctx: Query.Context
-): TokenArray {
-  const [alias, value] = Object.entries(mapping)[0]
-  return [tokenizeExpression(value, ctx), { id: alias }]
+): Token {
+  return {
+    list: Object.entries(mapping).map(([alias, value]) => {
+      return isTableCast<any>(value)
+        ? tokenizeTableCast(value, ctx, alias)
+        : [tokenizeExpression(value, ctx), ctx.inTuple ? '' : { id: alias }]
+    }),
+  }
 }
 
 export function tokenizeColumn(column: string, table?: string | false): Token {
   return table ? { id: [table, column] } : { id: column }
 }
 
+const negatedChecks: Record<string, string> = {
+  '=': '!=',
+  '>': '<=',
+  '>=': '<',
+  '<': '>=',
+  '<=': '>',
+  IS: 'IS NOT',
+}
+
 export function tokenizeCheck(
-  { left, op, right, isRange }: Check,
+  { left, op, right, isNot }: Check,
   ctx: Query.Context
 ): TokenArray {
-  const tokens: TokenArray = []
+  let tokens: TokenArray = []
 
   left = callProp(left)
   right = callProp(right)
@@ -135,19 +177,54 @@ export function tokenizeCheck(
     tokens.push(tokenize(left, ctx))
   }
 
-  tokens.push(
-    right === null ? (op == '=' ? 'IS' : op == '!=' ? 'IS NOT' : op) : op
-  )
+  const isTuple = op == 'IN'
+  const isRange = op == 'BETWEEN'
+  const isAny = !isTuple && (Array.isArray(right) || isArrayExpression(right))
 
-  if (isRange) {
+  if (!isAny) {
+    if (right === null && op == '=') {
+      op = 'IS'
+    }
+    if (isNot) {
+      op = negatedChecks[op] || `NOT ${op}`
+    }
+  }
+  tokens.push(op)
+
+  if (isAny) {
+    tokens.push({
+      concat: [
+        'ANY(',
+        // An explicit cast is required if a placeholder is used,
+        // so we have to serialize JS arrays as Postgres arrays manually.
+        Array.isArray(right) ? { array: right } : tokenize(right, ctx),
+        ')',
+      ],
+    })
+    if (isNot) {
+      tokens = ['NOT', '(', tokens, ')']
+    }
+  }
+  // For range checks, the right side is an array.
+  else if (isRange) {
     tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
-  } else if (Array.isArray(right)) {
+  }
+  // Condition groups and "IN" tuples.
+  else if (Array.isArray(right)) {
     tokens.push(
       op == 'AND' || op == 'OR'
         ? tokenizeExpressionList(right, ' AND ', ctx)
         : { tuple: right.map(value => tokenize(value, ctx)) }
     )
-  } else {
+  }
+  // Use a tuple for JS array input.
+  else if (isTuple) {
+    tokens.push({
+      tuple: (right as any[]).map(value => tokenize(value, ctx)),
+    })
+  }
+  // Infer the type of any other values.
+  else {
     tokens.push(tokenize(right, ctx))
   }
 
@@ -169,6 +246,9 @@ export function tokenizeSelected(
           }
           if (isSelection(selection)) {
             return tokenizeSelectedColumns(selection, ctx)
+          }
+          if (isTableCast<any>(selection)) {
+            return tokenizeTableCast(selection, ctx)
           }
           return tokenizeExpression(selection, ctx)
         }),
@@ -216,4 +296,38 @@ export function tokenizeSetProps(props: SetProps, ctx: Query.Context) {
     tokens.push('OFFSET', { number: props.offset })
   }
   return tokens
+}
+
+/**
+ * Note: This doesn't include the `GROUP BY` clause that's
+ * required for a table cast to work in many cases.
+ */
+export function tokenizeTableCast(
+  cast: TableCast<Selectable>,
+  ctx: Query.Context,
+  alias?: string | null
+) {
+  const { pk, from, selected } = cast[kTableCast]
+  const tableName = toTableName(from)
+  alias ??= isColumnRef(pk) ? pk[kColumnName] : null
+
+  let args: TokenArray
+  if (selected) {
+    ctx.inTuple = true
+    args = [{ tuple: tokenizeColumnList(selected, ctx) }]
+    ctx.inTuple = false
+  } else {
+    args = [{ id: tableName }]
+  }
+
+  return [{ callee: 'array_agg', args }, { id: alias ?? tableName }]
+}
+
+export function tokenizeInnerJoin(join: JoinProps, ctx: Query.Context) {
+  return [
+    'INNER JOIN',
+    { id: toTableName(join.from) },
+    'ON',
+    tokenizeExpression(join.where, ctx),
+  ]
 }
