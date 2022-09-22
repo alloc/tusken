@@ -19,7 +19,6 @@ export abstract class SetBase<
    * Resolve with a single row at the given offset.
    * - Negative offset is treated as zero.
    * - Multiple calls are not supported.
-   * - Does nothing on a subquery.
    */
   at(offset: number) {
     if (offset > 0) {
