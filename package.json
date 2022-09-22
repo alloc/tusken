@@ -20,6 +20,7 @@
     "@cush/exec": "^1.8.0",
     "@tusken/cli": "workspace:*",
     "@types/pg": "^8.6.5",
+    "@vitest/ui": "^0.23.2",
     "conventional-changelog-conventionalcommits": "^5.0.0",
     "dotenv-cli": "^6.0.0",
     "multi-semantic-release": "^3.0.0",
