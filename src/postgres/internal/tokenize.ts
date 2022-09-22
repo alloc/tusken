@@ -31,7 +31,7 @@ import {
   isCheckBuilder,
   isColumnRef,
   isExpression,
-  isExpressionType,
+  isExpressionRef,
   isSelection,
   isTableCast,
   isTableRef,
@@ -74,7 +74,7 @@ export function tokenizeTyped(
 }
 
 export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
-  return isExpressionType(expr)
+  return isExpressionRef(expr)
     ? expr[kExprTokens](expr[kExprProps], ctx)
     : tokenizeTyped(expr, expr[kRuntimeType], ctx)
 }

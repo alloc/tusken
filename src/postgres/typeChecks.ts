@@ -1,6 +1,6 @@
 import type { CheckBuilder } from './check'
 import type { ColumnExpression, ColumnRef } from './column'
-import type { Expression, ExpressionType } from './expression'
+import type { Expression, ExpressionRef } from './expression'
 import type { CallExpression } from './function'
 import type { Selectable, Selection } from './selection'
 import { SetExpression } from './set'
@@ -36,7 +36,7 @@ export function isExpression(val: any): val is Expression {
 }
 
 /** Is this an expression that can tokenize itself? */
-export function isExpressionType(val: any): val is ExpressionType {
+export function isExpressionRef(val: any): val is ExpressionRef {
   return kExprProps in val
 }
 
@@ -49,7 +49,7 @@ export function isCallExpression(
   val: any,
   callee?: string
 ): val is CallExpression {
-  const props = isExpressionType(val) && val[kExprProps]
+  const props = isExpressionRef(val) && val[kExprProps]
   return props ? !callee || (props as any).callee == callee : false
 }
 

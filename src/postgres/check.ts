@@ -1,6 +1,6 @@
 import { isArray } from '../utils/isArray'
 import { Variadic } from '../utils/Variadic'
-import { Expression, ExpressionType } from './expression'
+import { Expression, ExpressionRef } from './expression'
 import {
   tokenizeCheck,
   tokenizeExpression,
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export class CheckList<T extends t.bool | t.null = any> //
-  extends ExpressionType<T, Props>
+  extends ExpressionRef<T, Props>
 {
   constructor(check: Check | Variadic<Expression<T>>) {
     super(kBoolType as any, { check }, tokenizeCheckList)
@@ -144,10 +144,10 @@ Object.entries(checkAliases).forEach(([key, alias]) =>
   })
 )
 
-// We have to define the `ExpressionType#is` method here
+// We have to define the `ExpressionRef#is` method here
 // or else a circular dependency is created.
-Object.defineProperty(ExpressionType.prototype, 'is', {
-  get(this: ExpressionType) {
+Object.defineProperty(ExpressionRef.prototype, 'is', {
+  get(this: ExpressionRef) {
     return new CheckBuilder(check => {
       return new CheckList(check)
     }, this)

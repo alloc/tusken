@@ -1,5 +1,5 @@
 import type { Any } from '@alloc/types'
-import { Expression, ExpressionType } from './expression'
+import { Expression, ExpressionRef } from './expression'
 import { CallExpression } from './function'
 import { tokenizeColumn } from './internal/tokenize'
 import type { Selectable } from './selection'
@@ -69,7 +69,7 @@ export function makeColumnRef<T extends Type, Name extends string>(
 export abstract class ColumnRef<
   T extends Type = any,
   Name extends string = any
-> extends ExpressionType<T> {
+> extends ExpressionRef<T> {
   protected [kColumnFrom]: Selectable
   protected [kColumnName]: Name
 
