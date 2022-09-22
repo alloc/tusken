@@ -8,7 +8,12 @@ import {
 import { JoinProps } from '../../join'
 import { SelectProps } from '../../props/select'
 import { Query } from '../../query'
-import { Selectable, Selection, SelectionSource } from '../../selection'
+import {
+  Selectable,
+  Selection,
+  SelectionSource,
+  SelectionSources,
+} from '../../selection'
 import { kSelectionFrom } from '../../symbols'
 import { toTableName } from '../../table'
 import { Where, where } from '../where'
@@ -74,7 +79,7 @@ export abstract class SelectBase<From extends Selectable[]> //
     return this
   }
 
-  where(filter: Where<From>) {
+  where(filter: Where<SelectionSources<From>>) {
     this.props.where = where(this.props, filter, this.props.where)
     return this
   }
