@@ -5,7 +5,7 @@ import {
   tokenizeSetProps,
   tokenizeWhere,
 } from '../../internal/tokenize'
-import { JoinProps } from '../../join'
+import { JoinProps } from '../../props/join'
 import { SelectProps } from '../../props/select'
 import { Query } from '../../query'
 import {
