@@ -26,11 +26,15 @@ export type PrimaryKey<T> = RowType<T> extends infer Values
   ? QueryInput<Values[PrimaryKeyOf<T> & keyof Values]>
   : never
 
-export type PrimaryKeyOf<T> = T extends TableRef<any, any, infer PrimaryKey>
-  ? PrimaryKey
-  : T extends Selection<any, TableRef<any, any, infer PrimaryKey>>
-  ? PrimaryKey
+export type PrimaryKeys<T> = RowType<T> extends infer Values
+  ? ArrayInput<Values[PrimaryKeyOf<T> & keyof Values]>
   : never
+
+export type PrimaryKeyOf<T> = T extends TableRef<any, any, infer PK>
+  ? PK
+  : T extends Selection<any, TableRef<any, any, infer PK>>
+  ? PK
+  : ''
 
 /** Get the `SELECT *` row type. */
 export type RowType<T> = T extends Selection<any, infer From>
@@ -44,16 +48,16 @@ export type RowType<T> = T extends Selection<any, infer From>
 export function makeTableRef<
   T extends object = any,
   TableName extends string = any,
-  PrimaryKey extends string = any,
+  TablePK extends string = any,
   NullableColumn extends string = any
 >(
   name: TableName,
-  pkColumn: PrimaryKey,
+  pkColumn: TablePK,
   columns: Record<string, RuntimeType>
-): TableRef<T, TableName, PrimaryKey, NullableColumn> {
+): TableRef<T, TableName, TablePK, NullableColumn> {
   const type = new (TableRef as new (
     name: TableName,
-    pkColumn: PrimaryKey,
+    pkColumn: TablePK,
     columns: Record<string, RuntimeType>
   ) => TableRef)(name, pkColumn, columns)
 
@@ -71,13 +75,13 @@ export function makeTableRef<
 export abstract class TableRef<
   T extends object = any,
   TableName extends string = any,
-  PrimaryKey extends string = any,
+  TablePK extends string = any,
   NullableColumn extends string = any
 > {
   /** The unique table name */
   protected [kTableName]: TableName
   /** The primary key of this table. */
-  protected [kPrimaryKey]: PrimaryKey
+  protected [kPrimaryKey]: TablePK
   /** The column names that exist in this table. */
   protected [kTableColumns]: Record<string, RuntimeType>
   /** Exists for type inference. */
@@ -85,7 +89,7 @@ export abstract class TableRef<
 
   constructor(
     name: TableName,
-    pkColumn: PrimaryKey,
+    pkColumn: TablePK,
     columns: Record<string, RuntimeType>
   ) {
     this[kTableName] = name
@@ -106,7 +110,7 @@ export abstract class TableRef<
 export interface TableRef<
   T extends object,
   TableName extends string,
-  PrimaryKey extends string,
+  TablePK extends string,
   NullableColumn extends string
 > extends SetType<T> {
   // Select from a table.
@@ -115,13 +119,11 @@ export interface TableRef<
   ): Selection<ResolveSelection<Selected>, this>
 
   // Cast a row identifier to a "SELECT *" statement.
-  (
-    id: T[PrimaryKey & keyof T] | ArrayInput<T[PrimaryKey & keyof T]>
-  ): Selection<T, this>
+  (id: PrimaryKey<this> | PrimaryKeys<this>): Selection<T, this>
 
   // Cast a row identifier to a table selection.
   <Selected extends RawSelection>(
-    id: T[PrimaryKey & keyof T] | ArrayInput<T[PrimaryKey & keyof T]>,
+    id: PrimaryKey<this> | PrimaryKeys<this>,
     selector: (row: RowRef<this>) => Narrow<Selected>
   ): Selection<ResolveSelection<Selected>, this>
 
