@@ -20,18 +20,11 @@ export abstract class Query<Props extends object | null = any> {
 
   constructor(parent: Query | Database) {
     if (parent instanceof Query) {
-      this.db = parent.db
-
-      // Reuse the node list if our parent is the last node.
-      let { nodes } = parent
-      if (parent.position < nodes.length - 1) {
-        // Otherwise, convert the parent into a reusable node with a frozen
-        // node list, so it won't hold onto disposable queries that use it.
-        nodes = parent.nodes = Object.freeze(
-          nodes.slice(0, parent.position + 1)
-        ) as any
+      if (parent.position < parent.nodes.length - 1) {
+        parent.reuse()
       }
-      this.nodes = Object.isFrozen(nodes) ? [...nodes] : nodes
+      this.db = parent.db
+      this.nodes = parent.isReused ? [...parent.nodes] : parent.nodes
     } else {
       this.db = parent
       this.nodes = []
@@ -48,6 +41,9 @@ export abstract class Query<Props extends object | null = any> {
    * without repeating the selection manually.
    */
   wrap<Result extends Query>(wrapper: (query: this) => Result) {
+    if (!this.isReused) {
+      this.reuse()
+    }
     return wrapper(this)
   }
 
@@ -73,6 +69,42 @@ export abstract class Query<Props extends object | null = any> {
   protected query(node: any) {
     node.query.nodes.push(node)
     return node.query
+  }
+
+  protected get isReused() {
+    return Object.isFrozen(this.nodes)
+  }
+
+  /**
+   * To reuse a query, its node list must be sliced (so the query is last)
+   * and then frozen.
+   */
+  protected reuse(): Node[] {
+    return (this.nodes = Object.freeze(
+      this.nodes.slice(0, this.position + 1)
+    ) as any)
+  }
+
+  protected cloneIfReused() {
+    return this.isReused ? this.clone() : this
+  }
+
+  protected clone() {
+    const clone = Object.create(this.constructor.prototype)
+    Object.assign(clone, this)
+    clone.nodes = this.nodes.slice(0, this.position + 1)
+    clone.nodes[this.position] = {
+      ...clone.nodes[this.position],
+      props: this.cloneProps(),
+    }
+    return clone
+  }
+
+  /**
+   * By default, only a shallow clone is made.
+   */
+  protected cloneProps() {
+    return { ...this.props }
   }
 }
 

@@ -21,21 +21,23 @@ export abstract class SetBase<
    * - Multiple calls are not supported.
    */
   at(offset: number) {
-    this.props.single = true
-    if (offset > 0) {
-      this.props.offset = offset
-    }
-    return this.limit(1)
+    const self = this.cloneIfReused()
+    self.props.single = true
+    self.props.limit = 1
+    self.props.offset = offset > 0 ? offset : undefined
+    return self
   }
 
   limit(n: number) {
-    this.props.limit = n
-    return this
+    const self = this.cloneIfReused()
+    self.props.limit = n
+    return self
   }
 
   orderBy(selector: SortSelection<From> | SortSelector<From>) {
-    this.props.orderBy = orderBy(this.sources, selector)
-    return this
+    const self = this.cloneIfReused()
+    self.props.orderBy = orderBy(self.sources, selector)
+    return self
   }
 
   stream(config?: QueryStreamConfig) {

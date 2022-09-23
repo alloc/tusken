@@ -101,6 +101,14 @@ export abstract class SelectBase<From extends Selectable[]> //
     }
     return tokens
   }
+  protected cloneProps() {
+    const { joins, groupBy } = this.props
+    return {
+      ...this.props,
+      joins: joins?.slice(),
+      groupBy: groupBy?.slice(),
+    }
+  }
 
   // This method has to return `any` since we can't override
   // the type parameters of a superclass.
@@ -108,11 +116,12 @@ export abstract class SelectBase<From extends Selectable[]> //
     from: Joined,
     on: Where<[...From, Joined]>
   ): any {
+    const self = this.cloneIfReused()
     const join = { type: 'inner', from } as JoinProps
-    this.props.joins ||= []
-    this.props.joins.push(join)
-    join.where = buildWhereClause(this.props, on)
-    return this
+    self.props.joins ||= []
+    self.props.joins.push(join)
+    join.where = buildWhereClause(self.props, on)
+    return self
   }
 }
 
@@ -124,8 +133,9 @@ export interface SelectBase<From extends Selectable[]> {
 
 Object.defineProperty(SelectBase.prototype, 'where', {
   value: function where(this: SelectBase<any>, filter: any) {
-    this.props.where = buildWhereClause(this.props, filter, this.props.where)
-    return this
+    const self = this.cloneIfReused()
+    self.props.where = buildWhereClause(self.props, filter, self.props.where)
+    return self
   },
 })
 
