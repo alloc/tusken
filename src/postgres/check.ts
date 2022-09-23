@@ -4,7 +4,7 @@ import { Expression, ExpressionRef } from './expression'
 import {
   tokenizeCheck,
   tokenizeExpression,
-  tokenizeExpressionList,
+  tokenizeLogicalAnd,
 } from './internal/tokenize'
 import { kBoolType } from './internal/type'
 import type { Query } from './query'
@@ -48,7 +48,7 @@ export class CheckList<T extends t.bool | t.null = any> //
 
 function tokenizeCheckList({ check }: Props, ctx: Query.Context) {
   return isArray(check)
-    ? tokenizeExpressionList(check, ' AND ', ctx)
+    ? tokenizeLogicalAnd(check, ctx)
     : isBoolExpression(check)
     ? tokenizeExpression(check, ctx)
     : tokenizeCheck(check, ctx)
@@ -56,9 +56,9 @@ function tokenizeCheckList({ check }: Props, ctx: Query.Context) {
 
 export class Check {
   constructor(
-    readonly left: any,
+    readonly left: unknown,
     readonly op: string,
-    readonly right: any,
+    readonly right: unknown,
     readonly isNot?: boolean
   ) {}
 }

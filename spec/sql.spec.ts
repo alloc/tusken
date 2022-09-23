@@ -65,6 +65,12 @@ describe('db.select', () => {
       expect(
         db
           .select(t.user)
+          .where(user => [user.id.is.not.eq(1), user.id.is.not.eq(2)])
+      ).toMatchInlineSnapshot('SELECT * FROM "user" WHERE id != 1 AND id != 2')
+
+      expect(
+        db
+          .select(t.user)
           .where(user =>
             is([
               pg.starts_with(user.bio, 'a'),

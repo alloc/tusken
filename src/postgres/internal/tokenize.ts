@@ -1,4 +1,5 @@
 import { callProp } from '../../utils/callProp'
+import { isObject } from '../../utils/isObject'
 import { toArray } from '../../utils/toArray'
 import { Check } from '../check'
 import type { Expression } from '../expression'
@@ -79,23 +80,6 @@ export function tokenizeExpression(expr: Expression, ctx: Query.Context) {
     : tokenizeTyped(expr, expr[kRuntimeType], ctx)
 }
 
-export function tokenizeExpressionList(
-  list: readonly Expression[],
-  separator: Token,
-  ctx: Query.Context
-): Token {
-  return {
-    concat: [
-      '(',
-      {
-        join: list.map(expr => tokenizeExpression(expr, ctx)),
-        with: separator,
-      },
-      ')',
-    ],
-  }
-}
-
 export function tokenizeSelectedColumns(
   selection: Selection,
   ctx: Query.Context
@@ -172,16 +156,25 @@ export function tokenizeCheck(
   if (left instanceof Check) {
     tokens.push(tokenizeCheck(left, ctx))
   } else if (Array.isArray(left)) {
-    tokens.push(tokenizeExpressionList(left, ' AND ', ctx))
+    tokens.push(wrapInParens(tokenizeLogicalAnd(left, ctx)))
   } else {
     tokens.push(tokenize(left, ctx))
   }
 
-  const isTuple = op == 'IN'
-  const isRange = op == 'BETWEEN'
-  const isAny = !isTuple && (Array.isArray(right) || isArrayExpression(right))
+  const type =
+    op == 'IN'
+      ? 'tuple'
+      : op == 'BETWEEN'
+      ? 'range'
+      : op == 'AND' || op == 'OR'
+      ? 'logical'
+      : Array.isArray(right) || (isObject(right) && isArrayExpression(right))
+      ? 'any'
+      : ''
 
-  if (!isAny) {
+  const is = { [type]: true } as { [P in typeof type]?: true }
+
+  if (!is.any) {
     if (right === null && op == '=') {
       op = 'IS'
     }
@@ -191,7 +184,7 @@ export function tokenizeCheck(
   }
   tokens.push(op)
 
-  if (isAny) {
+  if (is.any) {
     tokens.push({
       concat: [
         'ANY(',
@@ -204,19 +197,31 @@ export function tokenizeCheck(
     if (isNot) {
       tokens = ['NOT', '(', tokens, ')']
     }
-  } else if (isRange) {
-    tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
-  } else if (isTuple) {
-    tokens.push({
-      tuple: (right as any[]).map(value => tokenize(value, ctx)),
-    })
   } else if (Array.isArray(right)) {
-    tokens.push(tokenizeExpressionList(right, ' AND ', ctx))
+    if (is.range) {
+      tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
+    } else if (is.tuple) {
+      tokens.push({
+        tuple: right.map(value => tokenize(value, ctx)),
+      })
+    } else {
+      tokens.push(wrapInParens(tokenizeLogicalAnd(right, ctx)))
+    }
   } else {
     tokens.push(tokenize(right, ctx))
   }
 
   return tokens
+}
+
+export function tokenizeLogicalAnd(
+  list: readonly Expression[],
+  ctx: Query.Context
+): Token {
+  return {
+    join: list.map(expr => tokenizeExpression(expr, ctx)),
+    with: ' AND ',
+  }
 }
 
 export function tokenizeSelected(
@@ -318,4 +323,8 @@ export function tokenizeInnerJoin(join: JoinProps, ctx: Query.Context) {
     'ON',
     tokenizeExpression(join.where, ctx),
   ]
+}
+
+export function wrapInParens(token: Token) {
+  return { concat: ['(', token, ')'] }
 }
