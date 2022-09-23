@@ -13,7 +13,7 @@ export abstract class SetBase<
   Props extends SetProps = any
 > extends Query<Props> {
   protected declare [kSelectFrom]: From
-  protected abstract sources: SelectionSource[]
+  protected declare abstract sources: SelectionSource[]
 
   /**
    * Resolve with a single row at the given offset.
