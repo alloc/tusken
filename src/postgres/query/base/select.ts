@@ -148,18 +148,19 @@ function findTableCasts(
       arg: string | RawColumnSelection,
       alias?: string | null
     ) => {
+      if (typeof arg == 'string') return
       if (isTableCast(arg)) {
         const { pk, from, selected } = arg[kTableCast]
         const table = toTableRef(from)!
-        const pkColumn = makeColumnRef(table, table[kPrimaryKey])
-        const key =
-          alias ?? (isColumnRef(pk) ? pk[kColumnName] : table[kTableName])
+
+        const isColumn = isObject(pk) && isColumnRef(pk)
+        const key = alias ?? (isColumn ? pk[kColumnName] : table[kTableName])
 
         const columns = selected
           ? getSelectedEntries(selected)
           : Object.entries(table[kTableColumns])
 
-        const isArray = isColumnRef(pk) && isArrayType(pk[kRuntimeType])
+        const isArray = isColumn && isArrayType(pk[kRuntimeType])
         const parseTuple = getTupleParser(i => {
           return columns[i][1]
         })
@@ -182,6 +183,7 @@ function findTableCasts(
           row[key] = isArray ? objects : objects[0]
         })
 
+        const pkColumn = makeColumnRef(table, table[kPrimaryKey])
         joins.push({
           type: 'inner',
           from: toTableRef(arg),
