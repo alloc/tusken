@@ -1,10 +1,9 @@
 import { Any, Intersect } from '@alloc/types'
-import { isArray } from '../../utils/isArray'
 import { RecursiveVariadic } from '../../utils/Variadic'
+import { reduceChecks } from '../check'
 import { ColumnRef, ColumnType, makeColumnRef } from '../column'
 import { Expression } from '../expression'
 import { CallExpression } from '../function'
-import { is } from '../is'
 import { JoinProps } from '../props/join'
 import { Selectable, Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
@@ -45,13 +44,7 @@ export function buildWhereClause<From extends Selectable[]>(
   })
 
   const cond = filter(joined ? refs : Object.values(refs)[0])
-  return reduceCondition(where ? [where, cond] : cond)
-}
-
-function reduceCondition(
-  cond: RecursiveVariadic<Expression<t.bool | t.null>>
-): Expression<t.bool | t.null> {
-  return isArray(cond) ? is(cond.map(reduceCondition)) : cond
+  return reduceChecks(where ? [where, cond] : cond)
 }
 
 export type FindWhere<From extends Selectable> = (

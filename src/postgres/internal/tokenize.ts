@@ -158,8 +158,6 @@ export function tokenizeCheck(
 
   if (left instanceof Check) {
     tokens.push(tokenizeCheck(left, ctx))
-  } else if (Array.isArray(left)) {
-    tokens.push(wrapInParens(tokenizeLogicalAnd(left, ctx)))
   } else {
     tokens.push(tokenize(left, ctx))
   }
@@ -200,15 +198,13 @@ export function tokenizeCheck(
     if (isNot) {
       tokens = ['NOT', '(', tokens, ')']
     }
-  } else if (Array.isArray(right)) {
+  } else if (Array.isArray(right) && (is.range || is.tuple)) {
     if (is.range) {
       tokens.push(tokenize(right[0], ctx), 'AND', tokenize(right[1], ctx))
-    } else if (is.tuple) {
+    } else {
       tokens.push({
         tuple: right.map(value => tokenize(value, ctx)),
       })
-    } else {
-      tokens.push(wrapInParens(tokenizeLogicalAnd(right, ctx)))
     }
   } else {
     tokens.push(tokenize(right, ctx))

@@ -1,5 +1,5 @@
 import { isArray } from '../utils/isArray'
-import { Variadic } from '../utils/Variadic'
+import { RecursiveVariadic, Variadic } from '../utils/Variadic'
 import { Expression, ExpressionRef } from './expression'
 import {
   tokenizeCheck,
@@ -29,21 +29,31 @@ export class CheckList<T extends t.bool | t.null = any> //
     super(kBoolType as any, { check }, tokenizeCheckList)
   }
 
-  and(right: Variadic<Expression<t.bool>>): this
-  and(right: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
+  and(right: RecursiveVariadic<Expression<t.bool>>): this
+  and(
+    right: RecursiveVariadic<Expression<t.bool | t.null>>
+  ): CheckList<t.bool | t.null>
   and(right: any): any {
     const { props } = this
-    props.check = new Check(props.check, 'AND', right)
+    props.check = new Check(props.check, 'AND', reduceChecks(right))
     return this
   }
 
-  or(right: Variadic<Expression<t.bool>>): this
-  or(right: Variadic<Expression<t.bool | t.null>>): CheckList<t.bool | t.null>
+  or(right: RecursiveVariadic<Expression<t.bool>>): this
+  or(
+    right: RecursiveVariadic<Expression<t.bool | t.null>>
+  ): CheckList<t.bool | t.null>
   or(right: any): any {
     const { props } = this
-    props.check = new Check(props.check, 'OR', right)
+    props.check = new Check(props.check, 'OR', reduceChecks(right))
     return this
   }
+}
+
+export function reduceChecks<T extends t.bool | t.null>(
+  checks: RecursiveVariadic<Expression<T>>
+): Expression<T> {
+  return isArray(checks) ? new CheckList(checks.map(reduceChecks)) : checks
 }
 
 function tokenizeCheckList({ check }: Props, ctx: Query.Context) {
