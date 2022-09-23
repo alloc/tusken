@@ -91,7 +91,7 @@ export abstract class Query<Props extends object | null = any> {
 
   protected clone() {
     const clone = Object.create(this.constructor.prototype)
-    Object.assign(clone, this)
+    Object.defineProperties(clone, Object.getOwnPropertyDescriptors(this))
     clone.nodes = this.nodes.slice(0, this.position + 1)
     clone.nodes[this.position] = {
       ...clone.nodes[this.position],
