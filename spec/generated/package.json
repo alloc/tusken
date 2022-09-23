@@ -3,5 +3,8 @@
   "dependencies": {
     "@tusken/cli": "link:../../packages/tusken-cli",
     "tusken": "link:../../src"
+  },
+  "scripts": {
+    "e2e:reset": "tusken generate -d test && cp test/schema.sql e2e && tusken wipe -d e2e -c tusken.config.ts && pg_restore -d e2e test/data.dump && tusken generate -d e2e"
   }
 }

@@ -19,6 +19,16 @@ export const follow: TableRef<{
   author: t.int4,
 })
 
+export const foo: TableRef<{
+  id: t.int4
+  json: t.json | t.null
+  jsonb: t.jsonb | t.null
+}, "foo", "id", "id" | "json" | "jsonb"> = /*#__PURE__*/ makeTableRef("foo", "id", {
+  id: t.int4,
+  json: t.json,
+  jsonb: t.jsonb,
+})
+
 export const like: TableRef<{
   id: t.int4
   tweet: t.int4
@@ -56,6 +66,7 @@ export const user: TableRef<{
 // Materialized row types
 export interface featureFlag extends RowResult<RowType<typeof featureFlag>> {}
 export interface follow extends RowResult<RowType<typeof follow>> {}
+export interface foo extends RowResult<RowType<typeof foo>> {}
 export interface like extends RowResult<RowType<typeof like>> {}
 export interface tweet extends RowResult<RowType<typeof tweet>> {}
 export interface user extends RowResult<RowType<typeof user>> {}

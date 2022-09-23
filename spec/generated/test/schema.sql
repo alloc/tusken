@@ -10,6 +10,11 @@ SET client_min_messages = warning;
 SET row_security = off;
 SET default_tablespace = '';
 SET default_table_access_method = heap;
+CREATE TABLE public."featureFlag" (
+    id integer NOT NULL,
+    enabled boolean DEFAULT false
+);
+ALTER TABLE public."featureFlag" OWNER TO postgres;
 CREATE TABLE public.follow (
     id integer NOT NULL,
     follower integer NOT NULL,
@@ -18,6 +23,20 @@ CREATE TABLE public.follow (
 ALTER TABLE public.follow OWNER TO postgres;
 ALTER TABLE public.follow ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.follow_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+CREATE TABLE public.foo (
+    id integer NOT NULL,
+    json json,
+    jsonb jsonb
+);
+ALTER TABLE public.foo OWNER TO postgres;
+ALTER TABLE public.foo ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.foo_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -56,7 +75,8 @@ CREATE TABLE public."user" (
     id integer NOT NULL,
     name text NOT NULL,
     "joinedAt" timestamp with time zone DEFAULT now() NOT NULL,
-    bio text
+    bio text,
+    "featureFlags" integer[] DEFAULT '{}'::integer[] NOT NULL
 );
 ALTER TABLE public."user" OWNER TO alec;
 CREATE SEQUENCE public.user_id_seq
@@ -69,8 +89,12 @@ CREATE SEQUENCE public.user_id_seq
 ALTER TABLE public.user_id_seq OWNER TO alec;
 ALTER SEQUENCE public.user_id_seq OWNED BY public."user".id;
 ALTER TABLE ONLY public."user" ALTER COLUMN id SET DEFAULT nextval('public.user_id_seq'::regclass);
+ALTER TABLE ONLY public."featureFlag"
+    ADD CONSTRAINT "featureFlag_pkey" PRIMARY KEY (id);
 ALTER TABLE ONLY public.follow
     ADD CONSTRAINT follow_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.foo
+    ADD CONSTRAINT foo_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public."like"
     ADD CONSTRAINT like_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public.tweet
