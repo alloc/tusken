@@ -1,13 +1,13 @@
 import { Exclusive, Intersect } from '@alloc/types'
 import type { ColumnRefs } from '../column'
 import { Expression } from '../expression'
+import { makeRowRef } from '../row'
 import {
   Selectable,
   SelectedRow,
   Selection,
   SelectionSource,
 } from '../selection'
-import { makeRowRef } from '../selector'
 import { PrimaryKeyOf, RowType, toTableName } from '../table'
 import type { SourceRefId } from './where'
 

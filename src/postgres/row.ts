@@ -2,7 +2,7 @@ import { LoosePick, Remap } from '@alloc/types'
 import { ColumnInput, ColumnRefs, ColumnType, makeColumnRef } from './column'
 import { SelectionSource } from './selection'
 import { kPrimaryKey, kSelectionFrom } from './symbols'
-import { PrimaryKeyOf, RowRef, RowType, TableRef } from './table'
+import { PrimaryKeyOf, RowType, TableRef } from './table'
 import { Type } from './type'
 
 export abstract class RowSelection<From extends SelectionSource = any> {

@@ -1,7 +1,7 @@
 import exec from '@cush/exec'
 import path from 'path'
 import { inspectQuery, Query } from 'tusken'
-import { expect } from 'vitest'
+import { afterEach, beforeEach, expect } from 'vitest'
 import client from './generated/e2e'
 
 export { pg, t } from './generated/e2e'
