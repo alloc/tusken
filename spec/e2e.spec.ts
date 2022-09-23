@@ -1,17 +1,17 @@
 import db, { t } from './db'
 
 test('equal check with array of ids', async () => {
-  expect(await db.select(t.user(u => u.name)).where(u => u.id.eq([1, 2])))
+  expect(await db.select(t.user(u => u.name)).where(u => u.id.is.eq([1, 2])))
     .toMatchInlineSnapshot(`
-    [
-      {
-        "name": "alec",
-      },
-      {
-        "name": "anakin",
-      },
-    ]
-  `)
+      [
+        {
+          "name": "alec",
+        },
+        {
+          "name": "anakin",
+        },
+      ]
+    `)
 })
 
 describe('resolve a column that references another table', () => {
@@ -21,21 +21,21 @@ describe('resolve a column that references another table', () => {
         .select(t.tweet(tweet => [tweet.text, t.user(tweet.author)]))
         .limit(1)
     ).toMatchInlineSnapshot(`
-    [
-      {
-        "author": {
-          "bio": "You underestimate my power!",
-          "featureFlags": [
-            2,
-          ],
-          "id": 2,
-          "joinedAt": 2022-09-17T17:47:45.350Z,
-          "name": "anakin",
+      [
+        {
+          "author": {
+            "bio": "You underestimate my power!",
+            "featureFlags": [
+              1,
+            ],
+            "id": 2,
+            "joinedAt": 2022-09-17T17:47:45.350Z,
+            "name": "anakin",
+          },
+          "text": "I've got a bad feeling about this.",
         },
-        "text": "I've got a bad feeling about this.",
-      },
-    ]
-  `)
+      ]
+    `)
   })
 
   test('array of ids', async () => {
@@ -44,19 +44,19 @@ describe('resolve a column that references another table', () => {
         .select(t.user(u => [u.id, u.name, t.featureFlag(u.featureFlags)]))
         .limit(1)
     ).toMatchInlineSnapshot(`
-    [
-      {
-        "featureFlags": [
-          {
-            "enabled": true,
-            "id": 1,
-          },
-        ],
-        "id": 1,
-        "name": "alec",
-      },
-    ]
-  `)
+      [
+        {
+          "featureFlags": [
+            {
+              "enabled": true,
+              "id": 1,
+            },
+          ],
+          "id": 2,
+          "name": "anakin",
+        },
+      ]
+    `)
   })
 
   test('with selector', async () => {
