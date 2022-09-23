@@ -4,11 +4,17 @@ import { Count } from './query/count'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select } from './query/select'
-import { Where } from './query/where'
-import { Selectable, SelectedRow } from './selection'
+import { FindWhere } from './query/where'
+import { RowInsertion, RowUpdate } from './row'
+import {
+  Selectable,
+  SelectedRow,
+  Selection,
+  SelectionSources,
+} from './selection'
 import { QueryStream } from './stream'
 import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
-import { PrimaryKey, RowInsertion, RowUpdate, TableRef } from './table'
+import { PrimaryKey, TableRef } from './table'
 
 export interface DatabaseConfig {
   client: Client
@@ -71,7 +77,7 @@ export class Database {
    */
   find<T extends Selectable>(
     from: T,
-    filter: Where<[T]>
+    filter: FindWhere<SelectionSources<T>>
   ): QueryPromise<SelectedRow<T> | null> {
     return this.select(from).where(filter).at(0) as any
   }
@@ -81,13 +87,11 @@ export class Database {
    *
    * To get a row by any other column, use the `db.find` method instead.
    */
-  get<T extends Selectable>(
+  get<T extends TableRef | Selection<any, TableRef>>(
     from: T,
     pk: PrimaryKey<T>
   ): QueryPromise<SelectedRow<T> | null> {
-    return this.find(from as Extract<T, TableRef>, from =>
-      from[kPrimaryKey].is.eq(pk)
-    )
+    return this.find<T>(from, from => from[kPrimaryKey].is.eq(pk))
   }
 
   /**

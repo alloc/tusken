@@ -12,7 +12,7 @@ import { kPrimaryKey, kTableName } from '../symbols'
 import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
 import { t } from '../typesBuiltin'
 
-export function where<From extends Selectable[]>(
+export function buildWhereClause<From extends Selectable[]>(
   props: {
     from: Selectable
     joins?: JoinProps[]
@@ -53,6 +53,10 @@ function reduceCondition(
 ): Expression<t.bool | t.null> {
   return isArray(cond) ? is(cond.map(reduceCondition)) : cond
 }
+
+export type FindWhere<From extends Selectable> = (
+  ref: WhereRef<From>
+) => RecursiveVariadic<Expression<t.bool | t.null>>
 
 export type Where<From extends Selectable[]> = (
   refs: WhereRefs<From>

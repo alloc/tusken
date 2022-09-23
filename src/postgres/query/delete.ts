@@ -5,7 +5,7 @@ import { Query } from '../query'
 import { kTableName } from '../symbols'
 import { TableRef } from '../table'
 import { t } from '../typesBuiltin'
-import { where, Where } from './where'
+import { buildWhereClause, Where } from './where'
 
 type Props = {
   from: TableRef
@@ -23,7 +23,7 @@ export class Delete<From extends TableRef = any> extends Query<Props> {
   }
 
   where(filter: Where<[From]>) {
-    this.props.where = where(this.props, filter)
+    this.props.where = buildWhereClause(this.props, filter)
     return this
   }
 }

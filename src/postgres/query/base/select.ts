@@ -43,7 +43,7 @@ import {
   isSetExpression,
   isTableCast,
 } from '../../typeChecks'
-import { Where, where } from '../where'
+import { buildWhereClause, FindWhere, Where } from '../where'
 import { SetBase } from './set'
 
 /**
@@ -111,15 +111,23 @@ export abstract class SelectBase<From extends Selectable[]> //
     const join = { type: 'inner', from } as JoinProps
     this.props.joins ||= []
     this.props.joins.push(join)
-    join.where = where(this.props, on)
-    return this
-  }
-
-  where(filter: Where<SelectionSources<From>>) {
-    this.props.where = where(this.props, filter, this.props.where)
+    join.where = buildWhereClause(this.props, on)
     return this
   }
 }
+
+export interface SelectBase<From extends Selectable[]> {
+  where: From extends [infer From extends Selectable]
+    ? (filter: FindWhere<SelectionSources<From>>) => this
+    : (filter: Where<SelectionSources<From>>) => this
+}
+
+Object.defineProperty(SelectBase.prototype, 'where', {
+  value: function where(this: SelectBase<any>, filter: any) {
+    this.props.where = buildWhereClause(this.props, filter, this.props.where)
+    return this
+  },
+})
 
 function toSelectionSource(s: Selectable) {
   while (s instanceof Selection) {

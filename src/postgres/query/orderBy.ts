@@ -8,7 +8,7 @@ import {
   SelectionSource,
 } from '../selection'
 import { makeRowRef } from '../selector'
-import { PrimaryKeyOf, RowType, TableRef, toTableName } from '../table'
+import { PrimaryKeyOf, RowType, toTableName } from '../table'
 import type { SourceRefId } from './where'
 
 export function orderBy<From extends Selectable[]>(
@@ -75,19 +75,14 @@ export type SortOrder<T> = Exclusive<
     }
 >
 
-export type SortRefs<From extends Selectable[]> = Intersect<
-  SortRefsObject<From>
+export type SortRefs<T extends Selectable[]> = Intersect<
+  T[number] extends infer From extends Selectable
+    ? From extends Selection<any, infer Source>
+      ? SortSource<Source>
+      : SortSource<From>
+    : never
 >
 
-type SortRefsObject<From extends Selectable[]> =
-  From[number] extends infer Source
-    ? Source extends Selection<any, infer From>
-      ? SortRefsObject<[From]>
-      : Source extends Selectable
-      ? {
-          [P in SourceRefId<Source>]: Source extends TableRef
-            ? ColumnRefs<RowType<Source>, PrimaryKeyOf<Source>>
-            : any
-        }
-      : never
-    : never
+type SortSource<T extends SelectionSource> = {
+  [P in SourceRefId<T>]: ColumnRefs<RowType<T>, PrimaryKeyOf<T>>
+}
