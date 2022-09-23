@@ -99,7 +99,7 @@ export type { ANY as any, NULL as null, VOID as void }
 export type { oid as regproc, oid as regprocedure, oid as regoper, oid as regoperator, oid as regclass, oid as regcollation, oid as regtype, oid as regconfig, oid as regdictionary, oid as regrole, oid as regnamespace }
 
 export type elementof<T extends Type> = T extends array<infer E> ? E : anyelement
-export type param<T extends Type> = T extends Type<infer Native> ? QueryInput<T | ImplicitCast<Native>> : never
+export type param<T extends Type> = QueryInput<T extends Type<infer Native> ? T | ImplicitCast<Native> : never>
 export type aggParam<T extends Type> = T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never
 export type record = Type<"record", { [key: string]: any }, never>
 
