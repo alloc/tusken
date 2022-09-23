@@ -70,6 +70,9 @@ export function tokenizeTyped(
   type: RuntimeType,
   ctx: Query.Context
 ): Token | TokenArray {
+  if (value === null) {
+    return 'NULL'
+  }
   const tokens = type[kTypeTokenizer]?.(value)
   return tokens ?? tokenize(value, ctx)
 }
