@@ -64,6 +64,9 @@ export abstract class SelectBase<From extends Selectable[]> //
     return sources
   }
   protected tokenize(props: SelectProps, ctx: Query.Context) {
+    if (props.single) {
+      ctx.single = true
+    }
     const joins = props.joins ? [...props.joins] : []
     const selected = [props.from].concat(joins.map(join => join.from))
     const tableCasts = findTableCasts(props.from, joins, ctx)
@@ -82,7 +85,6 @@ export abstract class SelectBase<From extends Selectable[]> //
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))
     }
-    tokens.push(tokenizeSetProps(props, ctx))
     if (props.groupBy || tableCasts.length) {
       tokens.push('GROUP BY')
       if (props.groupBy) {
@@ -96,9 +98,7 @@ export abstract class SelectBase<From extends Selectable[]> //
         }
       }
     }
-    if (props.single) {
-      ctx.single = true
-    }
+    tokens.push(tokenizeSetProps(props, ctx))
     return tokens
   }
   protected cloneProps() {
