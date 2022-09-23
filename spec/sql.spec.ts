@@ -206,6 +206,22 @@ describe('db.select', () => {
         '(SELECT * FROM "user" WHERE id = 1) UNION (SELECT * FROM "user" WHERE id = 2) ORDER BY id'
       )
     })
+
+    test('with wrap method', () => {
+      expect(
+        db
+          .select(t.user)
+          .where(user => user.bio.is.not.eq(null))
+          .wrap(users => {
+            return users
+              .orderBy(user => user.joinedAt)
+              .limit(1)
+              .union(users.orderBy(user => user.name).limit(2))
+          })
+      ).toMatchInlineSnapshot(
+        '(SELECT * FROM "user" WHERE bio IS NOT NULL ORDER BY "joinedAt" LIMIT 1) UNION (SELECT * FROM "user" WHERE bio IS NOT NULL ORDER BY name LIMIT 2)'
+      )
+    })
   })
 })
 
