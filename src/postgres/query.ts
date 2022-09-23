@@ -97,7 +97,7 @@ export abstract class Query<Props extends object | null = any> {
       ...clone.nodes[this.position],
       props: this.cloneProps(),
     }
-    return clone
+    return clone as this
   }
 
   /**
