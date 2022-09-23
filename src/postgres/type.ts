@@ -86,7 +86,7 @@ export type StringInput<T> = Extract<QueryInput<T>, string | null>
 export type ArrayInput<T> =
   | QueryInput<T>[]
   | (T extends Type<infer Name, infer Value>
-      ? Type<`${Name}[]`, Value[]>
+      ? QueryInput<Type<`${Name}[]`, Value[]>>
       : never)
 
 export abstract class SetType<T extends object = any> //
