@@ -9,6 +9,7 @@
     "release": "sh release.sh",
     "db:dump": "pg_dump -d test -Fc --data-only --file spec/generated/test/data.dump",
     "db:restore": "tusken wipe -d test -c spec/generated/tusken.config.ts && pg_restore -d test spec/generated/test/data.dump",
+    "reset:e2e": "sh spec/generated/reset-e2e.sh",
     "test": "vitest sql",
     "test:e2e": "E2E=1 vitest e2e",
     "test:types": "vitest -c spec/types/vitest.config.ts",
