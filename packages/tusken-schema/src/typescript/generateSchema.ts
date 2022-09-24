@@ -128,10 +128,11 @@ export function generateTypeSchema(
   const indexFile = endent`
     ${header.join('\n')}
 
-    export default new Database({
+    const db = new Database({
       ${databaseProps.join(',\n')},
     })
 
+    export { db as default }
     export * as t from './types'
     export * as pg from './functions'
   `
