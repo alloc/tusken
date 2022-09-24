@@ -150,6 +150,11 @@ export function generateTypeSchema(
 
     // Materialized row types
     ${userTypes.lines.map(toExport).join('\n')}
+
+    /** Use this instead of \`t[name]\` if you want tree-shaking. */
+    export const ref = {
+      ${schema.tables.map(table => table.name).join(',\n')},
+    }
   `
 
   const typesFile = endent`
