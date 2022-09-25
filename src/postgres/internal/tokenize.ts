@@ -46,6 +46,9 @@ import type { Token, TokenArray } from './token'
 export function tokenize(value: any, ctx: Query.Context): Token | TokenArray {
   if (value == null || typeof value !== 'object') {
     if (typeof value == 'number') {
+      if (value !== value || !isFinite(value)) {
+        throw Error('expected finite number, got ' + value)
+      }
       return String(value)
     }
     return { literal: value }

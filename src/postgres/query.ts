@@ -115,7 +115,7 @@ export abstract class Query<Props extends object | null = any> {
 // interface will not be awaitable, thus avoiding incomplete queries.
 Object.defineProperty(Query.prototype, 'then', {
   value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
-    const { db, trace } = this
+    const { db } = this
     const ctx: Query.Context = {
       query: this as any,
       values: [],
@@ -123,17 +123,18 @@ Object.defineProperty(Query.prototype, 'then', {
       mutators: [],
     }
 
-    const onError = (error: any) => {
-      throw Object.assign(error, {
+    const onError = (e: any) => {
+      throw Object.assign(e, {
+        stack: e.stack + '\n    ––––– Query origin –––––' + ctx.query.trace,
         context: ctx,
-        stack: error.stack + '\n' + trace,
+        sql,
       })
     }
 
     try {
-      var query = renderQuery(ctx)
+      var sql = renderQuery(ctx)
       return db.client
-        .query(query, ctx.values)
+        .query(sql, ctx.values)
         .then(async (response: QueryResponse) => {
           let result = response.rows
           if (ctx.mutators.length) {
