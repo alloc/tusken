@@ -301,7 +301,7 @@ export function tokenizeTableCast(
 ) {
   const { pk, from, selected } = cast[kTableCast]
   const tableName = toTableName(from)
-  alias ??= isColumnRef(pk) ? pk[kColumnName] : null
+  alias ??= isObject(pk) && isColumnRef(pk) ? pk[kColumnName] : null
 
   let args: TokenArray
   if (selected) {
