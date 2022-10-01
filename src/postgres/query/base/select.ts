@@ -116,7 +116,7 @@ export abstract class SelectBase<From extends Selectable[]> //
     from: Joined,
     on: Where<[...From, Joined]>
   ): any {
-    const self = this.cloneIfReused()
+    const self = this.clone()
     const join = { type: 'inner', from } as JoinProps
     self.props.joins ||= []
     self.props.joins.push(join)
@@ -133,7 +133,7 @@ export interface SelectBase<From extends Selectable[]> {
 
 Object.defineProperty(SelectBase.prototype, 'where', {
   value: function where(this: SelectBase<any>, filter: any) {
-    const self = this.cloneIfReused()
+    const self = this.clone()
     self.props.where = buildWhereClause(self.props, filter, self.props.where)
     return self
   },

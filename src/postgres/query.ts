@@ -85,10 +85,6 @@ export abstract class Query<Props extends object | null = any> {
     ) as any)
   }
 
-  protected cloneIfReused() {
-    return this.isReused ? this.clone() : this
-  }
-
   protected clone() {
     const clone = Object.create(this.constructor.prototype)
     Object.defineProperties(clone, Object.getOwnPropertyDescriptors(this))

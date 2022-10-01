@@ -306,3 +306,13 @@ describe('db.count', () => {
     )
   })
 })
+
+test('reusable query', async () => {
+  const query = db.select(t.user)
+  expect([query.limit(1), query.limit(2)]).toMatchInlineSnapshot(`
+    [
+      SELECT * FROM "user" LIMIT 1,
+      SELECT * FROM "user" LIMIT 2,
+    ]
+  `)
+})

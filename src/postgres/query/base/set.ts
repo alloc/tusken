@@ -21,7 +21,7 @@ export abstract class SetBase<
    * - Multiple calls are not supported.
    */
   at(offset: number) {
-    const self = this.cloneIfReused()
+    const self = this.clone()
     self.props.single = true
     self.props.limit = 1
     self.props.offset = offset > 0 ? offset : undefined
@@ -29,13 +29,13 @@ export abstract class SetBase<
   }
 
   limit(n: number) {
-    const self = this.cloneIfReused()
+    const self = this.clone()
     self.props.limit = n
     return self
   }
 
   orderBy(selector: SortSelection<From> | SortSelector<From>) {
-    const self = this.cloneIfReused()
+    const self = this.clone()
     self.props.orderBy = orderBy(self.sources, selector)
     return self
   }
