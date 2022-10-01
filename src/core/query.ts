@@ -1,37 +1,13 @@
 import type { Database } from './database'
-import {
-  Node,
-  QueryInternal,
-  renderQuery,
-  tokenizeQuery,
-} from './internal/query'
+import { renderQuery, tokenizeQuery } from './internal/query'
 import { renderTokens, Token, TokenArray } from './internal/token'
 import { JoinProps } from './props/join'
 
 export type QueryPromise<T = any> = Query & PromiseLike<T>
 
 export type QueryResponse = { rows: Record<string, any>[]; rowCount?: number }
-
-export abstract class Query<Props extends object | null = any> {
-  protected db: Database
-  protected nodes: Node<Query>[]
-  protected position: number
-  protected trace = Error().stack!.slice(6)
-
-  constructor(parent: Query | Database) {
-    if (parent instanceof Query) {
-      if (parent.position < parent.nodes.length - 1) {
-        parent.reuse()
-      }
-      this.db = parent.db
-      this.nodes = parent.isReused ? [...parent.nodes] : parent.nodes
-    } else {
-      this.db = parent
-      this.nodes = []
-    }
-    // Assume this query's node will be added next.
-    this.position = this.nodes.length
-  }
+export abstract class Query {
+  protected trace = Error().stack!.split('\n').slice(3).join('\n')
 
   /**
    * Acquire a variable within the given `wrapper` that points
@@ -41,71 +17,14 @@ export abstract class Query<Props extends object | null = any> {
    * without repeating the selection manually.
    */
   wrap<Result extends Query>(wrapper: (query: this) => Result) {
-    if (!this.isReused) {
-      this.reuse()
-    }
     return wrapper(this)
-  }
-
-  protected get props(): Props {
-    return this.nodes[this.position].props
   }
 
   /**
    * Generate tokens for this node. The `tokenize` phase runs any hooks
    * in order, so later nodes will see context changes from earlier nodes.
    */
-  protected abstract tokenize(
-    props: Props,
-    ctx: Query.Context
-  ): Token | TokenArray
-
-  protected query<T extends Query>(node: {
-    type: string
-    query: T
-    props: T extends Query<infer Props> ? Props : never
-  }): T
-
-  protected query(node: any) {
-    node.query.nodes.push(node)
-    return node.query
-  }
-
-  protected get isReused() {
-    return Object.isFrozen(this.nodes)
-  }
-
-  /**
-   * To reuse a query, its node list must be sliced (so the query is last)
-   * and then frozen.
-   */
-  protected reuse(): Node[] {
-    return (this.nodes = Object.freeze(
-      this.nodes.slice(0, this.position + 1)
-    ) as any)
-  }
-
-  protected cloneIfReused() {
-    return this.isReused ? this.clone() : this
-  }
-
-  protected clone() {
-    const clone = Object.create(this.constructor.prototype)
-    Object.defineProperties(clone, Object.getOwnPropertyDescriptors(this))
-    clone.nodes = this.nodes.slice(0, this.position + 1)
-    clone.nodes[this.position] = {
-      ...clone.nodes[this.position],
-      props: this.cloneProps(),
-    }
-    return clone as this
-  }
-
-  /**
-   * By default, only a shallow clone is made.
-   */
-  protected cloneProps() {
-    return { ...this.props }
-  }
+  protected abstract tokenize?(ctx: Query.Context): Token | TokenArray
 }
 
 // Using defineProperty for Query#then lets subclasses easily
@@ -166,7 +85,7 @@ Object.defineProperty(Query.prototype, 'then', {
 
 export namespace Query {
   export interface Context {
-    query: QueryInternal
+    db: Database
     /**
      * Any values that cannot be stringified without the
      * help of node-postgres (aka `pg`).

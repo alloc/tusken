@@ -1,10 +1,23 @@
+import { tokenizeSetProps } from '../core/internal/tokenize'
+import type { Selectable, SelectionSource } from '../core/selection'
 import { TokenArray } from '../internal/token'
-import { tokenizeSetProps } from '../internal/tokenize'
 import { UnionProps } from '../props/union'
 import type { Query } from '../query'
-import type { Selectable, SelectionSource } from '../selection'
-import { SetBase } from './base/set'
-import type { Select } from './select'
+import { registerPlugin } from '../registerPlugin'
+import { Select } from './select'
+
+registerPlugin(
+  class extends Select {
+    union(query: Select<From>): Union<From> {
+      return new Union([this, query])
+      return this.query({
+        type: 'union',
+        props: { selects: [this, query] },
+        query: new Union(this.db),
+      })
+    }
+  }
+)
 
 export class Union<From extends Selectable[] = any> //
   extends SetBase<From, UnionProps>

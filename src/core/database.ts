@@ -1,9 +1,7 @@
 import { Client, ConnectFn, ConnectOptions } from './connection'
 import { Query, QueryPromise } from './query'
-import { Count } from './query/count'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
-import { Select } from './query/select'
 import { FindWhere } from './query/where'
 import { RowInsertion, RowUpdate } from './row'
 import {
@@ -38,21 +36,6 @@ export class Database {
         ...config,
         client: config.connect(opts),
       })
-  }
-
-  /**
-   * Count the number of rows in a selection. You can use the
-   * `where` and `innerJoin` methods to be more specific.
-   *
-   * You need to use `pg.count` instead if you want to check
-   * a specific column for `NULL` before counting a row.
-   */
-  count<From extends TableRef>(from: From) {
-    return this.query({
-      type: 'count',
-      query: new Count(this),
-      props: { from },
-    })
   }
 
   delete<From extends TableRef>(from: From): Delete<From>
@@ -122,14 +105,6 @@ export class Database {
       type: 'put',
       query: new Put(this),
       props: { table, data, pk },
-    })
-  }
-
-  select<T extends Selectable>(from: T) {
-    return this.query({
-      type: 'select',
-      query: new Select<[T]>(this),
-      props: { from },
     })
   }
 

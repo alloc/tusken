@@ -55,6 +55,10 @@ import { SetBase } from './set'
 export abstract class SelectBase<From extends Selectable[]> //
   extends SetBase<From, SelectProps>
 {
+  protected from: Selectable
+  protected joins?: JoinProps[]
+  protected where?: Expression<t.bool | t.null>
+  protected groupBy?: ColumnRef[]
   protected get sources(): SelectionSource[] {
     const { from, joins } = this.props
     const sources = [toSelectionSource(from)]
@@ -108,20 +112,6 @@ export abstract class SelectBase<From extends Selectable[]> //
       joins: joins?.slice(),
       groupBy: groupBy?.slice(),
     }
-  }
-
-  // This method has to return `any` since we can't override
-  // the type parameters of a superclass.
-  innerJoin<Joined extends Selectable>(
-    from: Joined,
-    on: Where<[...From, Joined]>
-  ): any {
-    const self = this.cloneIfReused()
-    const join = { type: 'inner', from } as JoinProps
-    self.props.joins ||= []
-    self.props.joins.push(join)
-    join.where = buildWhereClause(self.props, on)
-    return self
   }
 }
 

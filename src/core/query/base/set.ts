@@ -1,44 +1,17 @@
 import { renderQuery } from '../../internal/query'
-import { SetProps } from '../../props/set'
 import { Query } from '../../query'
 import type { Selectable, SelectionSource, SelectResult } from '../../selection'
 import type { QueryStreamConfig } from '../../stream'
 import { kDatabaseQueryStream } from '../../symbols'
-import { orderBy, SortSelection, SortSelector } from '../orderBy'
 
 const kSelectFrom = Symbol()
 
-export abstract class SetBase<
-  From extends Selectable[] = any,
-  Props extends SetProps = any
-> extends Query<Props> {
+export abstract class SetBase<From extends Selectable[] = any> extends Query {
   protected declare [kSelectFrom]: From
-  protected declare abstract sources: SelectionSource[]
-
-  /**
-   * Resolve with a single row at the given offset.
-   * - Negative offset is treated as zero.
-   * - Multiple calls are not supported.
-   */
-  at(offset: number) {
-    const self = this.cloneIfReused()
-    self.props.single = true
-    self.props.limit = 1
-    self.props.offset = offset > 0 ? offset : undefined
-    return self
-  }
-
-  limit(n: number) {
-    const self = this.cloneIfReused()
-    self.props.limit = n
-    return self
-  }
-
-  orderBy(selector: SortSelection<From> | SortSelector<From>) {
-    const self = this.cloneIfReused()
-    self.props.orderBy = orderBy(self.sources, selector)
-    return self
-  }
+  protected declare sources: SelectionSource[]
+  protected limit?: number
+  protected offset?: number
+  protected single?: boolean
 
   stream(config?: QueryStreamConfig) {
     const QueryStream = this.db[kDatabaseQueryStream]
