@@ -196,13 +196,12 @@ Contributions are extra welcome in these places:
   - with option to infer its subtype at build-time from current row data
 - missing SQL commands
   - `WITH`
-  - `ORDER BY`
   - `GROUP BY`
   - `UPDATE`
   - `MERGE`
   - `USING`
   - `HAVING`
   - `DISTINCT ON`
-  - `UNION` / `INTERSECT`
+  - `INTERSECT`
   - `CASE`
   - etc
