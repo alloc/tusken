@@ -2,6 +2,10 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
   },
+  "files.exclude": {
+    "**/.git": true,
+    "**/dist": true
+  },
   "guides.active.color.dark": "rgba(100, 100, 100, 0.5)",
   "guides.normal.enabled": false,
   "guides.stack.enabled": false,
