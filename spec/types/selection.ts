@@ -69,3 +69,10 @@ describe('table selection', () => {
     assert(selection, _ as Result)
   })
 })
+
+test('orderBy with unselected column', () => {
+  // Sort by a column that wasn't selected.
+  db.select(t.tweet(tweet => [tweet.text, tweet.author])).orderBy({
+    desc: 'id',
+  })
+})

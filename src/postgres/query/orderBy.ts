@@ -2,12 +2,7 @@ import { Exclusive, Intersect } from '@alloc/types'
 import type { ColumnRefs } from '../column'
 import { Expression } from '../expression'
 import { makeRowRef } from '../row'
-import {
-  Selectable,
-  SelectedRow,
-  Selection,
-  SelectionSource,
-} from '../selection'
+import { Selectable, Selection, SelectionSource } from '../selection'
 import { PrimaryKeyOf, RowType, toTableName } from '../table'
 import type { SourceRefId } from './where'
 
@@ -48,7 +43,7 @@ export type SortSelectorResult<From extends Selectable[] = any> =
   | SortExpression<From>
 
 export type SortColumn<From extends Selectable[] = any> = string &
-  keyof SelectedRow<From[number]>
+  keyof RowType<From[number]>
 
 export type SortExpression<From extends Selectable[] = any> =
   | Expression
