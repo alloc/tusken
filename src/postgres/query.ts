@@ -119,17 +119,8 @@ Object.defineProperty(Query.prototype, 'then', {
       mutators: [],
     }
 
-    const onError = (e: any) => {
-      throw Object.assign(e, {
-        stack: e.stack + '\n    ––––– Query origin –––––' + ctx.query.trace,
-        context: ctx,
-        sql,
-      })
-    }
-
-    try {
-      var sql = renderQuery(ctx)
-      return db.client
+    const execute = (sql: string): Promise<any> =>
+      db.client
         .query(sql, ctx.values)
         .then(async (response: QueryResponse) => {
           let result = response.rows
@@ -154,6 +145,26 @@ Object.defineProperty(Query.prototype, 'then', {
           return result
         }, onError)
         .then(onfulfilled, onrejected)
+
+    const onError = (e: any) => {
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        e.message.includes('administrator command')
+      ) {
+        // Repeat the query if terminated by admin command in development,
+        // since it was likely a timeout caused by a breakpoint.
+        return execute(sql)
+      }
+      throw Object.assign(e, {
+        stack: e.stack + '\n    ––––– Query origin –––––' + ctx.query.trace,
+        context: ctx,
+        sql,
+      })
+    }
+
+    try {
+      var sql = renderQuery(ctx)
+      return execute(sql)
     } catch (e: any) {
       onError(e)
     }
