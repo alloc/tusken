@@ -1,6 +1,5 @@
 import { assert, test, _ } from 'spec.ts'
-import { Expression } from 'tusken'
-import { TypeCast } from '../../src/postgres/typeCast'
+import { Expression, TypeCast } from 'tusken'
 import { t } from '../db'
 
 test('cast text to int', () => {
