@@ -13,6 +13,9 @@ import { reservedWords } from './reservedWords'
 const quoted = (s: string) => `"${s}"`
 const toExport = (stmt: string) => `export ${stmt}`
 
+const isOptional = (col: TableColumn) =>
+  col.isNullable || col.generated != 'NEVER' || col.defaultValue != null
+
 export function generateTypeSchema(
   schema: Schema,
   nativeTypes: GeneratedLines,
@@ -43,9 +46,6 @@ export function generateTypeSchema(
     let pkColumn: string | undefined
     const allColumns: string[] = []
     const optionColumns: string[] = []
-
-    const isOptional = (col: TableColumn) =>
-      col.isNullable || col.generated != 'NEVER' || col.defaultValue != null
 
     for (const col of table.columns) {
       schemaColumns.add(col.name)
@@ -186,8 +186,10 @@ function renderColumns(columns: TableColumn[], isType?: boolean) {
       type = isType ? `<${type}>` : `(${type})`
       type = 't.array' + type
     }
-    if (isType && col.isNullable) {
-      type += ' | t.null'
+    if (col.isNullable) {
+      type = isType ? `${type} | t.null` : `t.option(${type})`
+    } else if (!isType && isOptional(col)) {
+      type = `t.option(${type})`
     }
     return `${col.name}: ${type}`
   })

@@ -27,6 +27,7 @@ export abstract class Type<
  */
 export declare class RuntimeType<T extends Type = any> {
   readonly name: string
+  readonly isOptional: boolean
   protected [kTypeId]: number
   protected [kTypeArrayId]: number | undefined
   protected [kTypeTokenizer]: ValueTokenizer | undefined
@@ -52,9 +53,27 @@ export const defineType = <T extends Type>(
 ): RuntimeType<T> => {
   const type: any = (value: any) => new TypeCast({ value, type })
   Object.defineProperty(type, 'name', { value: name })
+  type.isOptional = false
   type[kTypeId] = id
   type[kTypeArrayId] = arrayId
   type[kTypeTokenizer] = tokenizer
+  return type
+}
+
+/**
+ * An optional type is not the same as a nullable type.  \
+ * The former may be non-nullable but still be generated or set
+ * to a default value if omitted from an insertion.
+ */
+export function defineOptionalType<T extends Type>(
+  arg: RuntimeType<T>
+): typeof arg {
+  if (arg.isOptional) {
+    return arg
+  }
+  const type: any = Object.assign(arg.bind(null), arg)
+  Object.defineProperty(type, 'name', { value: arg.name })
+  type.isOptional = true
   return type
 }
 

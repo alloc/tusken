@@ -67,7 +67,8 @@ export function generateNativeTypes(
   const JSON_TYPES = ['json', 'jsonb']
 
   const types: string[] = []
-  const runtimeTypes: string[] = []
+  const runtimeTypes: string[] = ['const option = defineOptionalType']
+  
   for (const [nativeType, mappedType] of nativeTypeMap) {
     types.push(
       `type ${nativeType} = Type<"${nativeType}", ${mappedType}, ColumnCast<"${nativeType}">>`
@@ -110,6 +111,7 @@ export function generateNativeTypes(
   return {
     imports: {
       [tuskenId]: [
+        'defineOptionalType',
         'defineType',
         'tokenizeJson',
         'Interval',
