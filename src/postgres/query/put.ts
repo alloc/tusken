@@ -2,7 +2,7 @@ import { toArray } from '../../utils/toArray'
 import { Token, TokenArray } from '../internal/token'
 import { tokenizeTyped } from '../internal/tokenize'
 import { Query } from '../query'
-import { kPrimaryKey } from '../symbols'
+import { kPrimaryKey, kTableColumns } from '../symbols'
 import { getColumnType, TableRef, toTableName } from '../table'
 import { RuntimeType } from '../type'
 
@@ -22,48 +22,86 @@ export class Put<T extends TableRef = any> extends Query<Props<T>> {
     }
 
     const pkColumn = table[kPrimaryKey]
-    const mayConflict = pk !== undefined || columns.includes(pkColumn)
+    const isUpdate =
+      pk !== undefined ||
+      Object.entries(table[kTableColumns]).some(
+        ([column, type]) => !type.isOptional && !columns.includes(column)
+      )
+    const isPkUpdate = pk !== undefined && columns.includes(pkColumn)
+    const mayConflict = !isUpdate && columns.includes(pkColumn)
 
-    if (pk !== undefined && !columns.includes(pkColumn)) {
+    if (isUpdate && !columns.includes(pkColumn)) {
       columns.unshift(pkColumn)
       rows[0].tuple.unshift(
         tokenizeTyped(pk, getColumnType(table, pkColumn), ctx)
       )
     }
 
-    const target = { id: toTableName(table) }
-    const insertion: TokenArray = [
-      'INSERT INTO',
+    const targetId = toTableName(table)
+    const target = { id: targetId }
+
+    const tokens: TokenArray = [
+      isUpdate ? 'UPDATE' : 'INSERT INTO',
       mayConflict && nulls.size ? [target, 'this'] : target,
-      { tuple: columns.map(id => ({ id })) },
-      'VALUES',
-      { list: rows },
     ]
 
-    if (mayConflict) {
-      insertion.push(
-        'ON CONFLICT',
-        { tuple: [{ id: table[kPrimaryKey] }] },
-        'DO UPDATE SET',
-        {
-          list: columns
-            .filter(column => column !== pkColumn)
-            .map(column => {
-              let value: Token = { id: ['excluded', column] }
-              if (nulls.has(column)) {
-                value = {
-                  callee: 'coalesce',
-                  args: [value, { id: ['this', column] }],
-                }
-              }
-              return [{ id: column }, '=', value]
-            }),
-        }
+    const valuesList = ['VALUES', { list: rows }]
+
+    if (isUpdate) {
+      const valuesId = 'new'
+      tokens.push('SET', {
+        list: (isPkUpdate ? columns : columns.slice(1)).map(
+          rows.length == 1
+            ? (id, i): TokenArray => [
+                { id },
+                '=',
+                rows[0].tuple[isPkUpdate ? i : i + 1],
+              ]
+            : (id): TokenArray => [{ id }, '=', { id: [valuesId, id] }]
+        ),
+      })
+      if (rows.length > 1) {
+        tokens.push(
+          'FROM',
+          { concat: ['(', valuesList, ')'] },
+          'AS',
+          valuesId,
+          { tuple: columns.map(id => ({ id })) }
+        )
+      }
+      tokens.push(
+        'WHERE',
+        { id: [targetId, pkColumn] },
+        '=',
+        rows.length == 1 ? { value: pk } : { id: [valuesId, pkColumn] }
       )
+    } else {
+      tokens.push({ tuple: columns.map(id => ({ id })) }, valuesList)
+      if (mayConflict) {
+        tokens.push(
+          'ON CONFLICT',
+          { tuple: [{ id: table[kPrimaryKey] }] },
+          'DO UPDATE SET',
+          {
+            list: columns
+              .filter(column => column !== pkColumn)
+              .map(column => {
+                let value: Token = { id: ['excluded', column] }
+                if (nulls.has(column)) {
+                  value = {
+                    callee: 'coalesce',
+                    args: [value, { id: ['this', column] }],
+                  }
+                }
+                return [{ id: column }, '=', value]
+              }),
+          }
+        )
+      }
     }
 
     ctx.resolvers.push(result => result.rowCount)
-    return insertion
+    return tokens
   }
 }
 
@@ -88,7 +126,7 @@ function tokenizeRows(
       for (const column of newColumns) {
         if (column in row) {
           const type = getColumnType(table, column)
-          tokenizeColumnValue(values, row[column], type, ctx)
+          values.push(tokenizeColumnValue(row[column], type, ctx))
         } else {
           // Use NULL to indicate this column should be left alone.
           values.push('NULL')
@@ -109,7 +147,7 @@ function tokenizeRows(
     } else {
       for (const column of (columns = Object.keys(row))) {
         const type = getColumnType(table, column)
-        tokenizeColumnValue(values, row[column], type, ctx)
+        values.push(tokenizeColumnValue(row[column], type, ctx))
       }
     }
     rows.push({
@@ -121,12 +159,11 @@ function tokenizeRows(
 }
 
 function tokenizeColumnValue(
-  values: TokenArray,
   value: any,
   type: RuntimeType,
   ctx: Query.Context
-): void {
+): Token | TokenArray {
   // For null and undefined values, use DEFAULT instead of NULL
-  // so that NULL can have another meaning (see further down).
-  values.push(value == null ? 'DEFAULT' : tokenizeTyped(value, type, ctx))
+  // so that NULL can represent a preserved value.
+  return value == null ? 'DEFAULT' : tokenizeTyped(value, type, ctx)
 }

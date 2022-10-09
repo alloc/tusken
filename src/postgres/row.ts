@@ -49,3 +49,6 @@ export type RowInsertion<T extends TableRef> = (
   : never
 
 export type RowUpdate<T extends TableRef> = Partial<RowInput<T>>
+export type RowKeyedUpdate<T extends TableRef> = {} & Remap<
+  Pick<RowInput<T>, PrimaryKeyOf<T>> & Omit<RowUpdate<T>, PrimaryKeyOf<T>>
+>

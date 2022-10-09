@@ -81,7 +81,7 @@ describe('db.select', () => {
             ])
           )
       ).toMatchInlineSnapshot(
-        "SELECT * FROM \"user\" WHERE (starts_with(bio, 'a') AND length(bio) > 1) OR (starts_with(bio, 'b') AND length(bio) >= 2)"
+        'SELECT * FROM "user" WHERE $1 OR starts_with(bio, \'b\') AND length(bio) >= 2'
       )
     })
   })
@@ -240,46 +240,71 @@ describe('db.put', () => {
   })
   test('update a row', () => {
     expect(db.put(t.user, 1, { name: 'patrick' })).toMatchInlineSnapshot(
-      'INSERT INTO "user" (id, name) VALUES (1, \'patrick\') ON CONFLICT (id) DO UPDATE SET name = excluded.name'
+      'UPDATE "user" SET name = \'patrick\' WHERE "user".id = $1'
+    )
+    expect(db.put(t.user, 1, { id: 2, name: 'shannon' })).toMatchInlineSnapshot(
+      'UPDATE "user" SET id = 2, name = \'shannon\' WHERE "user".id = $1'
+    )
+    expect(db.put(t.user, 1, { bio: 'sup' })).toMatchInlineSnapshot(
+      'UPDATE "user" SET bio = \'sup\' WHERE "user".id = $1'
     )
   })
-  test('update multiple rows', async () => {
-    expect(
-      db.put(t.user, [{ name: 'robin' }, { name: 'bob' }])
-    ).toMatchInlineSnapshot(
-      "INSERT INTO \"user\" (name) VALUES ('robin'), ('bob')"
-    )
+  describe('insert/update multiple rows', async () => {
+    test('basic case', () => {
+      expect(
+        db.put(t.user, [{ name: 'robin' }, { name: 'bob' }])
+      ).toMatchInlineSnapshot(
+        "INSERT INTO \"user\" (name) VALUES ('robin'), ('bob')"
+      )
+    })
 
-    // What if a column exists but is undefined?
-    expect(
-      db.put(t.user, [{ name: 'robin', bio: undefined }])
-    ).toMatchInlineSnapshot(
-      'INSERT INTO "user" (name, bio) VALUES (\'robin\', DEFAULT)'
-    )
+    test('undefined column value', () => {
+      expect(
+        db.put(t.user, [{ name: 'robin', bio: undefined }])
+      ).toMatchInlineSnapshot(
+        'INSERT INTO "user" (name, bio) VALUES (\'robin\', DEFAULT)'
+      )
+    })
 
-    // What if an earlier row is missing a column?
-    expect(
-      db.put(t.user, [{ name: 'robin' }, { name: 'bob', bio: 'sup' }])
-    ).toMatchInlineSnapshot(
-      "INSERT INTO \"user\" (name, bio) VALUES ('robin', NULL), ('bob', 'sup')"
-    )
+    test('earlier row missing a column that later row has', () => {
+      expect(
+        db.put(t.user, [{ name: 'robin' }, { name: 'bob', bio: 'sup' }])
+      ).toMatchInlineSnapshot(
+        "INSERT INTO \"user\" (name, bio) VALUES ('robin', NULL), ('bob', 'sup')"
+      )
+    })
 
-    // What if a later row is missing a column?
-    expect(
-      db.put(t.user, [{ name: 'robin', bio: 'sup' }, { name: 'bob' }])
-    ).toMatchInlineSnapshot(
-      "INSERT INTO \"user\" (name, bio) VALUES ('robin', 'sup'), ('bob', NULL)"
-    )
+    test('later row missing a column that earlier row has', () => {
+      expect(
+        db.put(t.user, [{ name: 'robin', bio: 'sup' }, { name: 'bob' }])
+      ).toMatchInlineSnapshot(
+        "INSERT INTO \"user\" (name, bio) VALUES ('robin', 'sup'), ('bob', NULL)"
+      )
+    })
 
-    // What if there's an ON CONFLICT clause?
-    expect(
-      db.put(t.user, [
-        { id: 1, name: 'robin' },
-        { id: 2, name: 'bob', bio: 'sup' },
-      ])
-    ).toMatchInlineSnapshot(
-      "INSERT INTO \"user\" this (id, name, bio) VALUES (1, 'robin', NULL), (2, 'bob', 'sup') ON CONFLICT (id) DO UPDATE SET name = excluded.name, bio = coalesce(excluded.bio, this.bio)"
-    )
+    test('insertion with potential row conflict', () => {
+      expect(
+        db.put(t.user, [
+          { id: 1, name: 'robin' },
+          { id: 2, name: 'bob', bio: 'sup' },
+        ])
+      ).toMatchInlineSnapshot(
+        "INSERT INTO \"user\" this (id, name, bio) VALUES (1, 'robin', NULL), (2, 'bob', 'sup') ON CONFLICT (id) DO UPDATE SET name = excluded.name, bio = coalesce(excluded.bio, this.bio)"
+      )
+    })
+
+    test('missing a required column', () => {
+      // If a row is missing a non-optional column, an UPDATE command
+      // must be used, and the row is assumed to exist.
+      expect(
+        db.put(t.user, [
+          { id: 1, bio: 'howdy' },
+          { id: 2, bio: 'sup' },
+        ])
+      ).toMatchInlineSnapshot(
+        'UPDATE "user" SET bio = new.bio FROM (VALUES (1, \'howdy\'), (2, \'sup\')) AS new (id, bio) WHERE "user".id = new.id'
+      )
+    })
   })
 })
 

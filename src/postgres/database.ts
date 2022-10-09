@@ -5,7 +5,7 @@ import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select } from './query/select'
 import { FindWhere } from './query/where'
-import { RowInsertion, RowUpdate } from './row'
+import { RowInsertion, RowKeyedUpdate, RowUpdate } from './row'
 import {
   Selectable,
   SelectedRow,
@@ -95,7 +95,7 @@ export class Database {
   }
 
   /**
-   * Insert a row into the table.
+   * Insert 1+ rows into a table.
    */
   put<T extends TableRef>(
     table: T,
@@ -103,7 +103,15 @@ export class Database {
   ): Put<T>
 
   /**
-   * Insert, update, or delete a row by its primary key.
+   * Update 1+ rows in a table.
+   */
+  put<T extends TableRef>(
+    table: T,
+    row: RowKeyedUpdate<T> | readonly RowKeyedUpdate<T>[]
+  ): Put<T>
+
+  /**
+   * Update or delete a row by its primary key.
    */
   put<T extends TableRef>(
     table: T,
