@@ -5,7 +5,10 @@ importers:
   .:
     specifiers:
       '@tusken/cli': link:../../packages/tusken-cli
-      tusken: link:../../src
+      tusken: link:./tusken
     dependencies:
       '@tusken/cli': link:../../packages/tusken-cli
-      tusken: link:../../src
+      tusken: link:tusken
+
+  tusken:
+    specifiers: {}

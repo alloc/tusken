@@ -1,4 +1,4 @@
-import { defineType, tokenizeJson, Interval, Json, QueryInput, Range, Type } from "tusken"
+import { defineOptionalType, defineType, tokenizeJson, Interval, Json, QueryInput, Range, Type } from "tusken"
 import { array, array2d, array3d } from "tusken/array"
 
 // Primitive types
@@ -42,6 +42,7 @@ export type varbit = Type<"varbit", number, ColumnCast<"varbit">>
 export type varchar = Type<"varchar", string, ColumnCast<"varchar">>
 export type xml = Type<"xml", string, ColumnCast<"xml">>
 
+export const option = defineOptionalType
 export const bit = /*#__PURE__*/ defineType<bit>(1560, "bit", 1561)
 export const bool = /*#__PURE__*/ defineType<bool>(16, "bool", 1000)
 export const bpchar = /*#__PURE__*/ defineType<bpchar>(1042, "bpchar", 1014)

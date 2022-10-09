@@ -3,7 +3,7 @@ import { Pool } from "pg"
 import config from "../tusken.config"
 import QueryStream from "pg-query-stream"
 
-export default new Database({
+const db = new Database({
   reserved: ["like", "user"],
   connect: opts => new Pool({ ...opts, ...config.pool }),
   client: process.env.NODE_ENV == 'test'
@@ -12,5 +12,6 @@ export default new Database({
   QueryStream,
 })
 
+export { db as default }
 export * as t from './types'
 export * as pg from './functions'

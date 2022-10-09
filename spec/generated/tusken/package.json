@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/dist/tusken.d.ts",
+      "default": "./src/tusken.ts"
+    },
+    "./array": {
+      "types": "./src/dist/array.d.ts",
+      "default": "./src/array.ts"
+    },
+    "./config": {
+      "types": "./src/dist/config.d.ts",
+      "default": "./src/config.ts"
+    },
+    "./constants": {
+      "types": "./src/dist/constants.d.ts",
+      "default": "./src/constants.ts"
+    },
+    "./dotenv": {
+      "types": "./src/dist/dotenv.d.ts",
+      "default": "./src/dotenv.ts"
+    },
+    "./package.json": "./package.json"
+  }
+}

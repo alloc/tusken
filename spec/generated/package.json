@@ -2,6 +2,6 @@
   "private": true,
   "dependencies": {
     "@tusken/cli": "link:../../packages/tusken-cli",
-    "tusken": "link:../../src"
+    "tusken": "link:./tusken"
   }
 }
