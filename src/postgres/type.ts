@@ -35,7 +35,11 @@ export declare class RuntimeType<T extends Type = any> {
 }
 
 export interface RuntimeType<T extends Type> {
-  (value: any): TypeCast<T>
+  <Input>(input: Input): TypeCast<
+    Input extends null | undefined
+      ? t.null
+      : T | (Input extends Expression<infer T> ? ExtractNull<T> : never)
+  >
 }
 
 export type ValueTokenizer = (value: any) => Token | TokenArray | undefined
