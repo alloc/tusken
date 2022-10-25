@@ -28,9 +28,12 @@ export abstract class SetBase<
     return self
   }
 
-  limit(n: number) {
+  limit(length: number, page?: number) {
     const self = this.clone()
-    self.props.limit = n
+    self.props.limit = length
+    if (page && page > 1) {
+      self.props.offset = length * (page - 1)
+    }
     return self
   }
 
