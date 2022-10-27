@@ -1,4 +1,5 @@
 import { Any, Intersect } from '@alloc/types'
+import { isObject } from '../../utils/isObject'
 import { RecursiveVariadic } from '../../utils/Variadic'
 import { reduceChecks } from '../check'
 import { ColumnRef, ColumnType, makeColumnRef } from '../column'
@@ -7,9 +8,36 @@ import { CallExpression } from '../function'
 import { JoinProps } from '../props/join'
 import { Selectable, Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
-import { kPrimaryKey, kTableName } from '../symbols'
-import { PrimaryKeyOf, RowType, TableRef, toTableRef } from '../table'
+import { kIdentityColumns, kTableName } from '../symbols'
+import { RowType, TableRef, toTableName, toTableRef } from '../table'
 import { t } from '../typesBuiltin'
+
+export function wherePrimaryKeyEquals(
+  pk: any,
+  from: TableRef
+): Where<[TableRef]> {
+  const pkColumns = from[kIdentityColumns] as string[]
+  if (isObject(pk)) {
+    const keys = Object.keys(pk)
+    if (keys.length !== pkColumns.length) {
+      const missingKey = pkColumns.find(key => !keys.includes(key))
+      throw Error(
+        `"${missingKey}" is a primary key column of "${from[kTableName]}" but was not defined`
+      )
+    }
+    const invalidKey = keys.find(key => !pkColumns.includes(key))
+    if (invalidKey) {
+      throw Error(
+        `"${invalidKey}" is not a primary key column of "${toTableName(from)}"`
+      )
+    }
+    return from => keys.map(key => from[key].is.eq(pk[key as keyof typeof pk]))
+  }
+  if (pkColumns.length > 1) {
+    throw Error(`Primary key of "${toTableName(from)}" is composite`)
+  }
+  return from => from[pkColumns[0]].is.eq(pk)
+}
 
 export function buildWhereClause<From extends Selectable[]>(
   props: {
@@ -30,14 +58,8 @@ export function buildWhereClause<From extends Selectable[]>(
     } else {
       const table = toTableRef(from)
       if (table) {
-        const pkColumn = table[kPrimaryKey]
         refs[table[kTableName]] = new Proxy(from, {
-          get: (_, column: string | typeof kPrimaryKey) =>
-            column == kPrimaryKey
-              ? pkColumn
-                ? makeColumnRef(from, pkColumn)
-                : undefined
-              : makeColumnRef(from, column),
+          get: (_, column: string) => makeColumnRef(from, column),
         }) as any
       }
     }
@@ -86,14 +108,6 @@ type WhereRef<From extends Selectable> = [From] extends [Any]
   ? Values extends object
     ? {
         [K in string & keyof Values]-?: ColumnRef<ColumnType<Values, K>, K>
-      } & {
-        [kPrimaryKey]: PrimaryKeyOf<From> extends infer PK
-          ? PK extends ''
-            ? never
-            : PK extends string
-            ? ColumnRef<ColumnType<Values, PK>, PK>
-            : never
-          : never
       }
     : never
   : never

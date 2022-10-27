@@ -1,8 +1,9 @@
+import { isObject } from '../../utils/isObject'
 import { toArray } from '../../utils/toArray'
 import { Token, TokenArray } from '../internal/token'
 import { tokenizeTyped } from '../internal/tokenize'
 import { Query } from '../query'
-import { kPrimaryKey, kTableColumns } from '../symbols'
+import { kIdentityColumns, kTableColumns } from '../symbols'
 import { getColumnType, TableRef, toTableName } from '../table'
 import { RuntimeType } from '../type'
 
@@ -21,20 +22,44 @@ export class Put<T extends TableRef = any> extends Query<Props<T>> {
       throw Error('no rows to insert')
     }
 
-    const pkColumn = table[kPrimaryKey]
+    const pkColumns = table[kIdentityColumns] as string[]
+    const pkValues: Record<string, any> = isObject(pk)
+      ? pk
+      : { [pkColumns[0]]: pk }
+
+    /**
+     * These columns are not defined in the `data` object.
+     *
+     * If this is empty, we are either inserting new rows or updating
+     * the primary key of existing rows.
+     */
+    const pkUnusedColumns = pkColumns.filter(
+      column => !columns.includes(column)
+    )
+
+    /**
+     * An `UPDATE` query is needed if a specific row is being targeted
+     * and the given `data` is missing required columns.
+     */
     const isUpdate =
       pk !== undefined ||
       Object.entries(table[kTableColumns]).some(
         ([column, type]) => !type.isOptional && !columns.includes(column)
       )
-    const isPkUpdate = pk !== undefined && columns.includes(pkColumn)
-    const mayConflict = !isUpdate && columns.includes(pkColumn)
 
-    if (isUpdate && !columns.includes(pkColumn)) {
-      columns.unshift(pkColumn)
-      rows[0].tuple.unshift(
-        tokenizeTyped(pk, getColumnType(table, pkColumn), ctx)
-      )
+    const mayConflict = !isUpdate && !pkUnusedColumns.length
+
+    if (isUpdate && pkUnusedColumns.length) {
+      for (const pkColumn of pkUnusedColumns) {
+        const key = pkValues[pkColumn]
+        if (key === undefined) {
+          throw Error(`Missing primary key column "${pkColumn}"`)
+        }
+        columns.unshift(pkColumn)
+        rows[0].tuple.unshift(
+          tokenizeTyped(key, getColumnType(table, pkColumn), ctx)
+        )
+      }
     }
 
     const targetId = toTableName(table)
@@ -48,18 +73,25 @@ export class Put<T extends TableRef = any> extends Query<Props<T>> {
     const valuesList = ['VALUES', { list: rows }]
 
     if (isUpdate) {
+      const assignments: TokenArray = []
+
+      /** Used to reference a row from the `valuesList` */
       const valuesId = 'new'
-      tokens.push('SET', {
-        list: (isPkUpdate ? columns : columns.slice(1)).map(
-          rows.length == 1
-            ? (id, i): TokenArray => [
-                { id },
-                '=',
-                rows[0].tuple[isPkUpdate ? i : i + 1],
-              ]
-            : (id): TokenArray => [{ id }, '=', { id: [valuesId, id] }]
-        ),
+
+      /** When true, a single row is having its primary key updated. */
+      const isPkUpdate = pk !== undefined && !pkUnusedColumns.length
+      columns.forEach((column, i) => {
+        if (!isPkUpdate && pkColumns.includes(column)) {
+          return
+        }
+        if (rows.length == 1) {
+          assignments.push([{ id: column }, '=', rows[0].tuple[i]])
+        } else {
+          assignments.push([{ id: column }, '=', { id: [valuesId, column] }])
+        }
       })
+
+      tokens.push('SET', { list: assignments })
       if (rows.length > 1) {
         tokens.push(
           'FROM',
@@ -69,22 +101,25 @@ export class Put<T extends TableRef = any> extends Query<Props<T>> {
           { tuple: columns.map(id => ({ id })) }
         )
       }
-      tokens.push(
-        'WHERE',
-        { id: [targetId, pkColumn] },
-        '=',
-        rows.length == 1 ? { value: pk } : { id: [valuesId, pkColumn] }
-      )
+      tokens.push('WHERE', {
+        list: pkColumns.map(pkColumn => [
+          { id: [targetId, pkColumn] },
+          '=',
+          rows.length == 1
+            ? { value: pkValues[pkColumn] }
+            : { id: [valuesId, pkColumn] },
+        ]),
+      })
     } else {
       tokens.push({ tuple: columns.map(id => ({ id })) }, valuesList)
       if (mayConflict) {
         tokens.push(
           'ON CONFLICT',
-          { tuple: [{ id: table[kPrimaryKey] }] },
+          { tuple: pkColumns.map(id => ({ id })) },
           'DO UPDATE SET',
           {
             list: columns
-              .filter(column => column !== pkColumn)
+              .filter(column => !pkColumns.includes(column))
               .map(column => {
                 let value: Token = { id: ['excluded', column] }
                 if (nulls.has(column)) {

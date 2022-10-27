@@ -43,7 +43,7 @@ export function generateTypeSchema(
   for (const table of schema.tables) {
     schemaTables.add(table.name)
 
-    let pkColumn: string | undefined
+    const pkColumns: string[] = []
     const allColumns: string[] = []
     const optionColumns: string[] = []
 
@@ -51,22 +51,22 @@ export function generateTypeSchema(
       schemaColumns.add(col.name)
       allColumns.push(col.name)
       if (col.isPrimaryKey) {
-        pkColumn = col.name
+        pkColumns.push(col.name)
       }
       if (isOptional(col)) {
         optionColumns.push(col.name)
       }
     }
 
-    pkColumn = pkColumn ? quoted(pkColumn) : '""'
-
     userTypes.refs.push(
       endent`
         const ${table.name}: TableRef<{
           ${renderColumns(table.columns, true).join('\n')}
-        }, "${table.name}", ${pkColumn}, ${
+        }, "${table.name}", ${JSON.stringify(pkColumns)}, ${
         optionColumns.map(quoted).join(' | ') || '""'
-      }> = ${__PURE__} makeTableRef("${table.name}", ${pkColumn}, {
+      }> = ${__PURE__} makeTableRef("${table.name}", ${JSON.stringify(
+        pkColumns
+      )}, {
           ${renderColumns(table.columns).join(',\n')},
         })
       `

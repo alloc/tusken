@@ -31,18 +31,19 @@ ALTER TABLE public.follow ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 );
 CREATE TABLE public.foo (
     id integer NOT NULL,
+    id2 integer NOT NULL,
     json json,
     jsonb jsonb
 );
 ALTER TABLE public.foo OWNER TO postgres;
-ALTER TABLE public.foo ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.foo_id_seq
+CREATE SEQUENCE public.foo_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1
-);
+    CACHE 1;
+ALTER TABLE public.foo_id_seq OWNER TO postgres;
 CREATE TABLE public."like" (
     id integer NOT NULL,
     tweet integer NOT NULL,
@@ -94,7 +95,7 @@ ALTER TABLE ONLY public."featureFlag"
 ALTER TABLE ONLY public.follow
     ADD CONSTRAINT follow_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public.foo
-    ADD CONSTRAINT foo_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT foo_pkey PRIMARY KEY (id, id2);
 ALTER TABLE ONLY public."like"
     ADD CONSTRAINT like_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public.tweet

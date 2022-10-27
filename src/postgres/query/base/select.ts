@@ -25,7 +25,7 @@ import {
 } from '../../selection'
 import {
   kColumnName,
-  kPrimaryKey,
+  kIdentityColumns,
   kRuntimeType,
   kSelectionArgs,
   kSelectionFrom,
@@ -93,8 +93,11 @@ export abstract class SelectBase<From extends Selectable[]> //
         })
       } else {
         const table = toTableRef(props.from)
-        if (table && table[kPrimaryKey]) {
-          tokens.push(tokenizeColumn(table[kPrimaryKey], table[kTableName]))
+        if (table) {
+          const pkColumns = table[kIdentityColumns] as string[]
+          for (const pkColumn of pkColumns) {
+            tokens.push(tokenizeColumn(pkColumn, table[kTableName]))
+          }
         }
       }
     }
@@ -193,7 +196,7 @@ function findTableCasts(
           row[key] = isArray ? objects : objects[0]
         })
 
-        const pkColumn = makeColumnRef(table, table[kPrimaryKey])
+        const pkColumn = makeColumnRef(table, table[kIdentityColumns])
         joins.push({
           type: 'inner',
           from: toTableRef(arg),

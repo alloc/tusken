@@ -3,7 +3,7 @@ import { Expression, ExpressionRef } from './expression'
 import { CallExpression } from './function'
 import { tokenizeColumn } from './internal/tokenize'
 import type { Selectable } from './selection'
-import { kColumnFrom, kColumnName, kPrimaryKey } from './symbols'
+import { kColumnFrom, kColumnName } from './symbols'
 import { getColumnType, RowType, toTableName, toTableRef } from './table'
 import type { QueryInput, RuntimeType, Type } from './type'
 import { t } from './typesBuiltin'
@@ -28,15 +28,11 @@ export type ColumnType<Row extends object = any, Column = any> = unknown &
     ? Extract<Value, Type> | (undefined extends Value ? t.null : never)
     : never)
 
-export type ColumnRefs<T extends object, PrimaryKey extends string> = unknown &
+export type ColumnRefs<T extends object> = unknown &
   ([T] extends [Any]
     ? any
     : {
         [Column in string & keyof T]-?: ColumnRef<ColumnType<T, Column>, Column>
-      } & {
-        [kPrimaryKey]: PrimaryKey extends ''
-          ? never
-          : ColumnRef<ColumnType<T, PrimaryKey>, PrimaryKey>
       })
 
 /**

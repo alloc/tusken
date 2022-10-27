@@ -3,7 +3,7 @@ import type { ColumnRefs } from '../column'
 import { Expression } from '../expression'
 import { makeRowRef } from '../row'
 import { Selectable, Selection, SelectionSource } from '../selection'
-import { PrimaryKeyOf, RowType, toTableName } from '../table'
+import { RowType, toTableName } from '../table'
 import type { SourceRefId } from './where'
 
 export function orderBy<From extends Selectable[]>(
@@ -28,7 +28,7 @@ export function orderBy<From extends Selectable[]>(
 
 export type SortSelector<From extends Selectable[] = any> = (
   refs: [From] extends [[infer Source]]
-    ? ColumnRefs<RowType<Source>, PrimaryKeyOf<Source>>
+    ? ColumnRefs<RowType<Source>>
     : SortRefs<From>
 ) => SortSelectorResult<From>
 
@@ -79,5 +79,5 @@ export type SortRefs<T extends Selectable[]> = Intersect<
 >
 
 type SortSource<T extends SelectionSource> = {
-  [P in SourceRefId<T>]: ColumnRefs<RowType<T>, PrimaryKeyOf<T>>
+  [P in SourceRefId<T>]: ColumnRefs<RowType<T>>
 }

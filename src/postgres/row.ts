@@ -1,8 +1,8 @@
 import { LoosePick, Remap } from '@alloc/types'
 import { ColumnInput, ColumnRefs, ColumnType, makeColumnRef } from './column'
 import { SelectionSource } from './selection'
-import { kPrimaryKey, kSelectionFrom } from './symbols'
-import { PrimaryKeyOf, RowType, TableRef } from './table'
+import { kSelectionFrom } from './symbols'
+import { IdentityColumns, RowType, TableRef } from './table'
 import { Type } from './type'
 
 export abstract class RowSelection<From extends SelectionSource = any> {
@@ -12,21 +12,14 @@ export abstract class RowSelection<From extends SelectionSource = any> {
 export function makeRowRef<From extends SelectionSource>(
   from: From
 ): RowRef<From> {
-  const pkColumn: string = (from as any)[kPrimaryKey]
   return new Proxy(Object.create(RowSelection.prototype), {
-    get: (_, column: string | typeof kPrimaryKey | typeof kSelectionFrom) =>
-      column == kSelectionFrom
-        ? from
-        : column == kPrimaryKey
-        ? pkColumn
-          ? makeColumnRef(from, pkColumn)
-          : undefined
-        : makeColumnRef(from, column),
+    get: (_, column: string | typeof kSelectionFrom) =>
+      column == kSelectionFrom ? from : makeColumnRef(from, column),
   })
 }
 
 export type RowRef<T extends SelectionSource> = RowSelection<T> &
-  ColumnRefs<RowType<T>, PrimaryKeyOf<T>>
+  ColumnRefs<RowType<T>>
 
 type RowInput<T extends TableRef> = RowType<T> extends infer Row
   ? Row extends object
@@ -50,5 +43,7 @@ export type RowInsertion<T extends TableRef> = (
 
 export type RowUpdate<T extends TableRef> = Partial<RowInput<T>>
 export type RowKeyedUpdate<T extends TableRef> = {} & Remap<
-  Pick<RowInput<T>, PrimaryKeyOf<T>> & Omit<RowUpdate<T>, PrimaryKeyOf<T>>
+  IdentityColumns<T> extends (infer Id extends keyof RowType<T>)[]
+    ? Pick<RowInput<T>, Id> & Omit<RowUpdate<T>, Id>
+    : never
 >

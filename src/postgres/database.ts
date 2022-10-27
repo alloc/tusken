@@ -4,7 +4,7 @@ import { Count } from './query/count'
 import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select } from './query/select'
-import { FindWhere } from './query/where'
+import { FindWhere, wherePrimaryKeyEquals } from './query/where'
 import { RowInsertion, RowKeyedUpdate, RowUpdate } from './row'
 import {
   Selectable,
@@ -13,8 +13,8 @@ import {
   SelectionSources,
 } from './selection'
 import { QueryStream } from './stream'
-import { kDatabaseQueryStream, kDatabaseReserved, kPrimaryKey } from './symbols'
-import { PrimaryKey, TableRef } from './table'
+import { kDatabaseQueryStream, kDatabaseReserved } from './symbols'
+import { RowIdentity, TableRef, toTableRef } from './table'
 
 export interface DatabaseConfig {
   client: Client
@@ -58,7 +58,7 @@ export class Database {
   delete<From extends TableRef>(from: From): Delete<From>
   delete<From extends TableRef>(
     from: From,
-    pk: PrimaryKey<From>
+    pk: RowIdentity<From>
   ): QueryPromise<number>
   delete(from: TableRef, pk?: any) {
     const query = this.query({
@@ -67,7 +67,7 @@ export class Database {
       query: new Delete(this),
     })
     if (arguments.length > 1) {
-      return query.where(from => from[kPrimaryKey].is.eq(pk))
+      return query.where(wherePrimaryKeyEquals(pk, from))
     }
     return query
   }
@@ -89,9 +89,9 @@ export class Database {
    */
   get<T extends TableRef | Selection<any, TableRef>>(
     from: T,
-    pk: PrimaryKey<T>
+    pk: RowIdentity<T>
   ): QueryPromise<SelectedRow<T> | null> {
-    return this.find<T>(from, from => from[kPrimaryKey].is.eq(pk))
+    return this.find<T>(from, wherePrimaryKeyEquals(pk, toTableRef(from)))
   }
 
   /**
@@ -115,7 +115,7 @@ export class Database {
    */
   put<T extends TableRef>(
     table: T,
-    pk: PrimaryKey<T>,
+    pk: RowIdentity<T>,
     row: RowUpdate<T> | null
   ): Put<T>
 
