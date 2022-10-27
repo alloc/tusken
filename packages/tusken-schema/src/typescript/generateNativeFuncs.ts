@@ -8,7 +8,7 @@ export function generateNativeFuncs(
   docs: Record<string, string>
 ) {
   const imports = endent`
-    import { defineFunction, defineSetFunction, Aggregate, CallExpression, SetRef } from 'tusken'
+    import { defineFunction, defineSetFunction, Aggregate, CallExpression, Expression, SetRef, Type } from 'tusken'
     import * as t from './types'
   `
 
@@ -204,14 +204,15 @@ function renderInputs(fn: NativeFunc, isNullable?: boolean) {
   }
   const orNull = isNullable ? ' | t.null' : ''
   const argTypes = fn.argTypes.map(type => {
-    const needParamType = !fn.typeParams || /any\w*array\b/.test(fn.typeParams)
+    const needParamType =
+      !fn.typeParams || !/any\w*nonarray\b/.test(fn.typeParams)
 
     type += orNull
     return needParamType
       ? fn.kind == 'a'
         ? `t.aggParam<${type}>`
         : `t.param<${type}>`
-      : type
+      : `Expression<${type}>`
   })
   return fn.isVariadic && argTypes.length == 1
     ? `...args: ${argTypes[0]}[]`

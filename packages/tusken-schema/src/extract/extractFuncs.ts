@@ -30,6 +30,7 @@ export async function extractNativeFuncs(client: Client, types: NativeTypes) {
   const orderedSetFuncs = ['mode', 'percentile_cont', 'percentile_disc']
   const ignoredFuncs = [...hypotheticalSetFuncs, ...orderedSetFuncs]
 
+  const anyArrayTypes = ['anyarray', 'anycompatiblearray']
   const elementTypes = ['anyelement', 'anycompatible']
 
   return nativeFuncs.filter(fn => {
@@ -51,11 +52,12 @@ export async function extractNativeFuncs(client: Client, types: NativeTypes) {
     }
 
     fn.argTypes = argTypes.map(t => t.jsType)
-    fn.returnType = types.byId[+fn.returnType].jsType
+    const returnType = types.byId[+fn.returnType]
+    fn.returnType = returnType.jsType
 
-    const hasGenericReturn = types.any.includes(fn.returnType)
-    const genericArrayArg = argTypes.find(
-      t => types.any.includes(t.name) && !elementTypes.includes(t.name)
+    const hasGenericReturn = types.any.includes(returnType.name)
+    const genericArrayArg = argTypes.find(argType =>
+      anyArrayTypes.includes(argType.name)
     )
 
     const newArgTypes = [...fn.argTypes]
@@ -64,7 +66,7 @@ export async function extractNativeFuncs(client: Client, types: NativeTypes) {
         newArgTypes[i] = elementTypes.includes(argType.name)
           ? genericArrayArg
             ? 't.elementof<T>'
-            : 'T | UnwrapType<T>'
+            : 'T'
           : 'T'
 
         return true
@@ -85,7 +87,7 @@ export async function extractNativeFuncs(client: Client, types: NativeTypes) {
             : 'T'
         }
       } else {
-        fn.typeParams = '<T extends Type = t.any>'
+        fn.typeParams = '<T extends t.any>'
         if (hasGenericReturn) {
           fn.returnType = elementTypes.includes(fn.returnType)
             ? 'T'

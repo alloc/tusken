@@ -68,7 +68,7 @@ export function generateNativeTypes(
 
   const types: string[] = []
   const runtimeTypes: string[] = ['const option = defineOptionalType']
-  
+
   for (const [nativeType, mappedType] of nativeTypeMap) {
     types.push(
       `type ${nativeType} = Type<"${nativeType}", ${mappedType}, ColumnCast<"${nativeType}">>`
@@ -104,7 +104,7 @@ export function generateNativeTypes(
   const specialTypes = [
     'type elementof<T extends Type> = T extends array<infer E> ? E : anyelement',
     'type param<T extends Type> = QueryInput<T extends Type<infer Native> ? T | ImplicitCast<Native> : never>',
-    'type aggParam<T extends Type> = T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never',
+    'type aggParam<T extends Type> = Expression<T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never>',
     'type record = Type<"record", { [key: string]: any }, never>',
   ]
 
@@ -114,6 +114,7 @@ export function generateNativeTypes(
         'defineOptionalType',
         'defineType',
         'tokenizeJson',
+        'Expression',
         'Interval',
         'Json',
         'QueryInput',
