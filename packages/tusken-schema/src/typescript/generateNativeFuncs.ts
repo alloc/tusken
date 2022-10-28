@@ -2,13 +2,14 @@ import endent from 'endent'
 import { FunctionFlags } from 'tusken/constants'
 import type { NativeFunc } from '../extract/extractFuncs'
 import { __PURE__ } from '../utils/syntax'
+import { templateFunctions } from './templateFunctions'
 
 export function generateNativeFuncs(
   nativeFuncs: NativeFunc[],
   docs: Record<string, string>
 ) {
   const imports = endent`
-    import { defineFunction, defineSetFunction, Aggregate, CallExpression, Expression, SetRef, Type } from 'tusken'
+    import { defineFunction, defineSetFunction, defineTemplate, Aggregate, CallExpression, Expression, SetRef, Type } from 'tusken'
     import * as t from './types'
   `
 
@@ -140,36 +141,46 @@ export function generateNativeFuncs(
         const defineArgs: string[] = [`"${name}"`]
         const defineFlags: number[] = []
 
-        let constType: string
+        if (returnBool) {
+          defineArgs[2] = 't.bool'
+        }
 
+        const sqlTemplate = templateFunctions[name]
         const isVarFunc = varFuncs.includes(name)
+
+        let constType: string
         if (isVarFunc) {
           const [fn] = overloads[0]
-          defineFlags.push(FunctionFlags.omitArgs)
           constType = renderOutput(fn)
         } else {
           constType = endent`{
             ${summary + signature.join('\n')}
           }`
-          if (returnAggregate) {
+        }
+
+        if (sqlTemplate) {
+          defineArgs[1] = `"${sqlTemplate}"`
+        } else {
+          if (isVarFunc) {
+            defineFlags.push(FunctionFlags.omitArgs)
+          } else if (returnAggregate) {
             defineFlags.push(FunctionFlags.isAggregate)
+          }
+
+          if (defineFlags.length || defineArgs.length >= 3) {
+            defineArgs[1] = defineFlags.length
+              ? String(defineFlags.reduce((a, b) => a | b, 0))
+              : '0'
           }
         }
 
-        if (returnBool) {
-          defineArgs[2] = 't.bool'
-        }
+        const constructorId = sqlTemplate
+          ? 'defineTemplate'
+          : returnSet
+          ? 'defineSetFunction'
+          : 'defineFunction'
 
-        if (defineFlags.length || defineArgs.length > 2) {
-          defineArgs[1] = defineFlags.length
-            ? String(defineFlags.reduce((a, b) => a | b, 0))
-            : '0'
-        }
-
-        let assignedValue =
-          `define${returnSet ? 'Set' : ''}Function` +
-          `(${defineArgs.join(', ')})`
-
+        let assignedValue = constructorId + `(${defineArgs.join(', ')})`
         if (isVarFunc) {
           assignedValue += '()'
         }

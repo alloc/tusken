@@ -341,3 +341,11 @@ test('reusable query', async () => {
     ]
   `)
 })
+
+test('template function', () => {
+  expect(
+    db.select(t.user(user => [pg.extract('year', user.joinedAt)]))
+  ).toMatchInlineSnapshot(
+    'SELECT extract(year FROM "joinedAt") FROM "user"'
+  )
+})

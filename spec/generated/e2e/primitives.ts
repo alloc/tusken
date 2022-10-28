@@ -1,4 +1,4 @@
-import { defineOptionalType, defineType, tokenizeJson, Interval, Json, QueryInput, Range, Type } from "tusken"
+import { defineOptionalType, defineType, tokenizeJson, Expression, Interval, Json, QueryInput, Range, Type } from "tusken"
 import { array, array2d, array3d } from "tusken/array"
 
 // Primitive types
@@ -101,7 +101,7 @@ export type { oid as regproc, oid as regprocedure, oid as regoper, oid as regope
 
 export type elementof<T extends Type> = T extends array<infer E> ? E : anyelement
 export type param<T extends Type> = QueryInput<T extends Type<infer Native> ? T | ImplicitCast<Native> : never>
-export type aggParam<T extends Type> = T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never
+export type aggParam<T extends Type> = Expression<T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never>
 export type record = Type<"record", { [key: string]: any }, never>
 
 /** This maps a native type to all types that can be implicitly cast to it. */

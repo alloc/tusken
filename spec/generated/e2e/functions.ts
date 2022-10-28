@@ -1,4 +1,4 @@
-import { defineFunction, defineSetFunction, Aggregate, CallExpression, SetRef } from 'tusken'
+import { defineFunction, defineSetFunction, defineTemplate, Aggregate, CallExpression, Expression, SetRef, Type } from 'tusken'
 import * as t from './types'
 
 export const abbrev: {
@@ -7,7 +7,7 @@ export const abbrev: {
 } = /*#__PURE__*/ defineFunction("abbrev")
 
 export const abs: {
-  <T extends t.float4 | t.float8 | t.int8 | t.int4 | t.int2 | t.numeric | t.null>(arg: T): CallExpression<T, "abs">
+  <T extends t.float4 | t.float8 | t.int8 | t.int4 | t.int2 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "abs">
 } = /*#__PURE__*/ defineFunction("abs")
 
 export const acos: {
@@ -68,8 +68,8 @@ export const array_agg: {
    * 
    * @see https://pgpedia.info/a/array_agg.html
    */
-  (arg: t.aggParam<t.anynonarray>): Aggregate<t.anyarray, "array_agg">
-  (arg: t.aggParam<t.anyarray>): Aggregate<t.anyarray, "array_agg">
+  <T extends t.any>(arg: t.aggParam<T>): Aggregate<t.array<T>, "array_agg">
+  <T extends t.anyarray>(arg: t.aggParam<T>): Aggregate<T, "array_agg">
 } = /*#__PURE__*/ defineFunction("array_agg", 1)
 
 /** 
@@ -83,7 +83,7 @@ export const array_append: {
    * 
    * @see https://pgpedia.info/a/array_append.html
    */
-  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<t.elementof<T>>): CallExpression<t.anycompatiblearray, "array_append">
+  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<t.elementof<T>>): CallExpression<T, "array_append">
 } = /*#__PURE__*/ defineFunction("array_append")
 
 /** 
@@ -97,7 +97,7 @@ export const array_cat: {
    * 
    * @see https://pgpedia.info/a/array_cat.html
    */
-  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.anycompatiblearray, "array_cat">
+  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<T, "array_cat">
 } = /*#__PURE__*/ defineFunction("array_cat")
 
 /** 
@@ -131,8 +131,8 @@ export const array_fill: {
    * 
    * @see https://pgpedia.info/a/array_fill.html
    */
-  (arg1: t.param<t.anyelement>, arg2: t.param<t.array<t.int4>>): CallExpression<t.anyarray, "array_fill">
-  (arg1: t.param<t.anyelement>, arg2: t.param<t.array<t.int4>>, arg3: t.param<t.array<t.int4>>): CallExpression<t.anyarray, "array_fill">
+  <T extends t.any>(arg1: t.param<T>, arg2: t.param<t.array<t.int4>>): CallExpression<t.array<T>, "array_fill">
+  <T extends t.any>(arg1: t.param<T>, arg2: t.param<t.array<t.int4>>, arg3: t.param<t.array<t.int4>>): CallExpression<t.array<T>, "array_fill">
 } = /*#__PURE__*/ defineFunction("array_fill")
 
 export const array_ge: {
@@ -146,8 +146,8 @@ export const array_gt: {
 } = /*#__PURE__*/ defineFunction("array_gt", 0, t.bool)
 
 export const array_larger: {
-  <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.anyarray, "array_larger">
-  <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.anyarray | t.null, "array_larger">
+  <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<T, "array_larger">
+  <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<T | t.null, "array_larger">
 } = /*#__PURE__*/ defineFunction("array_larger")
 
 export const array_le: {
@@ -250,7 +250,7 @@ export const array_prepend: {
    * 
    * @see https://pgpedia.info/a/array_prepend.html
    */
-  <T extends t.anycompatiblearray>(arg1: t.param<t.elementof<T>>, arg2: t.param<T>): CallExpression<t.anycompatiblearray, "array_prepend">
+  <T extends t.anycompatiblearray>(arg1: t.param<t.elementof<T>>, arg2: t.param<T>): CallExpression<T, "array_prepend">
 } = /*#__PURE__*/ defineFunction("array_prepend")
 
 /** 
@@ -264,7 +264,7 @@ export const array_remove: {
    * 
    * @see https://pgpedia.info/a/array_remove.html
    */
-  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<t.elementof<T>>): CallExpression<t.anycompatiblearray, "array_remove">
+  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<t.elementof<T>>): CallExpression<T, "array_remove">
 } = /*#__PURE__*/ defineFunction("array_remove")
 
 /** 
@@ -278,7 +278,7 @@ export const array_replace: {
    * 
    * @see https://pgpedia.info/a/array_replace.html
    */
-  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<t.elementof<T>>, arg3: t.param<t.elementof<T>>): CallExpression<t.anycompatiblearray, "array_replace">
+  <T extends t.anycompatiblearray>(arg1: t.param<T>, arg2: t.param<t.elementof<T>>, arg3: t.param<t.elementof<T>>): CallExpression<T, "array_replace">
 } = /*#__PURE__*/ defineFunction("array_replace")
 
 export const array_send: {
@@ -287,8 +287,8 @@ export const array_send: {
 } = /*#__PURE__*/ defineFunction("array_send")
 
 export const array_smaller: {
-  <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<t.anyarray, "array_smaller">
-  <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<t.anyarray | t.null, "array_smaller">
+  <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<T>): CallExpression<T, "array_smaller">
+  <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<T | t.null>): CallExpression<T | t.null, "array_smaller">
 } = /*#__PURE__*/ defineFunction("array_smaller")
 
 /** 
@@ -426,7 +426,7 @@ export const atanh: {
 
 export const avg: {
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "avg">
-  <T extends t.numeric | t.float8 | t.interval>(arg: T): Aggregate<T, "avg">
+  <T extends t.numeric | t.float8 | t.interval>(arg: t.aggParam<T>): Aggregate<T, "avg">
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "avg">
 } = /*#__PURE__*/ defineFunction("avg", 1)
 
@@ -496,7 +496,7 @@ export const bit_and: {
    * 
    * @see https://pgpedia.info/b/bit_and.html
    */
-  <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: T): Aggregate<T, "bit_and">
+  <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: t.aggParam<T>): Aggregate<T, "bit_and">
 } = /*#__PURE__*/ defineFunction("bit_and", 1)
 
 export const bit_count: {
@@ -530,7 +530,7 @@ export const bit_or: {
    * 
    * @see https://pgpedia.info/b/bit_or.html
    */
-  <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: T): Aggregate<T, "bit_or">
+  <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: t.aggParam<T>): Aggregate<T, "bit_or">
 } = /*#__PURE__*/ defineFunction("bit_or", 1)
 
 export const bit_send: {
@@ -549,7 +549,7 @@ export const bit_xor: {
    * 
    * @see https://pgpedia.info/b/bit_xor.html
    */
-  <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: T): Aggregate<T, "bit_xor">
+  <T extends t.int2 | t.int4 | t.int8 | t.bit>(arg: t.aggParam<T>): Aggregate<T, "bit_xor">
 } = /*#__PURE__*/ defineFunction("bit_xor", 1)
 
 export const bitand: {
@@ -1176,11 +1176,11 @@ export const cbrt: {
 } = /*#__PURE__*/ defineFunction("cbrt")
 
 export const ceil: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "ceil">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "ceil">
 } = /*#__PURE__*/ defineFunction("ceil")
 
 export const ceiling: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "ceiling">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "ceiling">
 } = /*#__PURE__*/ defineFunction("ceiling")
 
 export const center: {
@@ -1953,7 +1953,7 @@ export const every: {
 } = /*#__PURE__*/ defineFunction("every", 1, t.bool)
 
 export const exp: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "exp">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "exp">
 } = /*#__PURE__*/ defineFunction("exp")
 
 /** 
@@ -1969,7 +1969,7 @@ export const extract: {
    */
   (arg1: t.param<t.text>, arg2: t.param<t.timestamptz | t.interval | t.timetz | t.date | t.time | t.timestamp>): CallExpression<t.numeric, "extract">
   (arg1: t.param<t.text | t.null>, arg2: t.param<t.timestamptz | t.interval | t.timetz | t.date | t.time | t.timestamp | t.null>): CallExpression<t.numeric | t.null, "extract">
-} = /*#__PURE__*/ defineFunction("extract")
+} = /*#__PURE__*/ defineTemplate("extract", "($1/century|day|decade|dow|doy|epoch|hour|isodow|isoyear|julian|microseconds|millennium|milliseconds|minute|month|quarter|second|timezone|timezone_hour|timezone_minute|week|year/ FROM $2)")
 
 /** 
  * A function returning the factorial of the supplied integer
@@ -2367,7 +2367,7 @@ export const float8up: {
 } = /*#__PURE__*/ defineFunction("float8up")
 
 export const floor: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "floor">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "floor">
 } = /*#__PURE__*/ defineFunction("floor")
 
 export const flt4_mul_cash: {
@@ -4054,7 +4054,7 @@ export const json_object_keys: {
 } = /*#__PURE__*/ defineSetFunction("json_object_keys")
 
 export const json_populate_record: {
-  (base: t.param<t.anyelement>, from_json: t.param<t.json>, use_json_as_text?: t.param<t.bool>): CallExpression<t.anyelement, "json_populate_record">
+  <T extends t.any>(base: t.param<T>, from_json: t.param<t.json>, use_json_as_text?: t.param<t.bool>): CallExpression<t.array<T>, "json_populate_record">
 } = /*#__PURE__*/ defineFunction("json_populate_record")
 
 /** 
@@ -4068,7 +4068,7 @@ export const json_populate_recordset: {
    * 
    * @see https://pgpedia.info/j/json_populate_recordset.html
    */
-  (base: t.param<t.anyelement>, from_json: t.param<t.json>, use_json_as_text?: t.param<t.bool>): SetRef<t.anyelement, "json_populate_recordset">
+  <T extends t.any>(base: t.param<T>, from_json: t.param<t.json>, use_json_as_text?: t.param<t.bool>): SetRef<t.array<T>, "json_populate_recordset">
 } = /*#__PURE__*/ defineSetFunction("json_populate_recordset")
 
 export const json_send: {
@@ -4278,11 +4278,11 @@ export const jsonb_object_keys: {
 } = /*#__PURE__*/ defineSetFunction("jsonb_object_keys")
 
 export const jsonb_populate_record: {
-  (arg1: t.param<t.anyelement>, arg2: t.param<t.jsonb>): CallExpression<t.anyelement, "jsonb_populate_record">
+  <T extends t.any>(arg1: t.param<T>, arg2: t.param<t.jsonb>): CallExpression<t.array<T>, "jsonb_populate_record">
 } = /*#__PURE__*/ defineFunction("jsonb_populate_record")
 
 export const jsonb_populate_recordset: {
-  (arg1: t.param<t.anyelement>, arg2: t.param<t.jsonb>): SetRef<t.anyelement, "jsonb_populate_recordset">
+  <T extends t.any>(arg1: t.param<T>, arg2: t.param<t.jsonb>): SetRef<t.array<T>, "jsonb_populate_recordset">
 } = /*#__PURE__*/ defineSetFunction("jsonb_populate_recordset")
 
 /** 
@@ -4454,7 +4454,7 @@ export const like_escape: {
 } = /*#__PURE__*/ defineFunction("like_escape")
 
 export const ln: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "ln">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "ln">
 } = /*#__PURE__*/ defineFunction("ln")
 
 export const lo_close: {
@@ -4571,13 +4571,13 @@ export const lo_unlink: {
 } = /*#__PURE__*/ defineFunction("lo_unlink")
 
 export const log: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "log">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "log">
   (arg1: t.param<t.numeric>, arg2: t.param<t.numeric>): CallExpression<t.numeric, "log">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.numeric | t.null>): CallExpression<t.numeric | t.null, "log">
 } = /*#__PURE__*/ defineFunction("log")
 
 export const log10: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "log10">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "log10">
 } = /*#__PURE__*/ defineFunction("log10")
 
 export const loread: {
@@ -4779,7 +4779,8 @@ export const masklen: {
 } = /*#__PURE__*/ defineFunction("masklen")
 
 export const max: {
-  <T extends t.int8 | t.int4 | t.int2 | t.oid | t.float4 | t.float8 | t.date | t.time | t.timetz | t.money | t.timestamp | t.timestamptz | t.interval | t.text | t.numeric | t.anyarray | t.bpchar | t.inet>(arg: t.aggParam<T>): Aggregate<T, "max">
+  <T extends t.int8 | t.int4 | t.int2 | t.oid | t.float4 | t.float8 | t.date | t.time | t.timetz | t.money | t.timestamp | t.timestamptz | t.interval | t.text | t.numeric | t.bpchar | t.inet>(arg: t.aggParam<T>): Aggregate<T, "max">
+  <T extends t.anyarray>(arg: t.aggParam<T>): Aggregate<T, "max">
 } = /*#__PURE__*/ defineFunction("max", 1)
 
 /** 
@@ -4800,7 +4801,8 @@ export const md5: {
 } = /*#__PURE__*/ defineFunction("md5")
 
 export const min: {
-  <T extends t.int8 | t.int4 | t.int2 | t.oid | t.float4 | t.float8 | t.date | t.time | t.timetz | t.money | t.timestamp | t.timestamptz | t.interval | t.text | t.numeric | t.anyarray | t.bpchar | t.inet>(arg: t.aggParam<T>): Aggregate<T, "min">
+  <T extends t.int8 | t.int4 | t.int2 | t.oid | t.float4 | t.float8 | t.date | t.time | t.timetz | t.money | t.timestamp | t.timestamptz | t.interval | t.text | t.numeric | t.bpchar | t.inet>(arg: t.aggParam<T>): Aggregate<T, "min">
+  <T extends t.anyarray>(arg: t.aggParam<T>): Aggregate<T, "min">
 } = /*#__PURE__*/ defineFunction("min", 1)
 
 /** 
@@ -7919,7 +7921,7 @@ export const right: {
 } = /*#__PURE__*/ defineFunction("right")
 
 export const round: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "round">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "round">
   (arg1: t.param<t.numeric>, arg2: t.param<t.int4>): CallExpression<t.numeric, "round">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.numeric | t.null, "round">
 } = /*#__PURE__*/ defineFunction("round")
@@ -8148,7 +8150,7 @@ export const shobj_description: {
 } = /*#__PURE__*/ defineFunction("shobj_description")
 
 export const sign: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "sign">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "sign">
 } = /*#__PURE__*/ defineFunction("sign")
 
 export const similar_escape: {
@@ -8198,7 +8200,7 @@ export const split_part: {
 } = /*#__PURE__*/ defineFunction("split_part")
 
 export const sqrt: {
-  <T extends t.float8 | t.numeric | t.null>(arg: T): CallExpression<T, "sqrt">
+  <T extends t.float8 | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "sqrt">
 } = /*#__PURE__*/ defineFunction("sqrt")
 
 /** 
@@ -8233,19 +8235,19 @@ export const statement_timestamp: {
 export const stddev: {
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "stddev">
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "stddev">
-  <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "stddev">
+  <T extends t.float8 | t.numeric>(arg: t.aggParam<T>): Aggregate<T, "stddev">
 } = /*#__PURE__*/ defineFunction("stddev", 1)
 
 export const stddev_pop: {
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "stddev_pop">
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "stddev_pop">
-  <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "stddev_pop">
+  <T extends t.float8 | t.numeric>(arg: t.aggParam<T>): Aggregate<T, "stddev_pop">
 } = /*#__PURE__*/ defineFunction("stddev_pop", 1)
 
 export const stddev_samp: {
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "stddev_samp">
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "stddev_samp">
-  <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "stddev_samp">
+  <T extends t.float8 | t.numeric>(arg: t.aggParam<T>): Aggregate<T, "stddev_samp">
 } = /*#__PURE__*/ defineFunction("stddev_samp", 1)
 
 /** 
@@ -8352,7 +8354,7 @@ export const substring: {
 export const sum: {
   (arg: t.aggParam<t.int8>): Aggregate<t.numeric, "sum">
   (arg: t.aggParam<t.int4 | t.int2>): Aggregate<t.int8, "sum">
-  <T extends t.float4 | t.float8 | t.money | t.interval | t.numeric>(arg: T): Aggregate<T, "sum">
+  <T extends t.float4 | t.float8 | t.money | t.interval | t.numeric>(arg: t.aggParam<T>): Aggregate<T, "sum">
 } = /*#__PURE__*/ defineFunction("sum", 1)
 
 export const table_to_xml: {
@@ -9212,8 +9214,8 @@ export const trim_array: {
    * 
    * @see https://pgpedia.info/t/trim_array.html
    */
-  (arg1: t.param<t.anyarray>, arg2: t.param<t.int4>): CallExpression<t.anyarray, "trim_array">
-  (arg1: t.param<t.anyarray | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.anyarray | t.null, "trim_array">
+  <T extends t.anyarray>(arg1: t.param<T>, arg2: t.param<t.int4>): CallExpression<T, "trim_array">
+  <T extends t.anyarray>(arg1: t.param<T | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<T | t.null, "trim_array">
 } = /*#__PURE__*/ defineFunction("trim_array")
 
 /** 
@@ -9232,7 +9234,7 @@ export const trim_scale: {
 } = /*#__PURE__*/ defineFunction("trim_scale")
 
 export const trunc: {
-  <T extends t.float8 | t.macaddr | t.numeric | t.null>(arg: T): CallExpression<T, "trunc">
+  <T extends t.float8 | t.macaddr | t.numeric | t.null>(arg: t.param<T>): CallExpression<T, "trunc">
   (arg1: t.param<t.numeric>, arg2: t.param<t.int4>): CallExpression<t.numeric, "trunc">
   (arg1: t.param<t.numeric | t.null>, arg2: t.param<t.int4 | t.null>): CallExpression<t.numeric | t.null, "trunc">
 } = /*#__PURE__*/ defineFunction("trunc")
@@ -9416,7 +9418,7 @@ export const unnest: {
    * 
    * @see https://pgpedia.info/u/unnest.html
    */
-  (arg: t.param<t.anyarray | t.null>): SetRef<t.anyelement, "unnest">
+  <T extends t.anyarray>(arg: t.param<T | t.null>): SetRef<T, "unnest">
 } = /*#__PURE__*/ defineSetFunction("unnest")
 
 /** 
@@ -9487,13 +9489,13 @@ export const uuid_send: {
 export const var_pop: {
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "var_pop">
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "var_pop">
-  <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "var_pop">
+  <T extends t.float8 | t.numeric>(arg: t.aggParam<T>): Aggregate<T, "var_pop">
 } = /*#__PURE__*/ defineFunction("var_pop", 1)
 
 export const var_samp: {
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "var_samp">
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "var_samp">
-  <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "var_samp">
+  <T extends t.float8 | t.numeric>(arg: t.aggParam<T>): Aggregate<T, "var_samp">
 } = /*#__PURE__*/ defineFunction("var_samp", 1)
 
 export const varbit: {
@@ -9556,7 +9558,7 @@ export const varcharsend: {
 export const variance: {
   (arg: t.aggParam<t.int8 | t.int4 | t.int2>): Aggregate<t.numeric, "variance">
   (arg: t.aggParam<t.float4>): Aggregate<t.float8, "variance">
-  <T extends t.float8 | t.numeric>(arg: T): Aggregate<T, "variance">
+  <T extends t.float8 | t.numeric>(arg: t.aggParam<T>): Aggregate<T, "variance">
 } = /*#__PURE__*/ defineFunction("variance", 1)
 
 /** 
