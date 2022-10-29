@@ -160,7 +160,6 @@ This is a vague roadmap. Nothing here is guaranteed to be implemented soon, but 
 - composite types
 - more geometry types
 - array-based primary key
-- multiple primary keys in one row
 - `ANY` and `SOME` operators
 - transactions
 - explicit [locking](https://www.postgresql.org/docs/current/explicit-locking.html)
