@@ -1,1 +1,9 @@
-{}
+{
+  "repos": {
+    "docs": {
+      "url": "https://github.com/alloc/tusken.git",
+      "head": "docs",
+      "optional": true
+    }
+  }
+}
