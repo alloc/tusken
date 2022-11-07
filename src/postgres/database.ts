@@ -5,7 +5,7 @@ import { Delete } from './query/delete'
 import { Put } from './query/put'
 import { Select } from './query/select'
 import { FindWhere, wherePrimaryKeyEquals } from './query/where'
-import { RowInsertion, RowKeyedUpdate, RowUpdate } from './row'
+import { RowInsertion, RowKeyedUpdate, RowRef, RowUpdate } from './row'
 import {
   Selectable,
   SelectedRow,
@@ -138,6 +138,17 @@ export class Database {
       type: 'select',
       query: new Select<[T]>(this),
       props: { from },
+    })
+  }
+
+  update<T extends TableRef>(
+    from: T,
+    updater: (row: RowRef<T>) => RowUpdate<T>
+  ) {
+    return this.query({
+      type: 'update',
+      query: new Update<T>(this),
+      props: { from, updater },
     })
   }
 
