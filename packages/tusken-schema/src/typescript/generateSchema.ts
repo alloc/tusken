@@ -1,10 +1,13 @@
 import endent from 'endent'
-import { Schema, TableColumn } from 'extract-pg-schema'
-import fs from 'fs'
+import { extractSchemas, TableColumn } from 'extract-pg-schema'
 import path from 'path'
-import { ClientConfig } from '../config'
+import type { ConnectOptions } from 'tusken'
+import {
+  loadRuntimePlugin,
+  TuskenProject,
+  TuskenResolvedPlugin,
+} from 'tusken/config'
 import { dataToEsm } from '../utils/dataToEsm'
-import escalade from '../utils/escalade/sync'
 import { serializeImports } from '../utils/imports'
 import { __PURE__ } from '../utils/syntax'
 import { GeneratedLines } from './generateNativeTypes'
@@ -16,14 +19,15 @@ const toExport = (stmt: string) => `export ${stmt}`
 const isOptional = (col: TableColumn) =>
   col.isNullable || col.generated != 'NEVER' || col.defaultValue != null
 
-export function generateTypeSchema(
-  schema: Schema,
+export async function generateTypeSchema(
+  project: TuskenProject,
+  connection: ConnectOptions,
   nativeTypes: GeneratedLines,
-  outDir: string,
-  config: ClientConfig,
-  configPath: string | undefined,
   tuskenId: string
 ) {
+  // TODO: replace pg-extract-schema with our own query
+  const { public: schema } = await extractSchemas(connection)
+
   // TODO: filter the list of reserved words
   const schemaColumns = new Set<string>()
   const schemaTables = new Set<string>()
@@ -78,10 +82,7 @@ export function generateTypeSchema(
     )
   }
 
-  const header = [
-    `import { Database } from "${tuskenId}"`,
-    `import { Pool } from "pg"`,
-  ]
+  const header = [`import { Database } from "${tuskenId}"`]
   const databaseProps = [
     `reserved: [${reservedWords
       .filter(word => schemaColumns.has(word) || schemaTables.has(word))
@@ -89,33 +90,58 @@ export function generateTypeSchema(
       .join(', ')}]`,
   ]
 
-  let configArgument: string
-  if (configPath) {
-    configPath = path.relative(outDir, configPath).replace(/\.ts$/, '')
-    header.push(`import config from "${configPath}"`)
-    configArgument = endent`
-      { ...config.connection, ...config.pool }
-    `
-  } else {
-    configArgument = dataToEsm(config, '')
+  const nodeModulesId = path.sep + 'node_modules' + path.sep
+  const rootDir = project.config.rootDir + path.sep
+  const outDir = path.join(project.config.schemaDir, connection.database!)
+
+  const generatePluginImport = (
+    specifiers: string,
+    pluginPath: string | TuskenResolvedPlugin
+  ) => {
+    let plugin: TuskenResolvedPlugin | undefined
+    if (typeof pluginPath !== 'string') {
+      plugin = pluginPath
+      pluginPath = plugin.modulePath
+    }
+    const nodeModulesIndex = pluginPath.lastIndexOf(nodeModulesId)
+    if (nodeModulesIndex >= 0) {
+      pluginPath = pluginPath.slice(nodeModulesIndex + nodeModulesId.length)
+    } else if (pluginPath.startsWith(rootDir)) {
+      pluginPath = path.relative(outDir, pluginPath)
+    } else if (plugin) {
+      pluginPath = path.join(plugin.id, plugin.subPath)
+    }
+    if (specifiers.trim()) {
+      return `import ${specifiers} from "${pluginPath}"`
+    }
+    return `import "${pluginPath}"`
   }
 
-  databaseProps.push(endent`
-    connect: opts => new Pool({ ...opts${
-      configPath ? ', ...config.pool ' : ''
-    }}),
-    client: process.env.NODE_ENV == 'test'
-      ? null! // Set "db.client" in your test setup file.
-      : new Pool(${configArgument})
-  `)
+  header.push(
+    generatePluginImport('clientPlugin', project.config.clientPlugin),
+    generatePluginImport('connectionPlugin', project.config.connectionPlugin)
+  )
 
-  if (isPackageInstalled(outDir, 'pg-query-stream')) {
-    header.push('import QueryStream from "pg-query-stream"')
-    databaseProps.push('QueryStream')
+  databaseProps.push('clientPlugin', 'connectionPlugin')
+  if (project.config.connection) {
+    databaseProps.push(
+      `connection: ${dataToEsm(project.config.connection, '')}`
+    )
+  }
+
+  for (const plugin of project.config.runtimePlugins) {
+    const imports = loadRuntimePlugin(plugin, project)
+    const pluginDir = path.dirname(plugin.modulePath)
+    imports?.forEach(id => {
+      if (id.startsWith(pluginDir)) {
+        id = path.join(plugin.id, path.relative(pluginDir, id))
+      }
+      header.push(generatePluginImport('', id))
+    })
   }
 
   let envFile: string | undefined
-  if (isPackageInstalled(outDir, 'dotenv')) {
+  if (project.dependencies['dotenv']) {
     header.unshift(`import "./env"`)
     envFile = endent`
       import dotenv from "dotenv"
@@ -192,19 +218,5 @@ function renderColumns(columns: TableColumn[], isType?: boolean) {
       type = `t.option(${type})`
     }
     return `${col.name}: ${type}`
-  })
-}
-
-function isPackageInstalled(outDir: string, pkgId: string) {
-  return !!escalade(outDir, (dir, files) => {
-    if (files.includes('node_modules')) {
-      const pkgPath = path.join(dir, 'node_modules', pkgId)
-      if (fs.existsSync(pkgPath)) {
-        return true
-      }
-    }
-    if (files.includes('.git')) {
-      return false
-    }
   })
 }

@@ -5,12 +5,11 @@ import chokidar from 'chokidar'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import { blue, cyan, gray, green } from 'kleur/colors'
-import { clear, success } from 'misty'
+import { success } from 'misty'
 import { MistyTask, startTask } from 'misty/task'
 import path from 'path'
-import { Client } from 'pg'
+import { loadClient, loadProject } from 'tusken/config'
 import { findDotenvFile } from 'tusken/dotenv'
-import { loadConfig } from './config'
 import { toConnectionString } from './connectionString'
 import { debounce } from './debounce'
 import { defer, Deferred } from './defer'
@@ -19,32 +18,45 @@ import { firstLine } from './firstline'
 export default async function () {
   const tusken = cac('tusken')
 
+  type GlobalOptions = {
+    config?: string
+    database?: string
+    host?: string
+    port?: number
+  }
+
+  tusken
+    .option('-c, --config <path>', '[string] Path to config file')
+    .option('-d, --database <name>', '[string] The database name to use')
+    .option('-h, --host <name>', '[string] The host of the Postgres server')
+    .option('-p, --port <number>', '[number] The port of the Postgres server')
+
   tusken
     .command('generate', 'Generate TS types from Postgres schema')
-    .option('-c, --config <path>', 'Path to config file')
-    .option('-d, --database <name>', 'The database to generate types for')
-    .option('-w, --watch', 'Enable watch mode')
-    .action(async (options: any) => {
+    .option('-w, --watch', '[boolean] Enable watch mode')
+    .action(async (options: GlobalOptions & { watch?: boolean }) => {
       const { generate } =
         require('@tusken/schema') as typeof import('@tusken/schema')
 
       let watcher: chokidar.FSWatcher | undefined
 
       const run = (isRestart?: boolean) => {
-        clear()
-        const [config, configPath] = loadConfig(
-          options.configPath,
-          options.database
-        )
+        // clear()
 
-        const { database } = config.connection
+        const project = loadProject(options.config)
 
         isRestart && console.log(green('Reloaded the config!'))
-        let generator = generate(
-          path.join(config.schemaDir, database),
-          { ...config.connection, ...config.pool },
-          configPath
-        )
+        let generator = generate({
+          project,
+          database: options.database,
+          host: options.host,
+          port: options.port ? +options.port : undefined,
+        })
+
+        const { connection } = generator
+        if (!connection.database) {
+          throw Error('No database specified')
+        }
 
         let task: MistyTask
         generator
@@ -55,15 +67,15 @@ export default async function () {
             }
           })
           .on('generateStart', () => {
-            clear()
+            // clear()
             task = startTask('Generating schema...')
           })
           .on('generateEnd', () => {
             task.finish('Schema was updated.')
 
             let schemaDir = path.join(
-              path.relative(process.cwd(), config.schemaDir),
-              database + '/'
+              path.relative(process.cwd(), project.config.schemaDir),
+              connection.database + '/'
             )
             if (!schemaDir.startsWith('..')) {
               schemaDir = './' + schemaDir
@@ -85,6 +97,8 @@ export default async function () {
                 grayArrow +
                 cyan(schemaDir + 'primitives.ts')
             )
+
+            generator.client.end()
           })
 
         if (options.watch) {
@@ -107,27 +121,27 @@ export default async function () {
                 })
 
                 watcher = chokidar
-                  .watch(config.dataDir, { ignoreInitial: true })
+                  .watch(project.config.dataDir, { ignoreInitial: true })
                   .on('all', (_type, file) => {
-                    if (file == configPath) {
+                    if (file == project.configPath) {
                       shouldRestart = true
                       return needUpdate()
                     }
-                    const fileName = path.relative(config.dataDir, file)
+                    const fileName = path.relative(project.config.dataDir, file)
                     if (fileName.startsWith('base/')) {
                       needUpdate()
                     }
                   })
 
-                if (configPath) {
-                  watcher.add(configPath)
+                if (project.configPath) {
+                  watcher.add(project.configPath)
                 }
               }
             })
             .on('error', () => {
-              if (configPath) {
+              if (project.configPath) {
                 const configWatcher = chokidar
-                  .watch(configPath, { ignoreInitial: true })
+                  .watch(project.configPath, { ignoreInitial: true })
                   .on('change', () => {
                     configWatcher.close()
                     run(true)
@@ -144,21 +158,24 @@ export default async function () {
 
   tusken
     .command('wipe', 'Delete the public schema and run schema.sql')
-    .option('-c, --config <path>', 'Path to config file')
-    .option('-d, --database <name>', 'The database to wipe')
-    .action(async (options: any) => {
+    .action(async (options: GlobalOptions) => {
       if (!options.config) {
         console.error('The --config option is required')
         process.exit(1)
       }
-      const [config] = loadConfig(options.config, options.database)
-      const database = config.connection.database
+      const project = loadProject(options.config)
+      const [client, { database }] = loadClient(project, {
+        database: options.database,
+        host: options.host,
+        port: options.port,
+      })
+      if (!database) {
+        throw Error('No database specified')
+      }
       const schema = fs.readFileSync(
-        path.join(config.schemaDir, database, 'schema.sql'),
+        path.join(project.config.schemaDir, database, 'schema.sql'),
         'utf8'
       )
-      const client = new Client(config.connection)
-      await client.connect()
       await client.query(
         'drop schema public cascade; create schema public; ' + schema
       )
@@ -168,16 +185,20 @@ export default async function () {
 
   tusken
     .command('import [...files]', 'Import data into Postgres')
-    .option('-c, --config <path>', 'Path to config file')
-    .option('-d, --database <name>', 'The database to import into')
-    .option('-t, --table <name>', 'The table to import into')
-    .option('--noConflicts', 'Fail if a row conflict is found')
+    .option('-t, --table <name>', '[string] The table to import into')
+    .option('--noConflicts', '[boolean] Fail if a row conflict is found')
     .action(async (files: string[], options: any) => {
-      const [config] = loadConfig(options.config, options.database)
-      const client = new Client(config.connection)
-      await client.connect()
+      const project = loadProject(options.config)
+      const [client, connection] = loadClient(project, {
+        database: options.database,
+        host: options.host,
+        port: options.port,
+      })
+      if (!connection.database) {
+        throw Error('No database specified')
+      }
 
-      success('Connected to ' + toConnectionString(client))
+      success('Connected to ' + toConnectionString(connection))
 
       let affectedCount = 0
       for (const file of files) {
@@ -218,7 +239,7 @@ export default async function () {
           }
 
           // Use the \copy command of psql to support remote databases.
-          const env = await getClientEnv(config.connection, client.password)
+          const env = await getClientEnv(connection)
           const result = await exec(
             `psql "${env.PGDATABASE}" -c '${copyCommand}'`,
             { env }

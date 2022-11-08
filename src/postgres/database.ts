@@ -1,4 +1,5 @@
-import { Client, ConnectFn, ConnectOptions } from './connection'
+import { ClientPlugin, ConnectionPlugin } from '../definePlugin'
+import { Client, ConnectOptions } from './connection'
 import { Query, QueryPromise } from './query'
 import { Count } from './query/count'
 import { Delete } from './query/delete'
@@ -12,32 +13,60 @@ import {
   Selection,
   SelectionSources,
 } from './selection'
-import { QueryStream } from './stream'
-import { kDatabaseQueryStream, kDatabaseReserved } from './symbols'
 import { RowIdentity, TableRef, toTableRef } from './table'
 
 export interface DatabaseConfig {
-  client: Client
-  connect: ConnectFn
+  clientPlugin: ClientPlugin
+  connectionPlugin: ConnectionPlugin
+  connection?: ConnectOptions
   reserved: string[]
-  QueryStream?: typeof QueryStream
 }
 
 export class Database {
-  protected [kDatabaseReserved]: string[]
-  protected [kDatabaseQueryStream]?: typeof QueryStream
-  readonly connect: (opts?: ConnectOptions) => Database
-  client: Client
+  constructor(public config: DatabaseConfig) {}
 
-  constructor(config: DatabaseConfig) {
-    this[kDatabaseReserved] = config.reserved
-    this[kDatabaseQueryStream] = config.QueryStream
-    this.client = config.client
-    this.connect = opts =>
-      new Database({
-        ...config,
-        client: config.connect(opts),
-      })
+  /**
+   * Backing clients are created when the `ConnectionPlugin` assigns a
+   * previously unseen `key` to the connection options for a query.
+   */
+  protected clients: Record<string, Client> = Object.create(null)
+
+  protected createClient(opts?: ConnectOptions) {
+    const config = this.config
+    opts ||= config.connection || {}
+    opts = config.connectionPlugin.defaults?.(opts) || opts
+    return config.clientPlugin.create(opts)
+  }
+
+  protected getClient(ctx?: Query.Context): Client {
+    const config = this.config
+    const resolved = ctx && config.connectionPlugin.resolve?.(ctx)
+    if (resolved) {
+      return (this.clients[resolved.key] ||= this.createClient(resolved))
+    }
+    return (this.clients.default ||= this.createClient())
+  }
+
+  /** The default backing client */
+  get client() {
+    return this.getClient()
+  }
+
+  setDefaultConnection(opts: ConnectOptions) {
+    this.clients.default = this.createClient(opts)
+  }
+
+  /**
+   * Create a separate `Database` object that's connected to another
+   * Postgres server. Useful for transferring data between two servers.
+   *
+   * If you only have one server, you should call `setDefaultConnection`
+   * instead of creating a new `Database` with this method.
+   */
+  connect(opts: ConnectOptions) {
+    const db = new Database(this.config)
+    db.setDefaultConnection(opts)
+    return db
   }
 
   /**

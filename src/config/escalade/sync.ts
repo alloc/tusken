@@ -2,26 +2,22 @@
 import { readdirSync, statSync } from 'fs'
 import { dirname, resolve } from 'path'
 
-export type Callback = (
-  directory: string,
-  files: string[]
-) => string | false | void
-
-export default function (
+/**
+ * Helper function for finding a file.
+ */
+export default function <T>(
   start: string,
-  callback: Callback
+  callback: (directory: string, files: string[]) => T | undefined
 ): string | undefined {
   let dir = resolve('.', start)
-  let tmp,
-    stats = statSync(dir)
-
+  let stats = statSync(dir)
   if (!stats.isDirectory()) {
     dir = dirname(dir)
   }
-
+  let tmp: any
   while (true) {
     tmp = callback(dir, readdirSync(dir))
-    if (tmp) return resolve(dir, tmp)
+    if (tmp !== undefined) return tmp
     dir = dirname((tmp = dir))
     if (tmp === dir) break
   }

@@ -1,6 +1,5 @@
 import { Exclusive } from '@alloc/types'
 import type { Query } from '../query'
-import { kDatabaseReserved } from '../symbols'
 import { renderQuery } from './query'
 import { tokenize } from './tokenize'
 
@@ -160,7 +159,7 @@ const capitalOrSpace = /[A-Z\s]/
 
 function toIdentifier(val: any, { query: { db } }: Query.Context): string {
   val = String(val).replace(/"/g, '""')
-  return capitalOrSpace.test(val) || db[kDatabaseReserved].includes(val)
+  return capitalOrSpace.test(val) || db.config.reserved.includes(val)
     ? `"${val}"`
     : val
 }

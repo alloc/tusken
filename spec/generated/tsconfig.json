@@ -1,0 +1,9 @@
+{
+  "extends": "../../src/tsconfig.json",
+  "include": ["./"],
+  "exclude": ["./tusken"],
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "types": []
+  }
+}

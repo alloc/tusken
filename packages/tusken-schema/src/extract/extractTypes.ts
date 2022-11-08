@@ -1,4 +1,4 @@
-import { Client } from 'pg'
+import type { Client } from 'tusken'
 import nativeTypeMap from '../typescript/nativeTypeMap'
 import { toTable } from '../utils/toTable'
 

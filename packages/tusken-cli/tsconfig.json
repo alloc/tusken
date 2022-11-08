@@ -1,5 +1,5 @@
 {
-  "include": ["./"],
+  "include": ["./", "../tusken-config/src/plugins/defaultConnection.ts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "module": "commonjs",

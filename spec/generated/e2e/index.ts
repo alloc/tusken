@@ -1,15 +1,14 @@
 import { Database } from "tusken"
-import { Pool } from "pg"
-import config from "../tusken.config"
-import QueryStream from "pg-query-stream"
+import clientPlugin from "../../../src/plugins/pg/client"
+import connectionPlugin from "../tusken-plugin/connection"
 
 const db = new Database({
   reserved: ["like", "user"],
-  connect: opts => new Pool({ ...opts, ...config.pool }),
-  client: process.env.NODE_ENV == 'test'
-    ? null! // Set "db.client" in your test setup file.
-    : new Pool({ ...config.connection, ...config.pool }),
-  QueryStream,
+  clientPlugin,
+  connectionPlugin,
+  connection: {
+    database: "test"
+  },
 })
 
 export { db as default }

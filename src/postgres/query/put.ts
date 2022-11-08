@@ -135,6 +135,7 @@ export class Put<T extends TableRef = any> extends Query<Props<T>> {
       }
     }
 
+    ctx.impure = true
     ctx.resolvers.push(result => result.rowCount)
     return tokens
   }

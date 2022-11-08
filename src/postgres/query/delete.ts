@@ -18,6 +18,7 @@ export class Delete<From extends TableRef = any> extends Query<Props> {
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))
     }
+    ctx.impure = true
     ctx.resolvers.push(result => result.rowCount)
     return tokens
   }

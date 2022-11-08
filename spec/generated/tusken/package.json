@@ -1,4 +1,6 @@
 {
+  "name": "tusken",
+  "version": "0.0.0-development",
   "private": true,
   "exports": {
     ".": {
@@ -10,8 +12,8 @@
       "default": "./src/array.ts"
     },
     "./config": {
-      "types": "./src/dist/config.d.ts",
-      "default": "./src/config.ts"
+      "types": "./src/dist/config/index.d.ts",
+      "default": "./src/config/index.ts"
     },
     "./constants": {
       "types": "./src/dist/constants.d.ts",
@@ -21,6 +23,7 @@
       "types": "./src/dist/dotenv.d.ts",
       "default": "./src/dotenv.ts"
     },
+    "./plugins/*": "./src/plugins/*.ts",
     "./package.json": "./package.json"
   }
 }

@@ -1,4 +1,4 @@
-import { Client } from 'pg'
+import type { Client } from 'tusken'
 import { NativeTypes } from './extractTypes'
 
 export type NativeFunc = {

@@ -1,6 +1,5 @@
-import { ClientConfig } from 'pg'
-import { QueryResponse } from './query'
-import { QueryStream } from './stream'
+import type { QueryResponse } from './query'
+import type { QueryStream, QueryStreamConfig } from './stream'
 
 export type Client = Connection | ConnectionPool
 
@@ -14,18 +13,41 @@ export type ConnectionPool = ConnectionLike & {
 }
 
 export type PooledConnection = ConnectionLike & {
-  release: () => Promise<void>
+  release: () => void
 }
 
 export type ConnectionLike = {
-  query: QueryFn
-  on: (event: 'error', listener: (e: Error) => void) => void
+  query: <T extends object = Record<string, any>>(
+    query: string,
+    values?: readonly any[]
+  ) => Promise<QueryResponse<T>>
+  stream?: (
+    query: string,
+    values?: readonly any[],
+    config?: QueryStreamConfig
+  ) => QueryStream<any>
+  on: (event: 'error', listener: (e: Error) => void) => any
 }
 
-export type QueryFn = {
-  (query: string, values?: any[]): Promise<QueryResponse>
-  <T>(stream: QueryStream<T>): QueryStream<T>
+export type ConnectOptions = {
+  /**
+   * The `key` allows reuse of an existing client object and the
+   * creation of multiple clients for distinct Postgres servers.
+   *
+   * This is usually defined by a plugin.
+   *
+   * @default "default"
+   */
+  key?: string
+  /**
+   * If defined, the connection string will be the only option used when
+   * connecting to the database.
+   */
+  connectionString?: string
+  host?: string
+  port?: number
+  user?: string
+  password?: string
+  database?: string
+  ssl?: boolean
 }
-
-export type ConnectOptions = ClientConfig
-export type ConnectFn = (opts?: ConnectOptions) => Client

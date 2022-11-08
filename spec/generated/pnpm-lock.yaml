@@ -9,6 +9,3 @@ importers:
     dependencies:
       '@tusken/cli': link:../../packages/tusken-cli
       tusken: link:tusken
-
-  tusken:
-    specifiers: {}

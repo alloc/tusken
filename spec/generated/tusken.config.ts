@@ -1,6 +1,7 @@
 import { defineConfig } from 'tusken/config'
 
 export default defineConfig({
-  connection: { database: 'test' },
   schemaDir: './',
+  connectionPlugin: './tusken-plugin',
+  connection: { database: 'test' },
 })

@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "exports": {
+    "./client": {
+      "types": "./client.d.ts",
+      "import": "./client.mjs",
+      "default": "./client.js"
+    },
+    "./connection": {
+      "types": "./connection.d.ts",
+      "import": "./connection.mjs",
+      "default": "./connection.js"
+    },
+    "./runtime": {
+      "types": "./runtime.d.ts",
+      "import": "./runtime.mjs",
+      "default": "./runtime.js"
+    }
+  }
+}

@@ -1,17 +1,23 @@
-import { Client } from 'pg'
+import type { ConnectOptions } from 'tusken'
 
-export function toConnectionString(client: Client) {
-  const parts: any[] = ['postgres://']
-  if (client.user || client.password) {
-    parts.push(
-      client.user || '',
-      client.password ? `:${client.password}` : '',
-      '@'
-    )
+export function toConnectionString({
+  user,
+  password,
+  host,
+  port,
+  database,
+  connectionString,
+}: ConnectOptions) {
+  if (connectionString) {
+    return connectionString
   }
-  parts.push(client.host, ':', client.port)
-  if (client.database) {
-    parts.push('/', client.database)
+  const parts: any[] = ['postgres://']
+  if (user || password) {
+    parts.push(user || '', password ? `:${password}` : '', '@')
+  }
+  parts.push(host, ':', port)
+  if (database) {
+    parts.push('/', database)
   }
   return parts.join('')
 }

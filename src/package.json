@@ -13,36 +13,43 @@
   ],
   "types": "dist/tusken.d.ts",
   "module": "dist/tusken.mjs",
-  "main": "dist/tusken.cjs",
+  "main": "dist/tusken.js",
   "exports": {
     ".": {
       "types": "./dist/tusken.d.ts",
       "import": "./dist/tusken.mjs",
-      "default": "./dist/tusken.cjs"
+      "default": "./dist/tusken.js"
     },
     "./array": {
-      "types": "./dist/array.d.ts",
-      "import": "./dist/array.mjs",
-      "default": "./dist/array.cjs"
+      "types": "./dist/postgres/array.d.ts",
+      "import": "./dist/postgres/array.mjs",
+      "default": "./dist/postgres/array.js"
     },
     "./config": {
-      "types": "./dist/config.d.ts",
-      "import": "./dist/config.mjs",
-      "default": "./dist/config.cjs"
+      "types": "./dist/config/index.d.ts",
+      "import": "./dist/config/index.mjs",
+      "default": "./dist/config/index.js"
     },
     "./constants": {
       "types": "./dist/constants.d.ts",
       "import": "./dist/constants.mjs",
-      "default": "./dist/constants.cjs"
+      "default": "./dist/constants.js"
     },
     "./dotenv": {
       "types": "./dist/dotenv.d.ts",
       "import": "./dist/dotenv.mjs",
-      "default": "./dist/dotenv.cjs"
+      "default": "./dist/dotenv.js"
+    },
+    "./plugins/*": {
+      "types": "./dist/plugins/*.d.ts",
+      "import": "./dist/plugins/*.mjs",
+      "default": "./dist/plugins/*.js"
     },
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "./postgres/expression.ts"
+  ],
   "files": [
     "dist"
   ],
@@ -51,25 +58,33 @@
     "url": "https://github.com/alloc/tusken"
   },
   "scripts": {
-    "dev": "unbuild --stub",
-    "build": "unbuild"
+    "dev": "sh prepare.sh && tsup-node --watch --sourcemap",
+    "build": "sh prepare.sh && tsup-node"
   },
   "devDependencies": {
     "@types/node": "^18.7.9",
+    "pg": ">=8.0.0",
     "postgres-array": "^3.0.1",
     "postgres-interval": "^4.0.0",
     "postgres-range": "^1.1.3",
-    "unbuild": "^0.8.9"
+    "tsup": "^6.2.2"
   },
   "dependencies": {
+    "@alloc/resolve.exports": "^1.0.3",
     "@alloc/types": "^2.2.2",
     "@types/pg": "^8.6.5",
-    "callsites": "^3.0.0"
+    "callsites": "^3.0.0",
+    "find-dependency": "^1.3.3",
+    "sucrase": "^3.25.0",
+    "tusken": "link:"
   },
   "peerDependencies": {
     "pg": ">=8.0.0",
     "postgres-array": "*",
     "postgres-interval": "*",
     "postgres-range": "*"
+  },
+  "optionalDependencies": {
+    "pg-query-stream": "*"
   }
 }

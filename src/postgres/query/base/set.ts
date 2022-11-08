@@ -1,9 +1,8 @@
 import { renderQuery } from '../../internal/query'
 import { SetProps } from '../../props/set'
 import { Query } from '../../query'
-import type { Selectable, SelectionSource, SelectResult } from '../../selection'
+import type { Selectable, SelectionSource } from '../../selection'
 import type { QueryStreamConfig } from '../../stream'
-import { kDatabaseQueryStream } from '../../symbols'
 import { orderBy, SortSelection, SortSelector } from '../orderBy'
 
 const kSelectFrom = Symbol()
@@ -44,12 +43,6 @@ export abstract class SetBase<
   }
 
   stream(config?: QueryStreamConfig) {
-    const QueryStream = this.db[kDatabaseQueryStream]
-    if (!QueryStream)
-      throw Error(
-        'pg-query-stream not installed or the generated client is outdated'
-      )
-
     const ctx: Query.Context = {
       query: this as any,
       values: [],
@@ -59,14 +52,11 @@ export abstract class SetBase<
 
     // TODO: apply mutators to stream
     const query = renderQuery(ctx)
-    const stream = new QueryStream<SelectResult<From>>(
-      query,
-      ctx.values,
-      config
-    )
-
-    this.db.client.query(stream)
-    return stream
+    const client = this.db['getClient'](ctx)
+    if (client.stream) {
+      return client.stream(query, ctx.values, config)
+    }
+    throw Error('Streaming not supported by your Postgres client')
   }
 
   [Symbol.asyncIterator]() {

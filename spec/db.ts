@@ -2,16 +2,13 @@ import exec from '@cush/exec'
 import path from 'path'
 import { inspectQuery, Query } from 'tusken'
 import { afterEach, beforeEach, expect } from 'vitest'
-import client from './generated/e2e'
+import db from './generated/e2e'
 
 export { pg, t } from './generated/e2e'
 
-let db = client
 let shouldLogQueries = false
 
 if (process.env.E2E) {
-  db = client.connect({ database: 'e2e' })
-
   const { query } = db.client
   db.client.query = (...args: any): any => {
     if (shouldLogQueries && typeof args[0] == 'string') {

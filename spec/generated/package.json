@@ -1,4 +1,5 @@
 {
+  "name": "test",
   "private": true,
   "dependencies": {
     "@tusken/cli": "link:../../packages/tusken-cli",

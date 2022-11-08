@@ -1,4 +1,4 @@
-import escalade from './utils/escalade/sync'
+import escalade from './config/escalade/sync'
 
 export function findDotenvFile(load: (options: { path: string }) => void) {
   const envFiles = [

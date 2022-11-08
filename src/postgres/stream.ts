@@ -1,19 +1,12 @@
-import { Submittable } from 'pg'
+import { Query } from './query'
 
-// pg-query-stream@4.2.4
-export interface QueryStreamConfig {
-  batchSize?: number
-  highWaterMark?: number
-  rowMode?: 'array'
-  types?: any
-}
+export interface QueryStreamConfig {}
 
 export declare class QueryStream<T> {
-  constructor(text: string, values?: any[], config?: QueryStreamConfig)
+  constructor(text: string, ctx: Query.Context, config?: QueryStreamConfig)
 }
 
 export interface QueryStream<T>
-  extends Submittable,
-    Omit<NodeJS.ReadableStream, typeof Symbol.asyncIterator> {
+  extends Omit<NodeJS.ReadableStream, typeof Symbol.asyncIterator> {
   [Symbol.asyncIterator](): AsyncIterableIterator<T>
 }

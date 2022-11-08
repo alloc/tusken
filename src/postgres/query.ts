@@ -10,7 +10,10 @@ import { JoinProps } from './props/join'
 
 export type QueryPromise<T = any> = Query & PromiseLike<T>
 
-export type QueryResponse = { rows: Record<string, any>[]; rowCount?: number }
+export type QueryResponse<T extends object = Record<string, any>> = {
+  rows: T[]
+  rowCount?: number
+}
 
 export abstract class Query<Props extends object | null = any> {
   protected db: Database
@@ -111,7 +114,6 @@ export abstract class Query<Props extends object | null = any> {
 // interface will not be awaitable, thus avoiding incomplete queries.
 Object.defineProperty(Query.prototype, 'then', {
   value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
-    const { db } = this
     const ctx: Query.Context = {
       query: this as any,
       values: [],
@@ -120,7 +122,7 @@ Object.defineProperty(Query.prototype, 'then', {
     }
 
     const execute = (sql: string): Promise<any> =>
-      db.client
+      client
         .query(sql, ctx.values)
         .then(async (response: QueryResponse) => {
           let result = response.rows
@@ -151,8 +153,9 @@ Object.defineProperty(Query.prototype, 'then', {
         process.env.NODE_ENV !== 'production' &&
         e.message.includes('administrator command')
       ) {
-        // Repeat the query if terminated by admin command in development,
-        // since it was likely a timeout caused by a breakpoint.
+        // Repeat the query if terminated by admin command in
+        // development, since it was likely a timeout caused by a
+        // breakpoint.
         return execute(sql)
       }
       throw Object.assign(e, {
@@ -164,6 +167,7 @@ Object.defineProperty(Query.prototype, 'then', {
 
     try {
       var sql = renderQuery(ctx)
+      var client = this.db['getClient'](ctx)
       return execute(sql)
     } catch (e: any) {
       onError(e)
@@ -174,6 +178,10 @@ Object.defineProperty(Query.prototype, 'then', {
 export namespace Query {
   export interface Context {
     query: QueryInternal
+    /**
+     * When true, the query should never be sent to a read-only replica.
+     */
+    impure?: boolean
     /**
      * Any values that cannot be stringified without the
      * help of node-postgres (aka `pg`).

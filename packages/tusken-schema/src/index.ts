@@ -1,11 +1,11 @@
 import { exec } from 'child_process'
 import EventEmitter from 'events'
-import { extractSchemas } from 'extract-pg-schema'
 import fs, { mkdirSync, writeFileSync } from 'fs'
 import path from 'path'
 import { StrictEventEmitter } from 'strict-event-emitter-types'
+import type { Client, ConnectOptions } from 'tusken'
+import { loadClient, loadProject, TuskenProject } from 'tusken/config'
 import { promisify } from 'util'
-import { ClientConfig } from './config'
 import { extractTypes } from './extract'
 import { generateNativeFuncs } from './typescript/generateNativeFuncs'
 import { generateNativeTypes } from './typescript/generateNativeTypes'
@@ -20,39 +20,51 @@ type Events = {
 }
 
 export interface Generator extends StrictEventEmitter<EventEmitter, Events> {
+  client: Client
+  connection: ConnectOptions
   /** Generate and write the files. */
   update(): Promise<void>
 }
 
-export function generate(
-  outDir: string,
-  config: ClientConfig,
-  configPath: string | undefined,
-  tuskenId = 'tusken'
-): Generator {
+export function generate(options: {
+  project?: TuskenProject
+  database?: string
+  host?: string
+  port?: number
+  configPath?: string
+  tuskenId?: string
+}): Generator {
+  const project = loadProject(options.configPath)
+  const [client, connection] = loadClient(project, {
+    database: options.database,
+    host: options.host,
+    port: options.port,
+  })
+  if (!connection.database) {
+    throw Error('No database specified')
+  }
+  const outDir = path.join(project.config.schemaDir, connection.database)
   const docs = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, '../docs.json'), 'utf8')
   )
   const generator = new EventEmitter() as Generator
+  generator.client = client
+  generator.connection = connection
   generator.update = async () => {
     try {
       generator.emit('extractStart')
 
       const { nativeTypes, nativeCasts, nativeFuncs } = await extractTypes(
-        config
+        client
       )
-
-      // TODO: replace pg-extract-schema with our own query
-      const extracted = await extractSchemas(config)
 
       generator.emit('generateStart')
 
-      const files = generateTypeSchema(
-        extracted.public,
+      const tuskenId = options.tuskenId || 'tusken'
+      const files = await generateTypeSchema(
+        project,
+        connection,
         generateNativeTypes(nativeTypes, nativeCasts, tuskenId),
-        outDir,
-        config,
-        configPath,
         tuskenId
       )
       files.push({
@@ -61,7 +73,7 @@ export function generate(
       })
       files.push({
         name: 'schema.sql',
-        content: await dumpSqlSchema(config),
+        content: await dumpSqlSchema(connection),
       })
 
       generator.emit('generateEnd')
@@ -76,12 +88,16 @@ export function generate(
       generator.emit('error', e)
     }
   }
-  process.nextTick(generator.update)
+  process.nextTick(() => {
+    generator.update().catch(e => {
+      generator.emit('error', e)
+    })
+  })
   return generator
 }
 
-async function dumpSqlSchema(conn: ClientConfig) {
-  const env = await getClientEnv(conn)
+async function dumpSqlSchema(opts: ConnectOptions) {
+  const env = await getClientEnv(opts)
   const { stdout, stderr } = await promisify(exec)(
     `pg_dump --schema-only -E utf8`,
     { encoding: 'utf8', env }
@@ -92,19 +108,17 @@ async function dumpSqlSchema(conn: ClientConfig) {
   return stdout.replace(/^(--.*?|)\n/gm, '')
 }
 
-export async function getClientEnv(conn: ClientConfig, password?: string) {
-  password ??=
-    typeof conn.password == 'function' ? await conn.password() : conn.password
+export async function getClientEnv(opts: ConnectOptions) {
   const env: any = {
     ...process.env,
-    PGPASSWORD: password,
-    PGDATABASE: conn.connectionString,
+    PGPASSWORD: opts.password,
+    PGDATABASE: opts.connectionString,
   }
   if (!env.PGDATABASE) {
-    env.PGDATABASE = conn.database
-    env.PGUSER = conn.user
-    env.PGHOST = conn.host
-    env.PGPORT = conn.port
+    env.PGDATABASE = opts.database
+    env.PGUSER = opts.user
+    env.PGHOST = opts.host
+    env.PGPORT = opts.port
   }
   return env
 }

@@ -9,5 +9,8 @@
   "guides.active.color.dark": "rgba(100, 100, 100, 0.5)",
   "guides.normal.enabled": false,
   "guides.stack.enabled": false,
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "[markdown]": {
+    "rewrap.onSave": true
+  }
 }

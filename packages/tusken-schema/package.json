@@ -32,7 +32,6 @@
     "cheerio": "1.0.0-rc.12",
     "node-fetch": "^2.0.0",
     "sucrase": "^3.25.0",
-    "tusken": "1.0.0-alpha.14",
     "typescript": "^4.7.4",
     "unbuild": "^0.8.9",
     "vitest": "^0.22.1"
@@ -41,7 +40,8 @@
     "endent": "^2.1.0",
     "extract-pg-schema": "^4.0.2",
     "pg": "^8.8.0",
-    "strict-event-emitter-types": "^2.0.0"
+    "strict-event-emitter-types": "^2.0.0",
+    "tusken": "1.0.0-alpha.14"
   },
   "scripts": {
     "dev": "unbuild --stub",

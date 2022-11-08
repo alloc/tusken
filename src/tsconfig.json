@@ -1,8 +1,10 @@
 {
+  "exclude": ["./plugins"],
   "compilerOptions": {
     "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
+    "noEmitOnError": false,
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext"
