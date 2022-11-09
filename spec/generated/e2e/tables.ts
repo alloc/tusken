@@ -32,11 +32,10 @@ export const foo: TableRef<{
   id2: t.int4
   json: t.json | t.null
   jsonb: t.jsonb | t.null
-  lastSeenAt: t.date | t.null
 }, "foo", [
   "id",
   "id2"
-], "json" | "jsonb" | "lastSeenAt"> = /*#__PURE__*/ makeTableRef("foo", [
+], "json" | "jsonb"> = /*#__PURE__*/ makeTableRef("foo", [
   "id",
   "id2"
 ], {
@@ -44,7 +43,6 @@ export const foo: TableRef<{
   id2: t.int4,
   json: t.option(t.json),
   jsonb: t.option(t.jsonb),
-  lastSeenAt: t.option(t.date),
 })
 
 export const like: TableRef<{
