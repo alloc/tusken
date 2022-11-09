@@ -1,6 +1,6 @@
 import { Selectable, SelectResult, SelectResults } from '../selection'
+import { SetExpression } from '../set'
 import { QueryStream, QueryStreamConfig } from '../stream'
-import { SetType } from '../type'
 import { SelectBase } from './base/select'
 import { Union } from './union'
 import { Where } from './where'
@@ -18,7 +18,7 @@ export class Select<From extends Selectable[] = any> //
 }
 
 export interface Select<From>
-  extends SetType<SelectResult<From>>,
+  extends SetExpression<SelectResult<From>>,
     PromiseLike<SelectResults<From>> {
   innerJoin<Joined extends Selectable>(
     from: Joined,
