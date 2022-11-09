@@ -20,7 +20,6 @@ export function generateNativeTypes(
 ): GeneratedLines {
   const regTypes = new Set<string>()
   const implicitCastMap: Record<string, string[]> = {}
-  const explicitCastMap: Record<string, string[]> = {}
   const columnCastMap: Record<string, string[]> = {}
 
   for (const cast of nativeCasts) {
@@ -39,25 +38,11 @@ export function generateNativeTypes(
     } else if (cast.context == 'a') {
       columnCastMap[target.name] ||= []
       columnCastMap[target.name].push(source.name)
-    } else {
-      // explicitCastMap[target.name] ||= []
-      // explicitCastMap[target.name].push(source.name)
     }
   }
 
-  // TODO: add this once explicit casts are supported
-  // const explicitCasts = Object.entries(columnCastMap).map(
-  //   ([source, targets]) => endent`
-  //     T extends ${source}
-  //       ? ${targets.join(' | ')}
-  //   `
-  // ).join('\n: ')
-
   const castTypes = endent`
-    /** This maps a native type to all types that can be implicitly cast to it. */
-    type ImplicitCast<T extends string> = ${renderCastLogic(implicitCastMap)}
-      : never
-
+    // Inject rules for implicit type coercion.
     declare module 'tusken' {
       export interface ImplicitTypeCoercion {
         ${Object.entries(implicitCastMap)
