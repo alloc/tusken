@@ -1,6 +1,8 @@
+import { renderQuery } from '../../internal/query'
 import { SetProps } from '../../props/set'
 import { Query } from '../../query'
 import type { Selectable, SelectionSource } from '../../selection'
+import type { QueryStreamConfig } from '../../stream'
 import { orderBy, SortSelection, SortSelector } from '../orderBy'
 
 const kSelectFrom = Symbol()
@@ -38,5 +40,28 @@ export abstract class SetBase<
     const self = this.clone()
     self.props.orderBy = orderBy(self.sources, selector)
     return self
+  }
+
+  stream(config?: QueryStreamConfig) {
+    const ctx: Query.Context = {
+      query: this as any,
+      values: [],
+      resolvers: [],
+      mutators: [],
+    }
+
+    // TODO: apply mutators to stream
+    const query = renderQuery(ctx)
+    const client = this.db['getClient'](ctx)
+    if (client.stream) {
+      return client.stream(query, ctx.values, config)
+    }
+    throw Error('Streaming not supported by your Postgres client')
+  }
+
+  [Symbol.asyncIterator]() {
+    const stream = this.stream()
+    stream.resume()
+    return stream[Symbol.asyncIterator]()
   }
 }
