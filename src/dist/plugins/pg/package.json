@@ -15,6 +15,11 @@
       "types": "./runtime.d.ts",
       "import": "./runtime.mjs",
       "default": "./runtime.js"
+    },
+    "./runtime/*": {
+      "types": "./runtime/*.d.ts",
+      "import": "./runtime/*.mjs",
+      "default": "./runtime/*.js"
     }
   }
 }
