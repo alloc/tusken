@@ -1,4 +1,4 @@
-import { defineOptionalType, defineType, tokenizeJson, Expression, Interval, Json, QueryInput, Range, Type } from "tusken"
+import { defineOptionalType, defineType, tokenizeJson, AggregateParam, ImplicitCast, Interval, Json, QueryParam, Range, Type } from "tusken"
 import { array, array2d, array3d } from "tusken/array"
 
 // Primitive types
@@ -100,46 +100,32 @@ export type { ANY as any, NULL as null, VOID as void }
 export type { oid as regproc, oid as regprocedure, oid as regoper, oid as regoperator, oid as regclass, oid as regcollation, oid as regtype, oid as regconfig, oid as regdictionary, oid as regrole, oid as regnamespace }
 
 export type elementof<T extends Type> = T extends array<infer E> ? E : anyelement
-export type param<T extends Type> = QueryInput<T extends Type<infer Native> ? T | ImplicitCast<Native> : never>
-export type aggParam<T extends Type> = Expression<T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never>
+export type param<T extends Type> = QueryParam<T>
+export type aggParam<T extends Type> = AggregateParam<T>
 export type record = Type<"record", { [key: string]: any }, never>
 
-/** This maps a native type to all types that can be implicitly cast to it. */
-type ImplicitCast<T extends string> = T extends "float4"
-  ? int8 | int2 | int4 | numeric
-  : T extends "float8"
-  ? int8 | int2 | int4 | float4 | numeric
-  : T extends "numeric"
-  ? int8 | int2 | int4
-  : T extends "int8"
-  ? int2 | int4
-  : T extends "int4"
-  ? int2
-  : T extends "oid"
-  ? int8 | int2 | int4
-  : T extends "bpchar"
-  ? text | varchar
-  : T extends "varchar"
-  ? text | bpchar
-  : T extends "text"
-  ? bpchar | varchar | char | name
-  : T extends "name"
-  ? text | bpchar | varchar
-  : T extends "timestamp"
-  ? date
-  : T extends "timestamptz"
-  ? date | timestamp
-  : T extends "interval"
-  ? time
-  : T extends "timetz"
-  ? time
-  : T extends "inet"
-  ? cidr
-  : T extends "varbit"
-  ? bit
-  : T extends "bit"
-  ? varbit
-  : never
+// Inject rules for implicit type coercion.
+declare module 'tusken' {
+  export interface ImplicitTypeCoercion {
+    "float4": int8 | int2 | int4 | numeric
+    "float8": int8 | int2 | int4 | float4 | numeric
+    "numeric": int8 | int2 | int4
+    "int8": int2 | int4
+    "int4": int2
+    "oid": int8 | int2 | int4
+    "bpchar": text | varchar
+    "varchar": text | bpchar
+    "text": bpchar | varchar | char | name
+    "name": text | bpchar | varchar
+    "timestamp": date
+    "timestamptz": date | timestamp
+    "interval": time
+    "timetz": time
+    "inet": cidr
+    "varbit": bit
+    "bit": varbit
+  }
+}
 
 /** Some implicit casts only take place during column assignment. */
 type ColumnCast<T extends string> = ImplicitCast<T> |

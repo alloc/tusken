@@ -1,7 +1,10 @@
 {
   "name": "tusken",
-  "version": "0.0.0-development",
   "private": true,
+  "devDependencies": {
+    "@tusken/cli": "link:../packages/tusken-cli",
+    "tusken": "link:./"
+  },
   "exports": {
     ".": {
       "types": "./src/dist/tusken.d.ts",

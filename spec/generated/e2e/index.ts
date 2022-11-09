@@ -1,5 +1,5 @@
 import { Database } from "tusken"
-import clientPlugin from "../../../src/plugins/pg/client"
+import clientPlugin from "tusken/plugins/pg/client"
 import connectionPlugin from "../tusken-plugin/connection"
 
 const db = new Database({

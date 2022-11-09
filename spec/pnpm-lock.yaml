@@ -1,0 +1,14 @@
+lockfileVersion: 5.4
+
+importers:
+
+  .:
+    specifiers:
+      '@tusken/cli': link:../packages/tusken-cli
+      tusken: link:./
+    devDependencies:
+      '@tusken/cli': link:../packages/tusken-cli
+      tusken: 'link:'
+
+  generated/tusken-plugin:
+    specifiers: {}
