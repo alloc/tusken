@@ -2,7 +2,14 @@ import { TokenArray } from '../internal/token'
 import { tokenizeSetProps } from '../internal/tokenize'
 import { UnionProps } from '../props/union'
 import type { Query } from '../query'
-import type { Selectable, SelectionSource } from '../selection'
+import type {
+  Selectable,
+  SelectionSource,
+  SelectResult,
+  SelectResults,
+} from '../selection'
+import { SetExpression } from '../set'
+import { QueryStream, QueryStreamConfig } from '../stream'
 import { SetBase } from './base/set'
 import type { Select } from './select'
 
@@ -23,4 +30,12 @@ export class Union<From extends Selectable[] = any> //
     this.props.selects.push(query)
     return this
   }
+}
+
+export interface Union<From>
+  extends SetExpression<SelectResult<From>>,
+    PromiseLike<SelectResults<From>> {
+  stream(config?: QueryStreamConfig): QueryStream<SelectResult<From>>
+
+  [Symbol.asyncIterator](): AsyncIterableIterator<SelectResult<From>>
 }
