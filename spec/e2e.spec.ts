@@ -161,3 +161,20 @@ describe('resolve a column that references another table', () => {
     `)
   })
 })
+
+test('query stream', async () => {
+  const users: any[] = []
+  for await (const user of db.select(t.user(u => u.id)).limit(2)) {
+    users.push(user)
+  }
+  expect(users).toMatchInlineSnapshot(`
+    [
+      {
+        "id": 1,
+      },
+      {
+        "id": 2,
+      },
+    ]
+  `)
+})

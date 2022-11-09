@@ -3,6 +3,8 @@
   "private": true,
   "devDependencies": {
     "@tusken/cli": "link:../packages/tusken-cli",
+    "pg": "^8.8.0",
+    "pg-query-stream": "^4.2.4",
     "tusken": "link:./"
   },
   "exports": {
