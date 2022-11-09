@@ -9,9 +9,9 @@ import {
 import { kBoolType } from './internal/type'
 import type { Query } from './query'
 import type {
-  ArrayInput,
+  ArrayParam,
   ExtractNull,
-  QueryInput,
+  QueryParam,
   StringInput,
   Type,
 } from './type'
@@ -90,13 +90,13 @@ export class CheckBuilder<T extends Type = any> {
 
   /** Inclusive range matching */
   between(
-    min: QueryInput<T>,
-    max: QueryInput<T>
+    min: QueryParam<T>,
+    max: QueryParam<T>
   ): CheckList<t.bool | ExtractNull<T>> {
     return this.check('BETWEEN', [min, max])
   }
 
-  in(arr: readonly QueryInput<T>[]): CheckList<t.bool | ExtractNull<T>> {
+  in(arr: readonly QueryParam<T>[]): CheckList<t.bool | ExtractNull<T>> {
     return this.check('IN', arr)
   }
 
@@ -114,13 +114,13 @@ export interface CheckBuilder<T> extends CheckMethods<T>, CheckAliases<T> {}
 // TODO: let right be null here
 type CheckMethods<T> = {
   [P in keyof typeof checkMapping]: (
-    right: QueryInput<T> | ArrayInput<T>
+    right: QueryParam<T> | ArrayParam<T>
   ) => CheckList<t.bool | ExtractNull<T>>
 }
 
 type CheckAliases<T> = {
   [P in keyof typeof checkAliases]: (
-    right: QueryInput<T> | ArrayInput<T>
+    right: QueryParam<T> | ArrayParam<T>
   ) => CheckList<t.bool | ExtractNull<T>>
 }
 

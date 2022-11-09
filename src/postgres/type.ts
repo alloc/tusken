@@ -5,17 +5,23 @@ import { kRuntimeType, kTypeArrayId, kTypeId, kTypeTokenizer } from './symbols'
 import { TypeCast } from './typeCast'
 import { t } from './typesBuiltin'
 
-const kTypeName = Symbol()
+const kHostType = Symbol()
 const kClientType = Symbol()
 const kColumnInput = Symbol()
 
+/**
+ * Used to map a Postgres type to the types it can be implicitly
+ * down-casted to. The generated client adds to this interface.
+ */
+export interface ImplicitTypeCoercion {}
+
 /** Postgres data type */
 export abstract class Type<
-  TypeName extends string = any,
+  HostType extends string = any,
   ClientType = any,
   ColumnInput = any
 > {
-  protected declare [kTypeName]: TypeName
+  protected declare [kHostType]: HostType
   protected declare [kClientType]: ClientType
   protected declare [kColumnInput]: ColumnInput
   protected declare [kRuntimeType]: RuntimeType
@@ -92,14 +98,36 @@ export type RowResult<T extends object> = Intersect<
 
 /** Allow both the Postgres type and its JavaScript type */
 export type QueryInput<T> =
-  | (T extends Type<any, infer Value> ? Value : never)
+  | (T extends Type<any, infer ClientType> ? ClientType : never)
   | Expression<Extract<T, Type>> extends infer Result
   ? Result
   : never
 
+/** Cast a Postgres type name into its implicit coercion types */
+export type ImplicitCast<HostType extends string> = Extract<
+  HostType extends keyof ImplicitTypeCoercion
+    ? ImplicitTypeCoercion[HostType]
+    : never,
+  Type
+>
+
+/** Similar to `QueryInput` but implicit type coercion is allowed */
+export type QueryParam<T> = QueryInput<
+  T extends Type<infer HostType> ? T | ImplicitCast<HostType> : never
+>
+
+/**
+ * Aggregate functions must be given Postgres expressions. For any
+ * aggregate function, these expressions can evaluate to null, since
+ * that merely results in an empty result set.
+ */
+export type AggregateParam<T extends Type> = Expression<
+  T extends Type<infer HostType> ? T | ImplicitCast<HostType> | t.null : never
+>
+
 /** Returns the Postgres `NULL` type if `T` is ever nullable */
-export type ExtractNull<T> = T extends Type<infer TypeName>
-  ? 'null' extends TypeName
+export type ExtractNull<T> = T extends Type<infer HostType>
+  ? 'null' extends HostType
     ? t.null
     : never
   : never
@@ -108,9 +136,13 @@ export type StringInput<T> = Extract<QueryInput<T>, string | null>
 
 export type ArrayInput<T> =
   | QueryInput<T>[]
-  | (T extends Type<infer Name, infer Value>
-      ? QueryInput<Type<`${Name}[]`, Value[]>>
+  | (T extends Type<infer HostType, infer ClientType>
+      ? QueryInput<Type<`${HostType}[]`, ClientType[]>>
       : never)
+
+export type ArrayParam<T> = ArrayInput<
+  T extends Type<infer HostType> ? T | ImplicitCast<HostType> : never
+>
 
 export abstract class SetType<T extends object = any> //
   extends Type<`setof<record>`, T[], T[]> {}

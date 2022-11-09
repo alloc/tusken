@@ -57,6 +57,18 @@ export function generateNativeTypes(
     /** This maps a native type to all types that can be implicitly cast to it. */
     type ImplicitCast<T extends string> = ${renderCastLogic(implicitCastMap)}
       : never
+
+    declare module 'tusken' {
+      export interface ImplicitTypeCoercion {
+        ${Object.entries(implicitCastMap)
+          .map(([source, targets]) => {
+            return endent`
+              "${source}": ${targets.join(' | ')}
+            `
+          })
+          .join('\n')}
+      }
+    }
   
     /** Some implicit casts only take place during column assignment. */
     type ColumnCast<T extends string> = ImplicitCast<T> |
@@ -103,8 +115,8 @@ export function generateNativeTypes(
 
   const specialTypes = [
     'type elementof<T extends Type> = T extends array<infer E> ? E : anyelement',
-    'type param<T extends Type> = QueryInput<T extends Type<infer Native> ? T | ImplicitCast<Native> : never>',
-    'type aggParam<T extends Type> = Expression<T extends Type<infer Native> ? T | ImplicitCast<Native> | NULL : never>',
+    'type param<T extends Type> = QueryParam<T>',
+    'type aggParam<T extends Type> = AggregateParam<T>',
     'type record = Type<"record", { [key: string]: any }, never>',
   ]
 
@@ -114,10 +126,11 @@ export function generateNativeTypes(
         'defineOptionalType',
         'defineType',
         'tokenizeJson',
-        'Expression',
+        'AggregateParam',
+        'ImplicitCast',
         'Interval',
         'Json',
-        'QueryInput',
+        'QueryParam',
         'Range',
         'Type',
       ],

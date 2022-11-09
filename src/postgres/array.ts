@@ -14,11 +14,11 @@ export const array = ((type: RuntimeType) => {
 }
 
 export type array<Element extends Type> = Element extends Type<
-  infer Native,
-  infer T,
-  infer ColumnT
+  infer HostType,
+  infer ClientType,
+  infer ColumnInput
 >
-  ? Type<`${Native}[]`, T[], ColumnT[]>
+  ? Type<`${HostType}[]`, ClientType[], ColumnInput[]>
   : never
 
 export type array2d<Element extends Type> = array<array<Element>>

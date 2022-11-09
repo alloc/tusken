@@ -19,7 +19,7 @@ import {
   kTableName,
 } from './symbols'
 import { TableCast } from './tableCast'
-import { ArrayInput, QueryInput, RuntimeType, SetType } from './type'
+import { ArrayParam, QueryParam, RuntimeType, SetType } from './type'
 import { isSelection, isTableCast, isTableRef } from './typeChecks'
 
 /**
@@ -36,17 +36,17 @@ export type RowIdentity<T> = [IdentityColumns<T>, RowType<T>] extends [
   ? Keys extends []
     ? never
     : Keys extends [keyof Values]
-    ? QueryInput<Values[Keys[0]]>
+    ? QueryParam<Values[Keys[0]]>
     : Keys extends (keyof Values)[]
     ? {
-        [Key in Keys[number]]: QueryInput<Values[Key]>
+        [Key in Keys[number]]: QueryParam<Values[Key]>
       }
     : never
   : never
 
 // Note: This does not support composite keys currently.
 export type RowIdentityArray<T> = RowType<T> extends infer Values
-  ? ArrayInput<Values[IdentityColumns<T>[0] & keyof Values]>
+  ? ArrayParam<Values[IdentityColumns<T>[0] & keyof Values]>
   : never
 
 /**
