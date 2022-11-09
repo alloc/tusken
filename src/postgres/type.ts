@@ -104,12 +104,10 @@ export type QueryInput<T> =
   : never
 
 /** Cast a Postgres type name into its implicit coercion types */
-export type ImplicitCast<HostType extends string> = Extract<
+export type ImplicitCast<HostType extends string> =
   HostType extends keyof ImplicitTypeCoercion
     ? ImplicitTypeCoercion[HostType]
-    : never,
-  Type
->
+    : never
 
 /** Similar to `QueryInput` but implicit type coercion is allowed */
 export type QueryParam<T> = QueryInput<
