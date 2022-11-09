@@ -1,6 +1,6 @@
 {
   "name": "tusken",
-  "version": "1.0.0-alpha.15",
+  "version": "1.0.0-alpha.16",
   "author": "Alec Larson",
   "license": "See LICENSE.md",
   "keywords": [
@@ -76,7 +76,7 @@
     "callsites": "^3.0.0",
     "find-dependency": "^1.3.3",
     "sucrase": "^3.25.0",
-    "tusken": "1.0.0-alpha.15"
+    "tusken": "1.0.0-alpha.16"
   },
   "peerDependencies": {
     "pg": ">=8.0.0",
