@@ -30,7 +30,7 @@ export function loadClient(
     const connString = connection.connectionString.split('/')
     if (!options.database) {
       // Needs to be defined for `tusken generate` command.
-      connection.database ||= connString.pop()
+      connection.database ||= connString.pop()?.split('?')[0]
     }
     // Override the database path if necessary.
     else if (options.database != connection.database) {
