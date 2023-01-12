@@ -26,6 +26,14 @@ export function loadClient(
 
   const connection = connectionPlugin.defaults?.(options) || options
 
+  if (connection.connectionString) {
+    const connString = connection.connectionString.split('/')
+    if (!options.database) {
+      // Needs to be defined for `tusken generate` command.
+      connection.database ||= connString.pop()
+    }
+  }
+
   const clientPluginPath = config.clientPlugin.modulePath
   const clientPlugin = loadModule(clientPluginPath).exports
     .default as ClientPlugin
