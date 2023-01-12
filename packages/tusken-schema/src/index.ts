@@ -99,7 +99,10 @@ export function generate(options: {
 async function dumpSqlSchema(opts: ConnectOptions) {
   const env = await getClientEnv(opts)
   const { stdout, stderr } = await promisify(exec)(
-    `pg_dump --schema-only -E utf8`,
+    `pg_dump --schema-only -E utf8` +
+      (env.PGDATABASE?.startsWith('postgres://')
+        ? ` -d ${env.PGDATABASE}`
+        : ''),
     { encoding: 'utf8', env }
   )
   if (stderr) {
