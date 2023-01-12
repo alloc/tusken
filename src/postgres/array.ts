@@ -8,9 +8,7 @@ export const array = ((type: RuntimeType) => {
   }
   throw Error('no array type is defined')
 }) as {
-  <Element extends RuntimeType<T>, T extends Type>(type: Element): RuntimeType<
-    array<T>
-  >
+  <T extends Type>(type: RuntimeType<T>): RuntimeType<array<T>>
 }
 
 export type array<Element extends Type> = Element extends Type<
@@ -24,10 +22,10 @@ export type array<Element extends Type> = Element extends Type<
 export type array2d<Element extends Type> = array<array<Element>>
 export type array3d<Element extends Type> = array<array2d<Element>>
 
-export const array2d = <Element extends RuntimeType<T>, T extends Type>(
-  element: Element
+export const array2d = <T extends Type>(
+  element: RuntimeType<T>
 ): RuntimeType<array2d<T>> => array(array(element) as any)
 
-export const array3d = <Element extends RuntimeType<T>, T extends Type>(
-  element: Element
+export const array3d = <T extends Type>(
+  element: RuntimeType<T>
 ): RuntimeType<array3d<T>> => array(array2d(element) as any)
