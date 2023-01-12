@@ -32,6 +32,11 @@ export function loadClient(
       // Needs to be defined for `tusken generate` command.
       connection.database ||= connString.pop()
     }
+    // Override the database path if necessary.
+    else if (options.database != connection.database) {
+      connString[connString.length - 1] = options.database
+      connection.connectionString = connString.join('/')
+    }
   }
 
   const clientPluginPath = config.clientPlugin.modulePath
