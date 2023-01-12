@@ -27,15 +27,15 @@ export function loadClient(
   const connection = connectionPlugin.defaults?.(options) || options
 
   if (connection.connectionString) {
-    const connString = connection.connectionString.split('/')
+    const url = new URL(connection.connectionString)
     if (!options.database) {
       // Needs to be defined for `tusken generate` command.
-      connection.database ||= connString.pop()?.split('?')[0]
+      connection.database ||= url.pathname.slice(1)
     }
     // Override the database path if necessary.
     else if (options.database != connection.database) {
-      connString[connString.length - 1] = options.database
-      connection.connectionString = connString.join('/')
+      url.pathname = '/' + options.database
+      connection.connectionString = url.toString()
     }
   }
 
