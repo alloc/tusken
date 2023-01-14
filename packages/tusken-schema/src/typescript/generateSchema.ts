@@ -11,7 +11,9 @@ import { dataToEsm } from '../utils/dataToEsm'
 import { serializeImports } from '../utils/imports'
 import { __PURE__ } from '../utils/syntax'
 import { GeneratedLines } from './generateNativeTypes'
+import nativeTypeMap from './nativeTypeMap'
 import { reservedWords } from './reservedWords'
+import { jsTypeToZod, pgTypeToZod } from './zodTypeMap'
 
 const quoted = (s: string) => `"${s}"`
 const toExport = (stmt: string) => `export ${stmt}`
@@ -152,6 +154,34 @@ export async function generateTypeSchema(
     `
   }
 
+  const indexExports = [
+    `export * as t from './types'`,
+    `export * as pg from './functions'`,
+  ]
+
+  const zodTypes: string[] = []
+  if (project.dependencies['zod']) {
+    for (const enumType of schema.enums) {
+      zodTypes.push(
+        endent`
+          export const ${enumType.name} = ${__PURE__} z.enum([${enumType.values
+          .map(quoted)
+          .join(', ')}])
+        `
+      )
+    }
+    for (const table of schema.tables) {
+      zodTypes.push(
+        endent`
+          export const ${table.name} = ${__PURE__} z.object({
+            ${renderZodColumns(table.columns).join(',\n')},
+          })
+        `
+      )
+    }
+    indexExports.push(`export * as z from './zod'`)
+  }
+
   const indexFile = endent`
     ${header.join('\n')}
 
@@ -160,8 +190,7 @@ export async function generateTypeSchema(
     })
 
     export { db as default }
-    export * as t from './types'
-    export * as pg from './functions'
+    ${indexExports.join('\n')}
   `
 
   if (schema.enums.length) {
@@ -242,6 +271,27 @@ export async function generateTypeSchema(
     })
   }
 
+  if (zodTypes.length) {
+    files.push({
+      name: 'zod.ts',
+      content: endent`
+        import * as z from 'zod'
+
+        export * from 'zod'
+
+        type JsonPrimitive = z.infer<typeof jsonPrimitive>
+        const jsonPrimitive = ${__PURE__} z.union([z.string(), z.number(), z.boolean(), z.null()])
+
+        export type Json = JsonPrimitive | { [key: string]: Json } | Json[]
+        export const json: z.ZodType<Json> = ${__PURE__} z.lazy(() =>
+          z.union([jsonPrimitive, z.array(json), z.record(json)])
+        )
+
+        ${zodTypes.join('\n\n')}
+      `,
+    })
+  }
+
   if (envFile) {
     files.push({ name: 'env.ts', content: envFile })
   }
@@ -263,6 +313,30 @@ function renderColumns(columns: TableColumn[], isType?: boolean) {
       type = isType ? `${type} | t.null` : `t.option(${type})`
     } else if (!isType && isOptional(col)) {
       type = `t.option(${type})`
+    }
+    return `${col.name}: ${type}`
+  })
+}
+
+function renderZodColumns(columns: TableColumn[]) {
+  return columns.map(col => {
+    let pgType = col.informationSchemaValue.udt_name
+    if (col.isArray && pgType.startsWith('_')) {
+      pgType = pgType.slice(1)
+    }
+    let type = pgTypeToZod[pgType]
+    if (type == null) {
+      let jsType = nativeTypeMap[pgType as keyof typeof nativeTypeMap]
+      type = jsType ? jsTypeToZod[jsType] || 'z.unknown' : pgType
+    }
+    if (type != pgType) {
+      type += '()'
+    }
+    if (col.isArray) {
+      type = `z.array(${type})`
+    }
+    if (col.isNullable) {
+      type += '.nullish()'
     }
     return `${col.name}: ${type}`
   })

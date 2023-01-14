@@ -66,7 +66,7 @@ export function generateNativeTypes(
   const types: string[] = []
   const runtimeTypes: string[] = ['const option = defineOptionalType']
 
-  for (const [nativeType, mappedType] of nativeTypeMap) {
+  for (const [nativeType, mappedType] of Object.entries(nativeTypeMap)) {
     types.push(
       `type ${nativeType} = Type<"${nativeType}", ${mappedType}, ColumnCast<"${nativeType}">>`
     )
@@ -94,7 +94,7 @@ export function generateNativeTypes(
     anyarray:
       'array<anynonarray> | array2d<anynonarray> | array3d<anynonarray>',
     anycompatiblearray: 'anyarray',
-    anynonarray: nativeTypeMap.map(t => t[0]).join(' | '),
+    anynonarray: Object.keys(nativeTypeMap).join(' | '),
     anyelement: 'anynonarray | anyarray',
   }).map(([name, type]) => `type ${name} = ${type}`)
 
