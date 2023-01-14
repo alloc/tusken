@@ -1,7 +1,7 @@
 import endent from 'endent'
 import { extractSchemas, TableColumn } from 'extract-pg-schema'
 import path from 'path'
-import type { ConnectOptions } from 'tusken'
+import type { Client, ConnectOptions } from 'tusken'
 import {
   loadRuntimePlugin,
   TuskenProject,
@@ -23,7 +23,8 @@ export async function generateTypeSchema(
   project: TuskenProject,
   connection: ConnectOptions,
   nativeTypes: GeneratedLines,
-  tuskenId: string
+  tuskenId: string,
+  client: Client
 ) {
   // TODO: replace pg-extract-schema with our own query
   const { public: schema } = await extractSchemas(connection)
@@ -163,6 +164,10 @@ export async function generateTypeSchema(
     export * as pg from './functions'
   `
 
+  if (schema.enums.length) {
+    nativeTypes.lines.push('', `export * from './enums'`)
+  }
+
   const primitivesFile = endent`
     ${serializeImports(nativeTypes.imports).join('\n')}
 
@@ -194,6 +199,48 @@ export async function generateTypeSchema(
     { name: 'primitives.ts', content: primitivesFile },
     { name: 'tables.ts', content: tablesFile },
   ]
+
+  if (schema.enums.length) {
+    const response = await client.query(
+      `select oid "id", typname "name", typarray "arrayId" from pg_type where typtype = 'e'`
+    )
+
+    const enumTypes = response.rows.map(row => {
+      return {
+        id: row.id as number,
+        name: row.name as string,
+        arrayId: row.arrayId as number,
+        values: schema.enums.find(enumType => enumType.name === row.name)!
+          .values,
+      }
+    })
+
+    files.push({
+      name: 'enums.ts',
+      content: endent`
+        import { defineType, Type } from "${tuskenId}"
+
+        ${enumTypes
+          .map(
+            enumType =>
+              endent`
+                export type ${enumType.name}String = ${enumType.values
+                .map(quoted)
+                .join(' | ')}
+
+                export type ${enumType.name} = Type<'${enumType.name}', ${
+                enumType.name
+              }String, never>
+
+                export const ${enumType.name} = /*#__PURE__*/ defineType<${
+                enumType.name
+              }>(${enumType.id}, '${enumType.name}', ${enumType.arrayId})
+              `
+          )
+          .join('\n\n')}
+      `,
+    })
+  }
 
   if (envFile) {
     files.push({ name: 'env.ts', content: envFile })

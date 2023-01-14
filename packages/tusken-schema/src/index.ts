@@ -65,7 +65,8 @@ export function generate(options: {
         project,
         connection,
         generateNativeTypes(nativeTypes, nativeCasts, tuskenId),
-        tuskenId
+        tuskenId,
+        client
       )
       files.push({
         name: 'functions.ts',
