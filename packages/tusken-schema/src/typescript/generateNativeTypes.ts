@@ -103,6 +103,9 @@ export function generateNativeTypes(
     'type param<T extends Type> = QueryParam<T>',
     'type aggParam<T extends Type> = AggregateParam<T>',
     'type record = Type<"record", { [key: string]: any }, never>',
+    'type numberLike = Type<any, number>',
+    'type stringLike = Type<any, string>',
+    'type dateLike = Type<any, Date>',
   ]
 
   return {
