@@ -74,7 +74,7 @@ export type SortRefs<T extends Selectable[]> = Intersect<
   T[number] extends infer From extends Selectable
     ? From extends Selection<any, infer Source>
       ? SortSource<Source>
-      : SortSource<From>
+      : SortSource<Extract<From, SelectionSource>>
     : never
 >
 
