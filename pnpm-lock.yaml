@@ -117,7 +117,7 @@ importers:
       postgres-range: ^1.1.3
       sucrase: ^3.25.0
       tsup: ^6.2.2
-      tusken: 1.0.0-alpha.16
+      tusken: link:.
     dependencies:
       '@alloc/resolve.exports': 1.0.3
       '@alloc/types': 2.2.2
