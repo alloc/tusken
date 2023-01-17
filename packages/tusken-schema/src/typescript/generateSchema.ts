@@ -247,7 +247,7 @@ export async function generateTypeSchema(
     files.push({
       name: 'enums.ts',
       content: endent`
-        import { defineType, Type } from "${tuskenId}"
+        import { defineType, RuntimeType, Type } from "${tuskenId}"
 
         ${enumTypes
           .map(
@@ -261,9 +261,11 @@ export async function generateTypeSchema(
                 enumType.name
               }String, never>
 
-                export const ${enumType.name} = /*#__PURE__*/ defineType<${
+                export const ${enumType.name}: RuntimeType<${
                 enumType.name
-              }>(${enumType.id}, '${enumType.name}', ${enumType.arrayId})
+              }> = /*#__PURE__*/ defineType(${enumType.id}, '${
+                enumType.name
+              }', ${enumType.arrayId})
               `
           )
           .join('\n\n')}

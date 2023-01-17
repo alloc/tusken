@@ -76,7 +76,7 @@ export function generateNativeTypes(
       runtimeArgs.push('tokenizeJson')
     }
     runtimeTypes.push(
-      `const ${nativeType} = ${__PURE__} defineType<${nativeType}>(${runtimeArgs.join(
+      `const ${nativeType}: RuntimeType<${nativeType}> = ${__PURE__} defineType(${runtimeArgs.join(
         ', '
       )})`
     )
@@ -121,6 +121,7 @@ export function generateNativeTypes(
         'Json',
         'QueryParam',
         'Range',
+        'RuntimeType',
         'Type',
       ],
       [tuskenId + '/array']: ['array', 'array2d', 'array3d'],
