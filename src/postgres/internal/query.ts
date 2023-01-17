@@ -1,9 +1,10 @@
 import type { Query } from '../query'
 import { renderTokens, TokenArray } from './token'
 
+/** @ts-ignore */
 export type QueryInternal = Pick<
   Query,
-  /** @ts-expect-error */
+  // @ts-expect-error
   'db' | 'position' | 'nodes' | 'tokenize' | 'trace'
 >
 
