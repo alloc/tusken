@@ -3,7 +3,7 @@ import { renderTokens, TokenArray } from './token'
 
 export type QueryInternal = Pick<
   Query,
-  // @ts-expect-error ts(2344)
+  /** @ts-expect-error */
   'db' | 'position' | 'nodes' | 'tokenize' | 'trace'
 >
 
