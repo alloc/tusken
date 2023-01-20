@@ -1,5 +1,12 @@
 import { assert, describe, test, _ } from 'spec.ts'
-import { ColumnRef, ResolveSelection, SelectedRow, Selection } from 'tusken'
+import {
+  ColumnRef,
+  ResolveSelection,
+  Select,
+  Selectable,
+  SelectedRow,
+  Selection,
+} from 'tusken'
 import db, { t } from '../db'
 
 test('db.select => asyncIterator', async () => {
@@ -68,6 +75,30 @@ describe('table selection', () => {
     type Result = Selection<Columns, typeof t.user>
     assert(selection, _ as Result)
   })
+})
+
+test('table casting', async () => {
+  const selection = t.user(u => {
+    const featureFlags = t.featureFlag(u.featureFlags)
+    return [
+      u.id,
+      u.name, //
+      featureFlags,
+    ]
+  })
+
+  const query = db.select(selection)
+
+  type Selected = typeof query extends Select<
+    [infer Selected extends Selectable]
+  >
+    ? Selected
+    : never
+
+  type Result = SelectedRow<Selected>
+
+  const results = await query
+  assert(results, _ as Result[])
 })
 
 test('orderBy with unselected column', () => {
