@@ -1,11 +1,11 @@
 import type { Any, CombineObjects, Intersect, Pick } from '@alloc/types'
-import type { ColumnExpression } from './column'
+import type { ColumnExpression, ColumnRef } from './column'
 import type { CallExpression } from './function'
 import type { SetExpression } from './set'
 import { kSelectionArgs, kSelectionFrom, kSelectionType } from './symbols'
 import type { TableRef } from './table'
 import type { TableCast } from './tableCast'
-import type { RowResult, SetType } from './type'
+import type { RowResult, SetType, Type } from './type'
 
 /** Selection sources have a default selection of all columns. */
 export type SelectionSource = SetExpression | TableRef
@@ -82,8 +82,8 @@ type ResolveSingleSelection<T extends RawSelection> = Intersect<
   | (T extends CallExpression<infer ReturnType, infer Callee>
       ? { [P in Callee]: ReturnType }
       : T extends (infer E)[]
-      ? ResolveAliasMapping<E> | ResolveColumns<E>
-      : ResolveAliasMapping<T>)
+      ? ResolveAliasMapping<E> | ResolveColumns<E> | ResolveTableCast<E>
+      : ResolveAliasMapping<T> | ResolveTableCast<T>)
 > extends infer Resolved
   ? Pick<Resolved, keyof Resolved>
   : never
@@ -96,6 +96,15 @@ type ResolveAliasedValue<T> = T extends CallExpression<infer ReturnType>
   ? ReturnType
   : T extends ColumnExpression<infer ColumnValue>
   ? ColumnValue
+  : T extends TableCast<Selection<infer Values> | TableRef<infer Values>>
+  ? Values
+  : never
+
+type ResolveTableCast<T> = T extends TableCast<
+  Selection<infer Values> | TableRef<infer Values>,
+  ColumnRef<Type<any, infer ClientType>, infer Key>
+>
+  ? { [P in Key]: ClientType extends any[] ? Values[] : Values }
   : never
 
 /**

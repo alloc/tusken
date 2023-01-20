@@ -87,13 +87,19 @@ export function defineOptionalType<T extends Type>(
 export type RowResult<T extends object> = Intersect<
   keyof T extends infer Column
     ? Column extends keyof T
-      ? T[Column] extends Type<any, infer ColumnValue>
-        ? { [P in Column]: ColumnValue }
-        : never
+      ? { [P in Column]: ColumnResult<T[Column]> }
       : never
     : never
 > extends infer Values
   ? Remap<Values>
+  : never
+
+type ColumnResult<T> = T extends Type<any, infer Value>
+  ? Value
+  : T extends object
+  ? T extends (infer Element)[]
+    ? ColumnResult<Element>[]
+    : { [P in keyof T]: ColumnResult<T[P]> }
   : never
 
 /** Allow both the Postgres type and its JavaScript type */

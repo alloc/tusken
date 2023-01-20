@@ -18,7 +18,7 @@ import {
   kTableColumns,
   kTableName,
 } from './symbols'
-import { TableCast } from './tableCast'
+import { ForeignKeyRef, TableCast } from './tableCast'
 import { ArrayParam, QueryParam, RuntimeType, SetType } from './type'
 import { isSelection, isTableCast, isTableRef } from './typeChecks'
 
@@ -142,13 +142,13 @@ export interface TableRef<
   ): Selection<ResolveSelection<Selected>, this>
 
   // Cast a row identifier to a "SELECT *" statement.
-  (id: RowIdentity<this> | RowIdentityArray<this>): Selection<T, this>
+  <PK extends ForeignKeyRef<this>>(id: PK): TableCast<this, PK>
 
   // Cast a row identifier to a table selection.
-  <Selected extends RawSelection>(
-    id: RowIdentity<this> | RowIdentityArray<this>,
+  <Selected extends RawSelection, PK extends ForeignKeyRef<this>>(
+    id: PK,
     selector: (row: RowRef<this>) => Narrow<Selected>
-  ): Selection<ResolveSelection<Selected>, this>
+  ): TableCast<Selection<ResolveSelection<Selected>, this>, PK>
 
   /**
    * Exclude specific columns from the result set.
