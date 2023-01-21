@@ -2,7 +2,7 @@ import type { Expression } from './expression'
 import type { Selectable } from './selection'
 import { t } from './typesBuiltin'
 
-export type JoinType = 'inner'
+export type JoinType = 'inner' | 'left'
 
 export class JoinRef {
   constructor(

@@ -100,7 +100,7 @@ export function makeTableRef<
 export abstract class TableRef<
   T extends object = any,
   TableName extends string = any,
-  IdentityColumns extends string[] = any,
+  IdentityColumns extends string[] = string[],
   NullableColumn extends string = any
 > {
   /** The unique table name */

@@ -6,7 +6,7 @@ import { TokenArray } from '../../internal/token'
 import {
   tokenizeColumn,
   tokenizeExpression,
-  tokenizeInnerJoin,
+  tokenizeJoinRef,
   tokenizeSelectables,
   tokenizeSetProps,
   tokenizeWhere,
@@ -92,7 +92,7 @@ export abstract class SelectBase<From extends Selectable[]> //
       { id: toTableName(props.from) },
     ]
     if (joins.length) {
-      tokens.push(joins.map(join => tokenizeInnerJoin(join, ctx)))
+      tokens.push(joins.map(join => tokenizeJoinRef(join, ctx)))
     }
     if (props.where) {
       tokens.push(tokenizeWhere(props.where, ctx))
@@ -208,12 +208,13 @@ function findTableCasts(
           row[key] = isArray ? objects : objects[0]
         })
 
-        const join = new JoinRef('inner', toTableRef(arg), null!, alias)
+        const join = new JoinRef('left', toTableRef(arg), null!, alias)
 
         // Ensure the join alias is used by tokenizeTableCast.
         arg[kTableCast].from = join
 
-        const pkColumn = makeColumnRef(join, table[kIdentityColumns])
+        // TODO: support composite keys
+        const pkColumn = makeColumnRef(join, table[kIdentityColumns][0])
         join.where = pkColumn.is.eq(pk)
 
         joins.push(join)

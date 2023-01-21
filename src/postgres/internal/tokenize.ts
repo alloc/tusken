@@ -18,13 +18,14 @@ import {
   kColumnName,
   kExprProps,
   kExprTokens,
+  kIdentityColumns,
   kRuntimeType,
   kSelectionArgs,
   kTableCast,
   kTableName,
   kTypeTokenizer,
 } from '../symbols'
-import { toTableName } from '../table'
+import { toTableName, toTableRef } from '../table'
 import type { TableCast } from '../tableCast'
 import type { RuntimeType } from '../type'
 import {
@@ -329,12 +330,37 @@ export function tokenizeTableCast(
     args = [{ id: tableName }]
   }
 
-  return [{ callee: 'array_agg', args }, { id: alias ?? tableName }]
+  const table = toTableRef(from)!
+  const pkColumn = table[kIdentityColumns][0]
+
+  return [
+    // Since table casts use a LEFT JOIN, we need to coalesce NULL to an
+    // empty array. We also need to FILTER out NULLs from the array_agg.
+    {
+      callee: 'coalesce',
+      args: [
+        {
+          concat: [
+            { callee: 'array_agg', args },
+            ' FILTER (WHERE ',
+            { id: [tableName, pkColumn] },
+            ' IS NOT NULL)',
+          ],
+        },
+        "'{}'",
+      ],
+    },
+    { id: alias ?? tableName },
+  ]
 }
 
-export function tokenizeInnerJoin(join: JoinRef, ctx: Query.Context) {
+export function tokenizeJoinRef(join: JoinRef, ctx: Query.Context) {
   const tableName = toTableName(join.from)
-  const tokens: TokenArray = ['INNER JOIN', { id: tableName }]
+  const tokens: TokenArray = [
+    join.type.toUpperCase(),
+    'JOIN',
+    { id: tableName },
+  ]
   if (join.alias != null && join.alias != tableName) {
     tokens.push('AS', { id: join.alias })
   }
