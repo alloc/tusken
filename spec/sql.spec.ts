@@ -40,6 +40,15 @@ describe('db.select', () => {
         'SELECT "user".id, array_agg("featureFlag") "featureFlags" FROM "user" INNER JOIN "featureFlag" ON "featureFlag".id = ANY("user"."featureFlags") GROUP BY "user".id'
       )
     })
+    test('with self-join', () => {
+      expect(
+        db.select(
+          t.tweet(tw => [tw.id, t.tweet(tw.replies, reply => reply.id)])
+        )
+      ).toMatchInlineSnapshot(
+        'SELECT tweet.id, array_agg((tweet_2.id)) replies FROM tweet INNER JOIN tweet AS tweet_2 ON tweet_2.id = ANY(tweet.replies) GROUP BY tweet.id'
+      )
+    })
   })
 
   describe('.where', () => {
@@ -110,7 +119,7 @@ describe('db.select', () => {
             user.id.is.equalTo(tweet.author)
           )
       ).toMatchInlineSnapshot(
-        'SELECT "user".*, author, text FROM "user" INNER JOIN tweet ON "user".id = tweet.author'
+        'SELECT "user".*, author, text, replies FROM "user" INNER JOIN tweet ON "user".id = tweet.author'
       )
     })
   })

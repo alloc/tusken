@@ -63,14 +63,16 @@ export const tweet: TableRef<{
   id: t.int4
   author: t.int4
   text: t.text
+  replies: t.array<t.int4>
 }, "tweet", [
   "id"
-], "id"> = /*#__PURE__*/ makeTableRef("tweet", [
+], "id" | "replies"> = /*#__PURE__*/ makeTableRef("tweet", [
   "id"
 ], {
   id: t.option(t.int4),
   author: t.int4,
   text: t.text,
+  replies: t.option(t.array(t.int4)),
 })
 
 export const user: TableRef<{

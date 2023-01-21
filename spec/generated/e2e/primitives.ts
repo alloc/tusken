@@ -1,4 +1,4 @@
-import { defineOptionalType, defineType, tokenizeJson, AggregateParam, ImplicitCast, Interval, Json, QueryParam, Range, Type } from "tusken"
+import { defineOptionalType, defineType, tokenizeJson, AggregateParam, ImplicitCast, Interval, Json, QueryParam, Range, RuntimeType, Type } from "tusken"
 import { array, array2d, array3d } from "tusken/array"
 
 // Primitive types
@@ -43,45 +43,45 @@ export type varchar = Type<"varchar", string, ColumnCast<"varchar">>
 export type xml = Type<"xml", string, ColumnCast<"xml">>
 
 export const option = defineOptionalType
-export const bit = /*#__PURE__*/ defineType<bit>(1560, "bit", 1561)
-export const bool = /*#__PURE__*/ defineType<bool>(16, "bool", 1000)
-export const bpchar = /*#__PURE__*/ defineType<bpchar>(1042, "bpchar", 1014)
-export const bytea = /*#__PURE__*/ defineType<bytea>(17, "bytea", 1001)
-export const char = /*#__PURE__*/ defineType<char>(18, "char", 1002)
-export const cidr = /*#__PURE__*/ defineType<cidr>(650, "cidr", 651)
-export const circle = /*#__PURE__*/ defineType<circle>(718, "circle", 719)
-export const date = /*#__PURE__*/ defineType<date>(1082, "date", 1182)
-export const daterange = /*#__PURE__*/ defineType<daterange>(3912, "daterange", 3913)
-export const float4 = /*#__PURE__*/ defineType<float4>(700, "float4", 1021)
-export const float8 = /*#__PURE__*/ defineType<float8>(701, "float8", 1022)
-export const inet = /*#__PURE__*/ defineType<inet>(869, "inet", 1041)
-export const int2 = /*#__PURE__*/ defineType<int2>(21, "int2", 1005)
-export const int4 = /*#__PURE__*/ defineType<int4>(23, "int4", 1007)
-export const int4range = /*#__PURE__*/ defineType<int4range>(3904, "int4range", 3905)
-export const int8 = /*#__PURE__*/ defineType<int8>(20, "int8", 1016)
-export const int8range = /*#__PURE__*/ defineType<int8range>(3926, "int8range", 3927)
-export const interval = /*#__PURE__*/ defineType<interval>(1186, "interval", 1187)
-export const json = /*#__PURE__*/ defineType<json>(114, "json", 199, tokenizeJson)
-export const jsonb = /*#__PURE__*/ defineType<jsonb>(3802, "jsonb", 3807, tokenizeJson)
-export const macaddr = /*#__PURE__*/ defineType<macaddr>(829, "macaddr", 1040)
-export const money = /*#__PURE__*/ defineType<money>(790, "money", 791)
-export const name = /*#__PURE__*/ defineType<name>(19, "name", 1003)
-export const numeric = /*#__PURE__*/ defineType<numeric>(1700, "numeric", 1231)
-export const numrange = /*#__PURE__*/ defineType<numrange>(3906, "numrange", 3907)
-export const oid = /*#__PURE__*/ defineType<oid>(26, "oid", 1028)
-export const point = /*#__PURE__*/ defineType<point>(600, "point", 1017)
-export const text = /*#__PURE__*/ defineType<text>(25, "text", 1009)
-export const time = /*#__PURE__*/ defineType<time>(1083, "time", 1183)
-export const timestamp = /*#__PURE__*/ defineType<timestamp>(1114, "timestamp", 1115)
-export const timestamptz = /*#__PURE__*/ defineType<timestamptz>(1184, "timestamptz", 1185)
-export const timetz = /*#__PURE__*/ defineType<timetz>(1266, "timetz", 1270)
-export const tsrange = /*#__PURE__*/ defineType<tsrange>(3908, "tsrange", 3909)
-export const tstzrange = /*#__PURE__*/ defineType<tstzrange>(3910, "tstzrange", 3911)
-export const tsvector = /*#__PURE__*/ defineType<tsvector>(3614, "tsvector", 3643)
-export const uuid = /*#__PURE__*/ defineType<uuid>(2950, "uuid", 2951)
-export const varbit = /*#__PURE__*/ defineType<varbit>(1562, "varbit", 1563)
-export const varchar = /*#__PURE__*/ defineType<varchar>(1043, "varchar", 1015)
-export const xml = /*#__PURE__*/ defineType<xml>(142, "xml", 143)
+export const bit: RuntimeType<bit> = /*#__PURE__*/ defineType(1560, "bit", 1561)
+export const bool: RuntimeType<bool> = /*#__PURE__*/ defineType(16, "bool", 1000)
+export const bpchar: RuntimeType<bpchar> = /*#__PURE__*/ defineType(1042, "bpchar", 1014)
+export const bytea: RuntimeType<bytea> = /*#__PURE__*/ defineType(17, "bytea", 1001)
+export const char: RuntimeType<char> = /*#__PURE__*/ defineType(18, "char", 1002)
+export const cidr: RuntimeType<cidr> = /*#__PURE__*/ defineType(650, "cidr", 651)
+export const circle: RuntimeType<circle> = /*#__PURE__*/ defineType(718, "circle", 719)
+export const date: RuntimeType<date> = /*#__PURE__*/ defineType(1082, "date", 1182)
+export const daterange: RuntimeType<daterange> = /*#__PURE__*/ defineType(3912, "daterange", 3913)
+export const float4: RuntimeType<float4> = /*#__PURE__*/ defineType(700, "float4", 1021)
+export const float8: RuntimeType<float8> = /*#__PURE__*/ defineType(701, "float8", 1022)
+export const inet: RuntimeType<inet> = /*#__PURE__*/ defineType(869, "inet", 1041)
+export const int2: RuntimeType<int2> = /*#__PURE__*/ defineType(21, "int2", 1005)
+export const int4: RuntimeType<int4> = /*#__PURE__*/ defineType(23, "int4", 1007)
+export const int4range: RuntimeType<int4range> = /*#__PURE__*/ defineType(3904, "int4range", 3905)
+export const int8: RuntimeType<int8> = /*#__PURE__*/ defineType(20, "int8", 1016)
+export const int8range: RuntimeType<int8range> = /*#__PURE__*/ defineType(3926, "int8range", 3927)
+export const interval: RuntimeType<interval> = /*#__PURE__*/ defineType(1186, "interval", 1187)
+export const json: RuntimeType<json> = /*#__PURE__*/ defineType(114, "json", 199, tokenizeJson)
+export const jsonb: RuntimeType<jsonb> = /*#__PURE__*/ defineType(3802, "jsonb", 3807, tokenizeJson)
+export const macaddr: RuntimeType<macaddr> = /*#__PURE__*/ defineType(829, "macaddr", 1040)
+export const money: RuntimeType<money> = /*#__PURE__*/ defineType(790, "money", 791)
+export const name: RuntimeType<name> = /*#__PURE__*/ defineType(19, "name", 1003)
+export const numeric: RuntimeType<numeric> = /*#__PURE__*/ defineType(1700, "numeric", 1231)
+export const numrange: RuntimeType<numrange> = /*#__PURE__*/ defineType(3906, "numrange", 3907)
+export const oid: RuntimeType<oid> = /*#__PURE__*/ defineType(26, "oid", 1028)
+export const point: RuntimeType<point> = /*#__PURE__*/ defineType(600, "point", 1017)
+export const text: RuntimeType<text> = /*#__PURE__*/ defineType(25, "text", 1009)
+export const time: RuntimeType<time> = /*#__PURE__*/ defineType(1083, "time", 1183)
+export const timestamp: RuntimeType<timestamp> = /*#__PURE__*/ defineType(1114, "timestamp", 1115)
+export const timestamptz: RuntimeType<timestamptz> = /*#__PURE__*/ defineType(1184, "timestamptz", 1185)
+export const timetz: RuntimeType<timetz> = /*#__PURE__*/ defineType(1266, "timetz", 1270)
+export const tsrange: RuntimeType<tsrange> = /*#__PURE__*/ defineType(3908, "tsrange", 3909)
+export const tstzrange: RuntimeType<tstzrange> = /*#__PURE__*/ defineType(3910, "tstzrange", 3911)
+export const tsvector: RuntimeType<tsvector> = /*#__PURE__*/ defineType(3614, "tsvector", 3643)
+export const uuid: RuntimeType<uuid> = /*#__PURE__*/ defineType(2950, "uuid", 2951)
+export const varbit: RuntimeType<varbit> = /*#__PURE__*/ defineType(1562, "varbit", 1563)
+export const varchar: RuntimeType<varchar> = /*#__PURE__*/ defineType(1043, "varchar", 1015)
+export const xml: RuntimeType<xml> = /*#__PURE__*/ defineType(142, "xml", 143)
 
 // Array types
 export { array, array2d, array3d }
@@ -103,6 +103,10 @@ export type elementof<T extends Type> = T extends array<infer E> ? E : anyelemen
 export type param<T extends Type> = QueryParam<T>
 export type aggParam<T extends Type> = AggregateParam<T>
 export type record = Type<"record", { [key: string]: any }, never>
+export type typeLike<T> = Type<any, T>
+export type numberLike = typeLike<number>
+export type stringLike = typeLike<string>
+export type dateLike = typeLike<Date>
 
 // Inject rules for implicit type coercion.
 declare module 'tusken' {

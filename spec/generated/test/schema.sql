@@ -8,6 +8,8 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+ALTER SCHEMA public OWNER TO alec;
+COMMENT ON SCHEMA public IS '';
 SET default_tablespace = '';
 SET default_table_access_method = heap;
 CREATE TABLE public."featureFlag" (
@@ -61,7 +63,8 @@ ALTER TABLE public."like" ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.tweet (
     id integer NOT NULL,
     author integer NOT NULL,
-    text text NOT NULL
+    text text NOT NULL,
+    replies integer[] DEFAULT '{}'::integer[] NOT NULL
 );
 ALTER TABLE public.tweet OWNER TO postgres;
 ALTER TABLE public.tweet ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -102,3 +105,4 @@ ALTER TABLE ONLY public.tweet
     ADD CONSTRAINT tweet_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY public."user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;

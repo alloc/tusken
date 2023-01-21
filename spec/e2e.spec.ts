@@ -56,7 +56,7 @@ describe('composite keys', () => {
   test('delete', () => {})
 })
 
-describe('resolve a column that references another table', () => {
+describe('resolve a TableCast selection', () => {
   test('single id', async () => {
     expect(
       await db
@@ -156,6 +156,30 @@ describe('resolve a column that references another table', () => {
             "_id": 2,
             "alias": "anakin",
           },
+        },
+      ]
+    `)
+  })
+
+  test('self-join', async () => {
+    expect(
+      await db
+        .select(
+          t.tweet(tweet => [
+            tweet.id,
+            t.tweet(tweet.replies, reply => reply.id),
+          ])
+        )
+        .limit(1)
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "id": 2,
+          "replies": [
+            {
+              "id": 1,
+            },
+          ],
         },
       ]
     `)
