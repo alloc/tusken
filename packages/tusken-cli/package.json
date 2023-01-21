@@ -1,6 +1,6 @@
 {
   "name": "@tusken/cli",
-  "version": "1.0.0-alpha.16",
+  "version": "1.0.0-alpha.17",
   "author": "Alec Larson",
   "license": "MIT",
   "keywords": [
@@ -33,11 +33,11 @@
   },
   "dependencies": {
     "@cush/exec": "^1.8.0",
-    "@tusken/schema": "1.0.0-alpha.16",
+    "@tusken/schema": "1.0.0-alpha.17",
     "chokidar": "^3.5.3",
     "dotenv": "^16.0.2",
     "jiti": "^1.14.0",
-    "tusken": "1.0.0-alpha.16"
+    "tusken": "1.0.0-alpha.17"
   },
   "peerDependencies": {
     "pg": ">=8.0.0"

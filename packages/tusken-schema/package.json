@@ -1,6 +1,6 @@
 {
   "name": "@tusken/schema",
-  "version": "1.0.0-alpha.16",
+  "version": "1.0.0-alpha.17",
   "author": "Alec Larson",
   "license": "See LICENSE.md",
   "keywords": [
@@ -41,7 +41,7 @@
     "extract-pg-schema": "^4.0.2",
     "pg": "^8.8.0",
     "strict-event-emitter-types": "^2.0.0",
-    "tusken": "1.0.0-alpha.16"
+    "tusken": "1.0.0-alpha.17"
   },
   "scripts": {
     "dev": "unbuild --stub",
