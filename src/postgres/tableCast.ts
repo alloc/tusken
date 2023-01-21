@@ -7,23 +7,24 @@ import { kSelectionArgs, kTableCast } from './symbols'
 import { IdentityColumns, RowType } from './table'
 import { isSelection } from './typeChecks'
 
-type TableKeyType<T extends Selectable> = [
-  IdentityColumns<T>,
-  RowType<T>
-] extends [infer Keys, infer Values]
+type TableKeyType<T extends Selectable> = [T] extends [Any]
+  ? any // avoid never for "T = any"
+  : [IdentityColumns<T>, RowType<T>] extends [infer Keys, infer Values]
   ? Keys extends []
     ? never
     : Keys extends [keyof Values]
     ? Values[Keys[0]]
     : Keys extends (keyof Values)[]
-    ? never // FIXME: composite keys not yet supported
+    ? any // FIXME: composite keys not yet supported
+    : Keys extends string[]
+    ? any // avoid never for "T = Selection<any>"
     : never
   : never
 
 /** Can reference one or multiple foreign keys */
-export type ForeignKeyRef<T extends Selectable> = [T] extends [Any]
-  ? ColumnRef
-  : ColumnRef<TableKeyType<T> | array<TableKeyType<T>>>
+export type ForeignKeyRef<T extends Selectable> = ColumnRef<
+  TableKeyType<T> | array<TableKeyType<T>>
+>
 
 interface Props<T extends Selectable, PK extends ForeignKeyRef<T>> {
   pk: PK
