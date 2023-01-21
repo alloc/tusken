@@ -1,6 +1,8 @@
 import { Omit } from '@alloc/types'
 import { Narrow } from '../utils/Narrow'
 import { kUnknownType } from './internal/type'
+import { JoinRef } from './join'
+import type { Query } from './query'
 import { RowRef } from './row'
 import {
   RawSelection,
@@ -169,14 +171,24 @@ export function toTableRef(arg: Selectable | TableCast) {
     ? toTableRef(arg[kSelectionFrom])
     : isTableCast(arg)
     ? toTableRef(arg[kTableCast].from)
+    : arg instanceof JoinRef
+    ? toTableRef(arg.from)
     : undefined
 }
 
 export function toTableName(
-  arg: TableRef | TableCast | Selection<any, TableRef>
+  arg: TableRef | TableCast | Selection<any, TableRef>,
+  ctx?: Query.Context
 ): string
-export function toTableName(arg: Selectable | TableCast): string | undefined
-export function toTableName(arg: Selectable | TableCast) {
+export function toTableName(
+  arg: Selectable | TableCast,
+  ctx?: Query.Context
+): string | undefined
+export function toTableName(arg: Selectable | TableCast, ctx?: Query.Context) {
+  const join = ctx?.currentJoin || (arg instanceof JoinRef ? arg : null)
+  if (join?.alias != null) {
+    return join.alias
+  }
   const tableRef = toTableRef(arg)
   return tableRef ? tableRef[kTableName] : undefined
 }

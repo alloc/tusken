@@ -1,6 +1,7 @@
 import type { Any, CombineObjects, Intersect, Pick } from '@alloc/types'
 import type { ColumnExpression, ColumnRef } from './column'
 import type { CallExpression } from './function'
+import type { JoinRef } from './join'
 import type { SetExpression } from './set'
 import { kSelectionArgs, kSelectionFrom, kSelectionType } from './symbols'
 import type { TableRef } from './table'
@@ -8,7 +9,7 @@ import type { TableCast } from './tableCast'
 import type { RowResult, SetType, Type } from './type'
 
 /** Selection sources have a default selection of all columns. */
-export type SelectionSource = SetExpression | TableRef
+export type SelectionSource = SetExpression | TableRef | JoinRef
 
 export class Selection<
   T extends object = any,

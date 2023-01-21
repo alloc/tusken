@@ -14,6 +14,17 @@ export type Node<T extends Query = any, Type extends string = any> = {
   readonly props: T extends Query<infer Props> ? Props : never
 }
 
+export const createQueryContext = (
+  query: Query | QueryInternal,
+  init?: Omit<Partial<Query.Context>, 'query'>
+): Query.Context => ({
+  query: query as any,
+  values: init?.values || [],
+  resolvers: init?.resolvers || [],
+  mutators: init?.mutators || [],
+  idents: init?.idents || new Set(),
+})
+
 /** Render a SQL string. */
 export function renderQuery(ctx: Query.Context): string {
   const tokens = tokenizeQuery(ctx)

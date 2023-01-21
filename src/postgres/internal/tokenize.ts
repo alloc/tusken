@@ -3,7 +3,7 @@ import { isObject } from '../../utils/isObject'
 import { toArray } from '../../utils/toArray'
 import { Check } from '../check'
 import type { Expression } from '../expression'
-import { JoinProps } from '../props/join'
+import { JoinRef } from '../join'
 import { SetProps } from '../props/set'
 import { Query } from '../query'
 import type { SortExpression, SortSelection } from '../query/orderBy'
@@ -223,28 +223,41 @@ export function tokenizeLogicalAnd(
   }
 }
 
-export function tokenizeSelected(
+export function tokenizeSelectables(
   selections: Selectable[],
   ctx: Query.Context
 ): Token | TokenArray {
   return selections.every(isTableRef)
     ? '*'
     : {
-        list: selections.map(selection => {
-          if (isTableRef(selection)) {
-            return {
-              id: [selection[kTableName], '*'],
-            }
-          }
-          if (isSelection(selection)) {
-            return tokenizeSelectedColumns(selection, ctx)
-          }
-          if (isTableCast<any>(selection)) {
-            return tokenizeTableCast(selection, ctx)
-          }
-          return tokenizeExpression(selection, ctx)
-        }),
+        list: selections.map(s => tokenizeSelectable(s, ctx)),
       }
+}
+
+function tokenizeSelectable(
+  selection: Selectable,
+  ctx: Query.Context
+): Token | TokenArray {
+  if (isTableRef(selection)) {
+    return {
+      id: [selection[kTableName], '*'],
+    }
+  }
+  if (isSelection(selection)) {
+    return tokenizeSelectedColumns(selection, ctx)
+  }
+  if (isTableCast<any>(selection)) {
+    return tokenizeTableCast(selection, ctx)
+  }
+  if (selection instanceof JoinRef) {
+    ctx.currentJoin = selection
+    try {
+      return tokenizeSelectable(selection.from, ctx)
+    } finally {
+      ctx.currentJoin = undefined
+    }
+  }
+  return tokenizeExpression(selection, ctx)
 }
 
 export function tokenizeWhere(
@@ -306,8 +319,12 @@ export function tokenizeTableCast(
   let args: TokenArray
   if (selected) {
     ctx.inTuple = true
+    if (from instanceof JoinRef) {
+      ctx.currentJoin = from
+    }
     args = [{ tuple: tokenizeColumnList(selected, ctx) }]
     ctx.inTuple = false
+    ctx.currentJoin = undefined
   } else {
     args = [{ id: tableName }]
   }
@@ -315,13 +332,14 @@ export function tokenizeTableCast(
   return [{ callee: 'array_agg', args }, { id: alias ?? tableName }]
 }
 
-export function tokenizeInnerJoin(join: JoinProps, ctx: Query.Context) {
-  return [
-    'INNER JOIN',
-    { id: toTableName(join.from) },
-    'ON',
-    tokenizeExpression(join.where, ctx),
-  ]
+export function tokenizeInnerJoin(join: JoinRef, ctx: Query.Context) {
+  const tableName = toTableName(join.from)
+  const tokens: TokenArray = ['INNER JOIN', { id: tableName }]
+  if (join.alias != null && join.alias != tableName) {
+    tokens.push('AS', { id: join.alias })
+  }
+  tokens.push('ON', tokenizeExpression(join.where, ctx))
+  return tokens
 }
 
 export function wrapInParens(token: Token) {

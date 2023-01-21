@@ -32,7 +32,7 @@ interface Props<T extends Selectable, PK extends ForeignKeyRef<T>> {
 
 export class TableCast<
   T extends Selectable = any,
-  PK extends ForeignKeyRef<T> = any
+  PK extends ForeignKeyRef<T> = ForeignKeyRef<any>
 > {
   protected [kTableCast]: Props<T, PK>
   constructor(pk: PK, from: T) {

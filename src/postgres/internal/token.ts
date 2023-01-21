@@ -1,6 +1,6 @@
 import { Exclusive } from '@alloc/types'
 import type { Query } from '../query'
-import { renderQuery } from './query'
+import { createQueryContext, renderQuery } from './query'
 import { tokenize } from './tokenize'
 
 /** Coerce into a string, buffer, or null */
@@ -91,12 +91,11 @@ function renderToken(token: Token, ctx: Query.Context): string {
     : 'number' in token
     ? toNumber(token.number)
     : token.query
-    ? `(${renderQuery({
-        query: token.query as any,
-        values: ctx.values,
-        resolvers: [],
-        mutators: [],
-      })})`
+    ? `(${renderQuery(
+        createQueryContext(token.query, {
+          values: ctx.values,
+        })
+      )})`
     : token.array
     ? `'${renderArrayLiteral(token.array, ctx)}'`
     : renderList(token, ctx)

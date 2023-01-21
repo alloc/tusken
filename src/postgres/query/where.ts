@@ -5,7 +5,7 @@ import { reduceChecks } from '../check'
 import { ColumnRef, ColumnType, makeColumnRef } from '../column'
 import { Expression } from '../expression'
 import { CallExpression } from '../function'
-import { JoinProps } from '../props/join'
+import { JoinRef } from '../join'
 import { Selectable, Selection } from '../selection'
 import { getSetAlias, SetRef } from '../set'
 import { kIdentityColumns, kTableName } from '../symbols'
@@ -42,7 +42,7 @@ export function wherePrimaryKeyEquals(
 export function buildWhereClause<From extends Selectable[]>(
   props: {
     from: Selectable
-    joins?: JoinProps[]
+    joins?: JoinRef[]
   },
   filter: Where<From>,
   where?: Expression<t.bool | t.null>

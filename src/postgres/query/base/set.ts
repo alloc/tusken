@@ -1,4 +1,4 @@
-import { renderQuery } from '../../internal/query'
+import { createQueryContext, renderQuery } from '../../internal/query'
 import { SetProps } from '../../props/set'
 import { Query } from '../../query'
 import type { Selectable, SelectionSource } from '../../selection'
@@ -43,12 +43,7 @@ export abstract class SetBase<
   }
 
   stream(config?: QueryStreamConfig) {
-    const ctx: Query.Context = {
-      query: this as any,
-      values: [],
-      resolvers: [],
-      mutators: [],
-    }
+    const ctx = createQueryContext(this)
 
     // TODO: apply mutators to stream
     const query = renderQuery(ctx)

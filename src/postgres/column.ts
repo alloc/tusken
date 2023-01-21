@@ -74,7 +74,7 @@ export abstract class ColumnRef<
       tokenizeColumn(
         this[kColumnName],
         // Omit the table name if no joins exist.
-        !!ctx.joins && toTableName(this[kColumnFrom])
+        !!ctx.joins && toTableName(this[kColumnFrom], ctx)
       ),
     ])
     this[kColumnFrom] = from

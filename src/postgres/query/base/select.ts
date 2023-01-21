@@ -7,12 +7,12 @@ import {
   tokenizeColumn,
   tokenizeExpression,
   tokenizeInnerJoin,
-  tokenizeSelected,
+  tokenizeSelectables,
   tokenizeSetProps,
   tokenizeWhere,
 } from '../../internal/tokenize'
 import { getTupleParser } from '../../internal/tuple'
-import { JoinProps } from '../../props/join'
+import { JoinRef } from '../../join'
 import { SelectProps } from '../../props/select'
 import { Query } from '../../query'
 import {
@@ -33,7 +33,7 @@ import {
   kTableColumns,
   kTableName,
 } from '../../symbols'
-import { toTableName, toTableRef } from '../../table'
+import { TableRef, toTableName, toTableRef } from '../../table'
 import { TableCast } from '../../tableCast'
 import { RuntimeType } from '../../type'
 import {
@@ -67,15 +67,27 @@ export abstract class SelectBase<From extends Selectable[]> //
     if (props.single) {
       ctx.single = true
     }
+
+    const mainTable = toTableRef(props.from)!
+    // Join aliases must not conflict.
+    ctx.idents.add(mainTable[kTableName])
+    // Columns can be referenced without a table prefix, so we should
+    // avoid using the same name for a table alias.
+    for (const column in mainTable[kTableColumns]) {
+      ctx.idents.add(column)
+    }
+
     const joins = props.joins ? [...props.joins] : []
     const selected = [props.from].concat(joins.map(join => join.from))
     const tableCasts = findTableCasts(props.from, joins, ctx)
+
     if (joins.length) {
       ctx.joins = joins
     }
+
     const tokens: TokenArray = [
       'SELECT',
-      tokenizeSelected(selected, ctx),
+      tokenizeSelectables(selected, ctx),
       'FROM',
       { id: toTableName(props.from) },
     ]
@@ -120,7 +132,7 @@ export abstract class SelectBase<From extends Selectable[]> //
     on: Where<[...From, Joined]>
   ): any {
     const self = this.clone()
-    const join = { type: 'inner', from } as JoinProps
+    const join = new JoinRef('inner', from, null!)
     self.props.joins ||= []
     self.props.joins.push(join)
     join.where = buildWhereClause(self.props, on)
@@ -151,7 +163,7 @@ function toSelectionSource(s: Selectable) {
 
 function findTableCasts(
   from: Selectable,
-  joins: JoinProps[],
+  joins: JoinRef[],
   ctx: Query.Context
 ): TableCast[] {
   const tableCasts: TableCast[] = []
@@ -196,13 +208,18 @@ function findTableCasts(
           row[key] = isArray ? objects : objects[0]
         })
 
-        const pkColumn = makeColumnRef(table, table[kIdentityColumns])
-        joins.push({
-          type: 'inner',
-          from: toTableRef(arg),
-          where: pkColumn.is.eq(pk),
-        })
+        const join = new JoinRef('inner', toTableRef(arg), null!, alias)
+
+        // Ensure the join alias is used by tokenizeTableCast.
+        arg[kTableCast].from = join
+
+        const pkColumn = makeColumnRef(join, table[kIdentityColumns])
+        join.where = pkColumn.is.eq(pk)
+
+        joins.push(join)
         tableCasts.push(arg)
+
+        // Search for nested table casts.
         selected?.forEach(sel => descend(sel))
       } else if (isObject(arg)) {
         for (const key in arg) {
@@ -210,7 +227,23 @@ function findTableCasts(
         }
       }
     }
+
+    // Collect every table cast in the selection.
     selected.forEach(sel => descend(sel))
+
+    // Ensure the join aliases are unique.
+    for (const join of joins) {
+      let alias: string
+      const rawAlias = (alias =
+        join.alias ?? (join.from as TableRef)[kTableName])
+      for (let i = 2; ctx.idents.has(alias); i++) {
+        alias = `${rawAlias}_${i}`
+      }
+      if (alias != rawAlias) {
+        join.alias = alias
+      }
+      ctx.idents.add(alias)
+    }
   }
   return tableCasts
 }

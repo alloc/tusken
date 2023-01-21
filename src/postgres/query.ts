@@ -1,12 +1,13 @@
 import type { Database } from './database'
 import {
+  createQueryContext,
   Node,
   QueryInternal,
   renderQuery,
   tokenizeQuery,
 } from './internal/query'
 import { renderTokens, Token, TokenArray } from './internal/token'
-import { JoinProps } from './props/join'
+import { JoinRef } from './join'
 
 export type QueryPromise<T = any> = Query & PromiseLike<T>
 
@@ -114,12 +115,7 @@ export abstract class Query<Props extends object | null = any> {
 // interface will not be awaitable, thus avoiding incomplete queries.
 Object.defineProperty(Query.prototype, 'then', {
   value: function then(this: Query, onfulfilled?: any, onrejected?: any) {
-    const ctx: Query.Context = {
-      query: this as any,
-      values: [],
-      resolvers: [],
-      mutators: [],
-    }
+    const ctx = createQueryContext(this)
 
     const execute = (sql: string): Promise<any> =>
       client
@@ -179,6 +175,11 @@ export namespace Query {
   export interface Context {
     query: QueryInternal
     /**
+     * The identifiers that represent something in this query.
+     * This is used to prevent naming conflicts.
+     */
+    idents: Set<string>
+    /**
      * When true, the query should never be sent to a read-only replica.
      */
     impure?: boolean
@@ -196,7 +197,8 @@ export namespace Query {
     /**
      * Exists when there are joins.
      */
-    joins?: JoinProps[]
+    joins?: JoinRef[]
+    currentJoin?: JoinRef
     /**
      * Equals true when the query promise should resolve
      * with a single result, even if multiple rows are returned
@@ -214,8 +216,8 @@ export namespace Query {
 }
 
 /** Inspect the context, tokens, and SQL of a query */
-export function inspectQuery(query: any) {
-  const ctx: Query.Context = { query, values: [], resolvers: [], mutators: [] }
+export function inspectQuery(query: Query) {
+  const ctx = createQueryContext(query)
   const tokens = tokenizeQuery(ctx)
   const rendered = renderTokens(tokens, ctx)
   return {
