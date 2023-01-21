@@ -80,11 +80,16 @@ describe('table selection', () => {
 test('table casting', async () => {
   const selection = t.user(u => {
     const featureFlags = t.featureFlag(u.featureFlags)
-    return [
-      u.id,
-      u.name, //
-      featureFlags,
-    ]
+    assert(
+      _ as ResolveSelection<typeof featureFlags>,
+      _ as {
+        featureFlags: {
+          id: t.int4
+          enabled: t.NULL | t.bool
+        }[]
+      }
+    )
+    return [u.id, u.name, featureFlags]
   })
 
   const query = db.select(selection)
@@ -99,6 +104,14 @@ test('table casting', async () => {
 
   const results = await query
   assert(results, _ as Result[])
+  assert(
+    results,
+    _ as {
+      id: number
+      name: string
+      featureFlags: { id: number; enabled: boolean | null }[]
+    }[]
+  )
 })
 
 test('orderBy with unselected column', () => {

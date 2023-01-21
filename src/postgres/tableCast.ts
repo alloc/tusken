@@ -1,3 +1,4 @@
+import { Any } from '@alloc/types'
 import { toArray } from '../utils/toArray'
 import { array } from './array'
 import { ColumnRef } from './column'
@@ -20,9 +21,9 @@ type TableKeyType<T extends Selectable> = [
   : never
 
 /** Can reference one or multiple foreign keys */
-export type ForeignKeyRef<T extends Selectable> = ColumnRef<
-  TableKeyType<T> | array<TableKeyType<T>>
->
+export type ForeignKeyRef<T extends Selectable> = [T] extends [Any]
+  ? ColumnRef
+  : ColumnRef<TableKeyType<T> | array<TableKeyType<T>>>
 
 interface Props<T extends Selectable, PK extends ForeignKeyRef<T>> {
   pk: PK
