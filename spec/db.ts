@@ -42,10 +42,10 @@ afterEach(() => {
 
 expect.addSnapshotSerializer({
   test: val => val instanceof Query,
-  print: val => inspectQuery(val).sql,
+  print: val => inspectQuery(val as Query).sql,
 })
 
 expect.addSnapshotSerializer({
   test: val => Array.isArray(val) && val.length == 1 && val[0] instanceof Query,
-  print: (val, print) => print(inspectQuery(val).tokens),
+  print: (val, print) => print(inspectQuery((val as [Query])[0]).tokens),
 })
