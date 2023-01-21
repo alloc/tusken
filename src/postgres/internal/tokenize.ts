@@ -313,7 +313,7 @@ export function tokenizeTableCast(
   ctx: Query.Context,
   alias?: string | null
 ) {
-  const { pk, from, selected } = cast[kTableCast]
+  const { pk, from, selected, distinct } = cast[kTableCast]
   const tableName = toTableName(from)
   alias ??= isObject(pk) && isColumnRef(pk) ? pk[kColumnName] : null
 
@@ -328,6 +328,13 @@ export function tokenizeTableCast(
     ctx.currentJoin = undefined
   } else {
     args = [{ id: tableName }]
+  }
+  if (distinct) {
+    args = [
+      {
+        concat: ['DISTINCT ', { list: args }],
+      },
+    ]
   }
 
   const table = toTableRef(from)!

@@ -30,6 +30,7 @@ interface Props<T extends Selectable, PK extends ForeignKeyRef<T>> {
   pk: PK
   from: T
   selected?: RawColumnSelection[]
+  distinct?: boolean
 }
 
 export class TableCast<
@@ -47,5 +48,10 @@ export class TableCast<
         ? (toArray(from[kSelectionArgs]) as RawColumnSelection[])
         : undefined,
     }
+  }
+
+  distinct(flag?: boolean) {
+    this[kTableCast].distinct = flag != false
+    return this
   }
 }
