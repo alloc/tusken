@@ -2,6 +2,7 @@ import './postgres/expression'
 
 export * from './config/defineConfig'
 export * from './definePlugin'
+export * from './postgres/check'
 export * from './postgres/column'
 export * from './postgres/connection'
 export * from './postgres/database'
