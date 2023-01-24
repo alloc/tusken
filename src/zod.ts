@@ -29,9 +29,12 @@ export type ZodTableColumn<T> = T extends z.ZodRecord<infer Key>
   : T extends z.ZodObject<Record<string, any>>
   ? ReturnType<T['keyof']>
   : T extends z.ZodUnion<infer U>
-  ? z.ZodUnion<{ [P in keyof U]: ZodTableColumn<U[P]> }>
+  ? z.ZodUnion<{
+      [P in keyof U]: U[P] extends z.ZodObject<Record<string, any>>
+        ? ReturnType<U[P]['keyof']>
+        : never
+    }>
   : never
-
 
 export type ZodWhereClause<T extends ZodTable> = z.ZodUnion<
   [
