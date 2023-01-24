@@ -35,6 +35,11 @@
       "import": "./dist/constants.mjs",
       "default": "./dist/constants.js"
     },
+    "./zod": {
+      "types": "./dist/zod.d.ts",
+      "import": "./dist/zod.mjs",
+      "default": "./dist/zod.js"
+    },
     "./dotenv": {
       "types": "./dist/dotenv.d.ts",
       "import": "./dist/dotenv.mjs",

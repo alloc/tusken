@@ -6,6 +6,7 @@ export default defineConfig({
     './config/index.ts',
     './constants.ts',
     './dotenv.ts',
+    './zod.ts',
     './postgres/array.ts',
     './plugins/*/**/*.ts',
   ],
