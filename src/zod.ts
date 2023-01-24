@@ -11,7 +11,9 @@ const jsonPrimitive = /*#__PURE__*/ z.union([
 
 export type Json = JsonPrimitive | { [key: string]: Json } | Json[]
 
-export const json: z.ZodType<Json> = /*#__PURE__*/ z.lazy(() =>
+export type ZodJson = z.ZodType<Json>
+
+export const json: ZodJson = /*#__PURE__*/ z.lazy(() =>
   z.union([jsonPrimitive, z.array(json), z.record(json)])
 )
 
