@@ -289,16 +289,56 @@ export async function generateTypeSchema(
           z.union([jsonPrimitive, z.array(json), z.record(json)])
         )
 
-        export const comparator = ${__PURE__} z.enum(['eq', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'in', 'between'])
+        export const rangeOperator = ${__PURE__} z.enum(['eq', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'in', 'between'])
+
+        export const logicOperator = ${__PURE__} z.enum(['and', 'or', 'nand', 'nor', 'xor'])
+
+        type ZodTable =
+          | z.ZodRecord
+          | z.ZodObject<Record<string, any>>
+          | z.ZodUnion<
+              [z.ZodObject<Record<string, any>>, ...z.ZodObject<Record<string, any>>[]]
+            >
+
+        type ZodTableColumn<T> = T extends z.ZodRecord<infer Key>
+          ? Key
+          : T extends z.ZodObject<infer Props>
+          ? z.ZodUnion<[z.ZodEnum<[string & keyof Props]>]>
+          : T extends z.ZodUnion<infer U>
+          ? z.ZodUnion<{ [P in keyof U]: ZodTableColumn<U[P]> }>
+          : never
+
+        export type ZodWhereClause<T extends ZodTable> = z.ZodUnion<
+          [
+            z.ZodTuple<[ZodTableColumn<T>, typeof rangeOperator, z.ZodAny]>,
+            z.ZodTuple<
+              [ZodTableColumn<T>, z.ZodLiteral<'not'>, typeof rangeOperator, any]
+            >,
+            z.ZodTuple<[ZodWhereClause<T>, typeof logicOperator, ZodWhereClause<T>]>
+          ]
+        >
+
+        export const tableColumn = <T extends ZodTable>(table: T): ZodTableColumn<T> =>
+          table instanceof z.ZodRecord
+            ? (table.keySchema as any)
+            : table instanceof z.ZodObject
+            ? table.keyof()
+            : z.union(table.options.map(tableColumn) as any)
 
         /** Postgres WHERE clause in serializable form. */
-        export const where = (key = z.string()) => z.lazy(() => {
-          return z.union([
-            z.tuple([key, comparator, z.any()]),
-            z.tuple([key, z.literal('not'), comparator, z.any()]),
-            z.tuple([where, z.enum(['and', 'or', 'nand', 'nor', 'xor']), where]),
-          ])
-        })
+        export const where = <T extends ZodTable = z.ZodRecord<z.ZodString, z.ZodAny>>(
+          table = z.record(z.any()) as unknown as T
+        ): ZodWhereClause<T> => {
+          const self: any = z.lazy(() => {
+            const column = tableColumn(table)
+            return z.union([
+              z.tuple([column, rangeOperator, z.any()]),
+              z.tuple([column, z.literal('not'), rangeOperator, z.any()]),
+              z.tuple([self, logicOperator, self]),
+            ])
+          })
+          return self
+        }
 
         ${zodTypes.join('\n\n')}
       `,
