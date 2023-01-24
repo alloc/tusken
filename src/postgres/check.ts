@@ -48,6 +48,22 @@ export class CheckList<T extends t.bool | t.null = any> //
     props.check = new Check(props.check, 'OR', reduceChecks(right))
     return this
   }
+
+  xor(right: RecursiveVariadic<Expression<t.bool>>): this
+  xor(
+    right: RecursiveVariadic<Expression<t.bool | t.null>>
+  ): CheckList<t.bool | t.null>
+  xor(right: any): any {
+    const { props } = this
+    const left = props.check
+    right = reduceChecks(right)
+    props.check = new Check(
+      new Check(left, 'AND', right, true),
+      'OR',
+      new Check(right, 'AND', left, true)
+    )
+    return this
+  }
 }
 
 export function reduceChecks<T extends t.bool | t.null>(

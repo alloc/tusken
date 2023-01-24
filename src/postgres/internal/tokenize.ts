@@ -146,6 +146,8 @@ const negatedChecks: Record<string, string> = {
   '<': '>=',
   '<=': '>',
   IS: 'IS NOT',
+  AND: 'AND NOT',
+  OR: 'OR NOT',
 }
 
 export function tokenizeCheck(
