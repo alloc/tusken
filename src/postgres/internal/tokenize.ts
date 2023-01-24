@@ -159,10 +159,16 @@ export function tokenizeCheck(
   left = callProp(left)
   right = callProp(right)
 
+  if (op == 'NOT') {
+    tokens.push(op)
+  }
   if (left instanceof Check) {
     tokens.push(tokenizeCheck(left, ctx))
   } else {
     tokens.push(tokenize(left, ctx))
+  }
+  if (op == 'NOT') {
+    return tokens
   }
 
   const type =

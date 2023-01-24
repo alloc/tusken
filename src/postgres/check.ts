@@ -49,6 +49,26 @@ export class CheckList<T extends t.bool | t.null = any> //
     return this
   }
 
+  nand(right: RecursiveVariadic<Expression<t.bool>>): this
+  nand(
+    right: RecursiveVariadic<Expression<t.bool | t.null>>
+  ): CheckList<t.bool | t.null>
+  nand(right: any): any {
+    const { props } = this.and(right)
+    props.check = new Check(props.check, 'NOT')
+    return this
+  }
+
+  nor(right: RecursiveVariadic<Expression<t.bool>>): this
+  nor(
+    right: RecursiveVariadic<Expression<t.bool | t.null>>
+  ): CheckList<t.bool | t.null>
+  nor(right: any): any {
+    const { props } = this.or(right)
+    props.check = new Check(props.check, 'NOT')
+    return this
+  }
+
   xor(right: RecursiveVariadic<Expression<t.bool>>): this
   xor(
     right: RecursiveVariadic<Expression<t.bool | t.null>>
@@ -88,7 +108,7 @@ export class Check {
   constructor(
     readonly left: unknown,
     readonly op: string,
-    readonly right: unknown,
+    readonly right?: unknown,
     readonly isNot?: boolean
   ) {}
 }
