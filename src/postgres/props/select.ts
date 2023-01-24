@@ -8,6 +8,6 @@ import type { SetProps } from './set'
 export interface SelectProps extends SetProps {
   from: Selectable
   joins?: JoinRef[]
-  where?: Expression<t.bool | t.null>
+  where?: Expression<t.bool | t.null> | null
   groupBy?: ColumnRef[]
 }

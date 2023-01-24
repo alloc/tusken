@@ -45,7 +45,7 @@ export function buildWhereClause<From extends Selectable[]>(
     joins?: JoinRef[]
   },
   filter: Where<From>,
-  where?: Expression<t.bool | t.null>
+  where?: Expression<t.bool | t.null> | null
 ) {
   const joined = props.joins?.map(join => join.from)
   const sources = [props.from].concat(joined || [])
@@ -71,11 +71,11 @@ export function buildWhereClause<From extends Selectable[]>(
 
 export type FindWhere<From extends Selectable> = (
   ref: WhereRef<From>
-) => RecursiveVariadic<Expression<t.bool | t.null>>
+) => RecursiveVariadic<Expression<t.bool | t.null> | false | null>
 
 export type Where<From extends Selectable[]> = (
   refs: WhereRefs<From>
-) => RecursiveVariadic<Expression<t.bool | t.null>>
+) => RecursiveVariadic<Expression<t.bool | t.null> | false | null>
 
 export type WhereRefs<From extends Selectable[]> = [From] extends [Any]
   ? Record<string, any>

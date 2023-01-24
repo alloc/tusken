@@ -9,7 +9,7 @@ import { buildWhereClause, Where } from './where'
 
 type Props = {
   from: TableRef
-  where?: Expression<t.bool | t.null>
+  where?: Expression<t.bool | t.null> | null
 }
 
 export class Delete<From extends TableRef = any> extends Query<Props> {

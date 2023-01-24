@@ -135,7 +135,7 @@ export abstract class SelectBase<From extends Selectable[]> //
     const join = new JoinRef('inner', from, null!)
     self.props.joins ||= []
     self.props.joins.push(join)
-    join.where = buildWhereClause(self.props, on)
+    join.where = buildWhereClause(self.props, on)!
     return self
   }
 }

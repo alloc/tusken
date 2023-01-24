@@ -51,9 +51,13 @@ export class CheckList<T extends t.bool | t.null = any> //
 }
 
 export function reduceChecks<T extends t.bool | t.null>(
-  checks: RecursiveVariadic<Expression<T>>
-): Expression<T> {
-  return isArray(checks) ? new CheckList(checks.map(reduceChecks)) : checks
+  checks: RecursiveVariadic<Expression<T> | false | null>
+): Expression<T> | null {
+  if (isArray(checks)) {
+    const reduced = checks.map(reduceChecks).filter(Boolean) as Expression<T>[]
+    return reduced ? new CheckList(reduced) : null
+  }
+  return checks || null
 }
 
 function tokenizeCheckList({ check }: Props, ctx: Query.Context) {
