@@ -289,6 +289,17 @@ export async function generateTypeSchema(
           z.union([jsonPrimitive, z.array(json), z.record(json)])
         )
 
+        export const comparator = ${__PURE__} z.enum(['eq', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'in', 'between'])
+
+        /** Postgres WHERE clause in serializable form. */
+        export const where = (key = z.string()) => z.lazy(() => {
+          return z.union([
+            z.tuple([key, comparator, z.any()]),
+            z.tuple([key, z.literal('not'), comparator, z.any()]),
+            z.tuple([where, z.enum(['and', 'or', 'nand', 'nor', 'xor']), where]),
+          ])
+        })
+
         ${zodTypes.join('\n\n')}
       `,
     })
