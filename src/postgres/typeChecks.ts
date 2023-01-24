@@ -73,7 +73,7 @@ export function isArrayExpression(val: object): val is Expression {
 }
 
 export function isArrayType(val: object): val is RuntimeType {
-  return kTypeId in val && (val as RuntimeType).name.endsWith('[]')
+  return kTypeId in val && (val as unknown as RuntimeType).name.endsWith('[]')
 }
 
 // TODO: use symbol checking instead of duck typing
